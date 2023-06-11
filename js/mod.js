@@ -13,8 +13,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.3",
-	name: "PAIN NEVER ENDS",
+	num: "0.4",
+	name: "Inflation Strikes Back",
 }
 
 let changelog = `psssst hey<br>
@@ -22,9 +22,13 @@ let changelog = `psssst hey<br>
 	0.x.0 = available ng-x mode<br>
 	0.0.x = bugfixes and shticks<br><br><br>
 	<h1>Changelog:</h1><br>
-	<h3>v0.3: PAIN NEVER ENDS</h3><br>
-		- Added things.<br>
-		- Added stuff.`
+	<h3>v0.4: Inflation Strikes Back (v0.2)</h3><br>
+		- Added 3 available layers.<br>
+		- Fixed kilo prestige's hotkey typo and some hotkeys popping out way earlier than intended<br>
+		- Pushed Endgame up to NG----.<br>
+	<h3>v0.3: PAIN NEVER ENDS (v0.1)</h3><br>
+		- Added about 9-10 available layers.<br>
+		- What else do you expect.`
 
 let winText = `Phew... That's quite a mouthful title to end this mod with. Yikes indeed, but for now...`
 
@@ -39,7 +43,7 @@ function getStartPoints(){
 // Determines if it should show points/sec
 function canGenPoints(){
 	let baller = true
-	if(player.ab.points.gte(4)) baller = false
+	if(player.ab.points.gte(5)) baller = false
 	return baller
 }
 
@@ -51,9 +55,15 @@ function getBypassedPointGen() {
 	let mult = new Decimal(1).add(upgradeRow("kp", "2", true)).add(upgradeRow("mp", "2", true)).add(upgradeRow("gp", "2", true))
 	let exp = new Decimal(1).add(upgradeRow("mp", "3", true)).add(upgradeRow("gp", "3", true))
 	let tetra = new Decimal(upgradeRow("gp", "4", true)).div(100).add(1)
+	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
-	gain = gain.times(mult).pow(exp).tetrate(tetra).times(tmp.b.effect).times(tmp.kb.effect).times(tmp.mb.effect).times(tmp.pb.effect)
+	if(player.ab.points.gte(4)) gain = gain.div(4)
+	gain = gain.times(mult).pow(exp).tetrate(tetra).times(tmp.b.effect).times(tmp.kb.effect).times(tmp.mb.effect).times(tmp.gb.effect).times(tmp.pb.effect)
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
+	if(gain.gte("1e10000")) gain = gain.div(gain.div("1e10000").root(2))
+	if(gain.gte("1e20000")) gain = gain.div(gain.div("1e20000").root(1.5))
+	if(gain.gte("1e30000")) gain = gain.div(gain.div("1e30000").root(1.25))
+	if(gain.gte("1e40000")) gain = gain.div(gain.div("1e40000").root(2))
 	return gain
 }
 
@@ -78,9 +88,15 @@ function getPointGen() {
 	let mult = new Decimal(1).add(upgradeRow("kp", "2", true)).add(upgradeRow("mp", "2", true)).add(upgradeRow("gp", "2", true))
 	let exp = new Decimal(1).add(upgradeRow("mp", "3", true)).add(upgradeRow("gp", "3", true))
 	let tetra = new Decimal(upgradeRow("gp", "4", true)).div(100).add(1)
+	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
-	gain = gain.times(mult).pow(exp).tetrate(tetra).times(tmp.b.effect).times(tmp.kb.effect).times(tmp.mb.effect).times(tmp.pb.effect)
+	if(player.ab.points.gte(4)) gain = gain.div(4)
+	gain = gain.times(mult).pow(exp).tetrate(tetra).times(tmp.b.effect).times(tmp.kb.effect).times(tmp.mb.effect).times(tmp.gb.effect).times(tmp.pb.effect)
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
+	if(gain.gte("1e10000")) gain = gain.div(gain.div("1e10000").root(2))
+	if(gain.gte("1e20000")) gain = gain.div(gain.div("1e20000").root(1.5))
+	if(gain.gte("1e30000")) gain = gain.div(gain.div("1e30000").root(1.25))
+	if(gain.gte("1e40000")) gain = gain.div(gain.div("1e40000").root(2))
 	return gain
 }
 
@@ -119,7 +135,7 @@ var displayThings = [
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.ab.points.gte(4)
+	return player.ab.points.gte(5)
 }
 
 
@@ -140,21 +156,3 @@ function maxTickLength() {
 // you can cap their current resources with this.
 function fixOldSave(oldVersion){
 }
-
-//Hidden 2 AB Guide :flushed:
-//1. 0011: 9330
-//2. 0101: 8582
-//3. 1010: 4468
-//4. 1100: 4162 (Intended Way)
-//5. 1001: 3817
-//6. 0110: 9572
-
-//Hidden 3 AB Guide :flushed:
-//1. 1011: 1.08e57+
-//2. 1101: 4.75e49+
-//3. 1110: 3.03e29
-//4. 0200: 1.26e27 (Intended Way)
-//5. 2000: 3.16e26
-//6. 0111: NO PRESTIGE POINTS?
-//7. 0020: NO PRESTIGE POINTS?
-//8. 0002: NO PRESTIGE POINTS?
