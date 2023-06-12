@@ -13,21 +13,26 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.4",
-	name: "Inflation Strikes Back",
+	num: "0.4.1",
+	name: "Mobile QoL",
 }
 
 let changelog = `psssst hey<br>
 	x.0.0 = finished major content<br>
 	0.x.0 = available ng-x mode<br>
 	0.0.x = bugfixes and shticks<br><br><br>
-	<h1>Changelog:</h1><br>
+	<h1>Changelog:</h1><br><br>
+	<h4>v0.4.1: Mobile QoL (v0.2.1)</h4>
+		- Fixed some typos and minor tweaks<br>
+		- Made it possible to obtain all achievements no matter what you do<br>
+		- Added clickables to make this mod 10x less sufferable for mobile players<br><br>
 	<h3>v0.4: Inflation Strikes Back (v0.2)</h3><br>
 		- Added 3 available layers.<br>
 		- Fixed kilo prestige's hotkey typo and some hotkeys popping out way earlier than intended<br>
-		- Pushed Endgame up to NG----.<br>
+		- Pushed Endgame up to NG----<br><br>
 	<h3>v0.3: PAIN NEVER ENDS (v0.1)</h3><br>
 		- Added about 9-10 available layers.<br>
+		- Ends at NG---<br>
 		- What else do you expect.`
 
 let winText = `Phew... That's quite a mouthful title to end this mod with. Yikes indeed, but for now...`

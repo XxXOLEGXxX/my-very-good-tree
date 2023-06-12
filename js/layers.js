@@ -541,7 +541,7 @@ addLayer("ab", {
 				if(hasAchievement("a", 53)&&player.ab.points.lt(5)) goal = new Decimal(21)
 				return goal}, // Can be a function that takes requirement increases into account
     resource: "anti balancers", // Name of prestige currency
-    baseResource: "giga prestige points", // Name of resource prestige is based on
+    baseResource(){return (hasAchievement("a", 53)&&player.ab.points.lt(5)?"giga boosters":"giga prestige points")}, // Name of resource prestige is based on
     baseAmount() {return (hasAchievement("a", 53)&&player.ab.points.lt(5))?player.gb.points:player.gp.points}, // Get the current amount of baseResource
 	canReset() {return player.gp.points.gte(this.requires().times(2))},
     type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
@@ -560,7 +560,7 @@ addLayer("ab", {
 		if(player.ab.points.gte(2)) modInfo.name = "Oleg's Very Very Terrible Idea: The Tree"
 		if(player.ab.points.gte(3)) modInfo.name = "Oleg's Very Very Very Terrible Idea: The Tree"
 		if(player.ab.points.gte(4)) modInfo.name = "Oleg's Very Very Very Very Terrible Idea: The Tree"
-		if(player.ab.points.gte(5)) modInfo.name = "Oleg's Very Very Very Very Terrible Idea: The Tree"
+		if(player.ab.points.gte(5)) modInfo.name = "Oleg's Very Very Very Very Very Terrible Idea: The Tree"
 		if(player.ab.points.gte(3)&&player.points.gte(0)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(20))
 		player.ab.shopPoints = new Decimal(player.ab.points).sub(player.ab.spentPoints)
 		if(player.ab.points.gte(4)) tmp.ab.color = (new Decimal(Math.random()).gte(0.25))?"darkred":"purple"
@@ -644,6 +644,15 @@ addLayer("ab", {
 	branches: ["gp"],
     row: 5, // Row the layer is in on the tree (0 is the first row)        {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     layerShown(){return player.gp.upgrades.length >= 3 || hasAchievement("a", 14)},
+	milestones: {
+		0: {
+			requirementDescription: "Did you just beat NG-- without De Noido...?<h5>(you get NG-- achievements you missed)",
+			effectDescription: "",
+			done() { return player.ab.points.gte(3) && (!hasAchievement("a", 34) || !hasAchievement("a", 35)) },
+			onComplete() { if(!hasAchievement("a", 34)) player.a.achievements.push('34')
+						   if(!hasAchievement("a", 35)) player.a.achievements.push('35')}
+		}
+	},
 })
 
 addLayer("pb", {
@@ -942,7 +951,7 @@ addLayer("kbg", {
 
 addLayer("mpkb", {
     name: "mpkb", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "BP", // This appears on the layer's node. Default is the id with the first letter capitalized
+    symbol: "PB", // This appears on the layer's node. Default is the id with the first letter capitalized
     position: -1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: true,
@@ -1110,7 +1119,7 @@ addLayer("a", {
 		33: {
 			name(){return hasAchievement("a", 33)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>U mad mobile?<br><br>i didn't really mean that btw<br>。_。<h3/>":"Heaven's Gift"},
 			done(){return player.gp.points >= 200 && player.ab.points.gte(2)},
-			tooltip(){return hasAchievement("a", 33)?"Reach 200 mega prestige points.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: uhhhh de noido<h3/>":"Reach 200 mega prestige points."},
+			tooltip(){return hasAchievement("a", 33)?"Reach 200 giga prestige points.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: uhhhh de noido<h3/>":"Reach 200 giga prestige points."},
 			unlocked(){return hasAchievement("a", 31)},
 			style(){return {'background-color': (hasAchievement("a",this.id)?(player.ab.points.gte(4)?'#BF5F5F':'#77BF5F'):'#bf8f8f')}}
 		},
@@ -1118,7 +1127,7 @@ addLayer("a", {
 			name(){return "<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>This De Noido is pissing me off.<h3/>"},
 			done(){return player.dn.pogos.gte(1)},
 			tooltip(){return hasAchievement("a", 34)?"Reach 1 pogo.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+player.a.X+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: Let me create an upgrade, just for you.<h3/>":"Reach 1 pogo."},
-			unlocked(){return hasAchievement("a", 33)},
+			unlocked(){return hasAchievement("a", 33) ||hasAchievement("a", 34)},
 			style(){return {'background-color': (hasAchievement("a",this.id)?(player.ab.points.gte(4)?'#BF5F5F':'#77BF5F'):'#bf8f8f')}}
 		},
 		35: {
