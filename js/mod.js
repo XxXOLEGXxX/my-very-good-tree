@@ -24,6 +24,7 @@ let changelog = `psssst hey<br>
 	0.0.x = bugfixes and shticks<br><br><br>
 	<h1>Changelog:</h1><br><br>
 	<h3>v0.5.0: fuck you nose (v0.2.2)</h3><br>
+		- Changed this mod's ID so it wouldn't conflict with other "mymod" mods<br>
 		- Finished first two layers of NG-----<br>
 		- Rebalanced NG----'s late game by accident<br>
 		- Banished De Noido back to the Minecraft<br>
