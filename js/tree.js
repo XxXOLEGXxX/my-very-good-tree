@@ -17,7 +17,7 @@ addNode("blank", {
 
 
 addLayer("tree-tab", {
-    tabFormat: [["tree", function() {return (layoutInfo.treeLayout ? layoutInfo.treeLayout : TREE_LAYERS)}], "clickables"],
+tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)?"<h1 style='color: darkred; font-size: 2.8em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You may only choose one pair of layers.</h1>":getPointGen().gte(Decimal.pow(2, 1024))?"<h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log(Decimal.pow(2, 1024)).floor())+" scaling root softcaps</h2>":""}], "blank", ["clickables", [4]], ["tree", function() {return (layoutInfo.treeLayout ? layoutInfo.treeLayout : TREE_LAYERS)}], ["clickables", [5]], "blank", ["clickables", [1]], "blank", ["clickables", [2]], "blank", ["clickables", [3]], "blank", ["clickables", [7]]],
     previousTab: "",
     leftTab: true,
 	clickables: {
@@ -103,7 +103,7 @@ addLayer("tree-tab", {
         },
         31: {
             title: "De Noido reset",
-            unlocked() {return player.dn.unlocked && !player.dn.points.gte(1) && !hasAchievement("a", 41)},
+            unlocked() {return hasAchievement("a", 33) && !player.dn.points.gte(1) && !hasAchievement("a", 41)},
             canClick() {return true},
 			onClick()  {if (canReset("dn")) doReset("dn")},
             onHold() {if (canReset("dn")) doReset("dn")},
@@ -139,6 +139,62 @@ addLayer("tree-tab", {
             onHold() {if (canReset("kbg")) doReset("kbg")},
 			style: {"background-color"(){
                 return tmp.kbg.color
+            }},
+        },
+        41: {
+            title: "<h3>Nostalgia Choice",
+            unlocked() {return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)},
+            canClick() {return true},
+			onClick()  {player.ab.nostalgia = true
+						if(player.tab==('m')||player.tab==('n')||player.tab==('o'))player.tab = ''},
+			style: {'height':'0px', 'width':'225px'},
+        },
+        42: {
+            title: "<h3>Post-Irony Cho- please give me more time it ain't done yet",
+            unlocked() {return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)},
+            canClick() {return false},
+			onClick()  {player.ab.fuckyou = true
+						if(player.tab==('s')||player.tab==('t')||player.tab==('st'))player.tab = ''},
+			style: {'height':'0px', 'width':'225px', 'background-color':'gray'},
+        },
+        51: {
+            title: "Space reset",
+            unlocked() {return player.s.unlocked},
+            canClick() {return true},
+			onClick()  {if (canReset("s")) doReset("s")},
+            onHold() {if (canReset("s")) doReset("s")},
+			style: {"background-color"(){
+                return tmp.s.color
+            },"color": "white"},
+        },
+        52: {
+            title: "Time reset",
+            unlocked() {return player.t.unlocked},
+            canClick() {return true},
+			onClick()  {if (canReset("t")) doReset("t")},
+            onHold() {if (canReset("t")) doReset("t")},
+			style: {"background-color"(){
+                return tmp.t.color
+            }},
+        },
+        53: {
+            title: "Neverend reset",
+            unlocked() {return player.n.unlocked},
+            canClick() {return true},
+			onClick()  {if (canReset("n")) doReset("n")},
+            onHold() {if (canReset("n")) doReset("n")},
+			style: {"background-color"(){
+                return tmp.n.color
+            }},
+        },
+        54: {
+            title: "Mango reset",
+            unlocked() {return player.m.unlocked},
+            canClick() {return true},
+			onClick()  {if (canReset("m")) doReset("m")},
+            onHold() {if (canReset("m")) doReset("m")},
+			style: {"background-color"(){
+                return tmp.m.color
             }},
         },
         71: {

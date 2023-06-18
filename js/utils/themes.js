@@ -1,5 +1,5 @@
 // ************ Themes ************
-var themes = ["default", "aqua"]
+var themes = ["default", "aqua", "Oleg's theme", "Antimatter Dimensions"]
 
 var colors = {
 	default: {
@@ -22,6 +22,27 @@ var colors = {
 		background: "#001f3f",
 		background_tooltip: "rgba(0, 15, 31, 0.75)",
 	},
+	"Oleg's theme": {
+		1: "#ffffff",
+		2: "#bfbfbf",
+		3: "#7f7f7f",
+		color: "purple",
+		points: "#A9C5CE",
+		locked: "cyan",
+		background: "linear-gradient(#11070F, #2D1328)",
+		background_tooltip: "rgba(0, 15, 31, 0.75)",
+	},
+	"Antimatter Dimensions": {
+		1: "#ffffff",
+		2: "#bfbfbf",
+		3: "#7f7f7f",
+		color: "#E0E0E0",
+		points: "black",
+		locked: "cyan",
+		fontFamily: "lol",
+		background: "#FFFFFF",
+		background_tooltip: "rgba(0, 15, 31, 0.75)",
+	},
 }
 function changeTheme() {
 
@@ -38,13 +59,12 @@ function getThemeName() {
 
 function switchTheme() {
 	let index = themes.indexOf(options.theme)
-	if (options.theme === null || index >= themes.length-1 || index < 0) {
+	if (options.theme === null || index >= themes.length || index < 0) {
 		options.theme = themes[0];
 	}
 	else {
 		index ++;
 		options.theme = themes[index];
-		options.theme = themes[1];
 	}
 	changeTheme();
 	resizeCanvas();
