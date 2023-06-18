@@ -51,7 +51,7 @@ addLayer("p", {
 		},
 	},
 	doReset(resettingLayer){
-		if(tmp[resettingLayer].row >= 1) {
+		if(tmp[resettingLayer].row >= 4) {
 			player.p.points = new Decimal(0)
 			player.p.upgrades = []
 		}
@@ -296,7 +296,7 @@ addLayer("mp", {
 		},
 	},
 	doReset(resettingLayer){
-		if((!hasMilestone("mpkb", 0)&&tmp[resettingLayer].row>this.row) || tmp[resettingLayer].row>=4) {
+		if((!hasMilestone("mpkb", 0)&&tmp[resettingLayer].row>this.row) || tmp[resettingLayer].row>=7) {
 			player.mp.points = new Decimal(0)
 			player.mp.upgrades = []
 		}
