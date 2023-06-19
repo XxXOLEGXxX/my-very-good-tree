@@ -1343,8 +1343,8 @@ addLayer("a", {
 		1012: {
 			name(){return hasAchievement("a", 1012)?"a":"PATIENCE 2: ELECTRIC BOOGALOO"},
 			onComplete(){player.a.fame=player.a.fame.add(1)},
-			done(){return player.t.years.gte(1)&&(!tmp.st.unlocked&&!tmp.o.unlocked)},
-			tooltip: "Reach 1 year without Row 0 layers.<br>Reward: I am so proud of you. 4x point gain.",
+			done(){return (player.t.years.gte(1)||player.m.famed==true)&&(!tmp.st.unlocked&&!tmp.o.unlocked)},
+			tooltip(){return (player.ab.nostalgia?"Reach 1 year":player.ab.fuckyou?"Purchase mangoes at it's cheapest":"???")+" without Row 0 layers.<br>Reward: I am so proud of you. 4x point gain."},
 			style(){return {'background': (hasAchievement("a",this.id)?'repeating-linear-gradient(#FFDF00, #D4AF37, #FFDF00)':'#bf8f8f'), 'background-size': '40% 75%', 'background-position': '50% '+player.a.XG+'%'}}
 		},
 	},
@@ -1370,6 +1370,7 @@ addLayer("sdumsl", {
             canClick() {return true},
 			onClick()  {player.a.achievements = ['11', '12', '13', '14', '15']
 						player.ab.points = new Decimal(1)
+						player.n.framerule = new Decimal(0)
 						player.subtabs.a.mainTabs = 'Achievements'
 						player.subtabs.ab.mainTabs = 'MiaN sTUFF'
 						player.ab.unlocked = true
@@ -1532,7 +1533,7 @@ addLayer("s", {
         return mult
     },
 	update(diff){
-		if(player.s.buyables[12].gte(3)) tmp.s.shape = ["line", "square", "cube", "terrasect"][player.s.buyables[12].gte(3)?3:player.s.buyables[12]]
+		tmp.s.shape = ["line", "square", "cube", "terrasect"][player.s.buyables[12].gte(3)?3:player.s.buyables[12]]
 	},
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
@@ -1681,7 +1682,7 @@ addLayer("s", {
 	},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
-			player.points = new Decimal(17)
+			player.points = new Decimal(17.77)
 			player.ab.negativePoints = new Decimal(0)
 		}
 		if(tmp[resettingLayer].row > this.row){
@@ -1787,7 +1788,7 @@ addLayer("t", {
     layerShown(){return player.ab.points.gte(5) && !player.ab.fuckyou},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
-			player.points = new Decimal(17)
+			player.points = new Decimal(17.77)
 			player.ab.negativePoints = new Decimal(0)
 		}
 		if(tmp[resettingLayer].row > this.row){
@@ -1947,7 +1948,7 @@ addLayer("st", {
     layerShown(){return player.ab.points.gte(5) && !player.ab.fuckyou},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
-			player.points = new Decimal(17)
+			player.points = new Decimal(17.77)
 			player.ab.negativePoints = new Decimal(0)
 		}
 	}
@@ -1967,10 +1968,14 @@ addLayer("n", {
 		amount: new Decimal(0.05),
 		banked: new Decimal(0),
 		tax: new Decimal(3),
+		timeout: new Decimal(0),
+		bestday: new Decimal(0),
+		currentday: new Decimal(0)
     }},
     color: "#633695",
-    requires(){return new Decimal(1).add(Decimal.root(player.n.total, 2)).mul(Decimal.pow(1.1, player.n.total))}, // Can be a function that takes requirement increases into account
+    requires(){return new Decimal(1).add(Decimal.root(player.n.total, 2)).mul(Decimal.pow(1.1, player.n.total)).times((player.m.unlocked&&!player.n.unlocked)?1071:1)}, // Can be a function that takes requirement increases into account
 	totalEffect() {return player.n.total.add(1).root(2)},
+	bestDayEffect(){return Decimal.pow(new Decimal(1).div(100).mul(3).add(1), player.n.bestday)},
     resource: "symbols", // Name of prestige currency
     baseResource: "negative points", // Name of resource prestige is based on
 	tabFormat: {
@@ -1979,23 +1984,34 @@ addLayer("n", {
 			unlocked(){return hasUpgrade("n", 14)}
 		},
 		"Wario": {
-			content: [["display-text", function(){return "<h2>Now we're grooving!</h2><br><h1>THIS IS WARIO TIME!</h1><br><h3>YOU SURVIVED "+formatWhole(player.n.tax.div(3))+" DAYS, BOOSTING POINT GAIN BY "+format(player.n.tax.div(100).add(1))+"x</h3><br>You currently have "+format(player.n.coins)+" coins<br>Your next framerule will arrive in "+formatWhole(Decimal.sub(21, player.n.framerule))+" seconds, gaining 10% of banked coins.<br>Your current estimated frametax is "+format(player.n.tax.add(player.n.coins.add(player.n.banked.mul(0.1)).mul(0.22)))+" coins.<br>Your total net is "+format(player.n.banked.mul(0.1).sub(player.n.tax.add(player.n.coins.mul(0.22))))+" coins.<br>Good news: Income come first. However, be mindful of your coins as running out of them will result in bankruptcy, forcing you to start from ground zero.<br><br><h5>frametax grows every day btw. good luck."}], "blank", ["buyables", [1]], "blank", ["buyables", [2]]],
+			content: [["display-text", function(){return "<h2>Now we're grooving!</h2><br><h1>THIS IS WARIO TIME!</h1><br><h2>[DAY "+formatWhole(player.n.currentday)+"]</h2><h3><br>YOU BEST RUN LASTED "+formatWhole(player.n.bestday)+" DAYS, BOOSTING POINT GAIN BY "+format(tmp.n.bestDayEffect)+"x</h3><br>You currently have "+format(player.n.coins)+" coins<br>Your next framerule will arrive in "+formatWhole(Decimal.sub((hasUpgrade("n", 24)?15:21), player.n.framerule))+" seconds, gaining 5% of banked coins.<br>Your current estimated frametax is "+format(player.n.tax.add(player.n.coins.add(tmp.n.income).mul(tmp.n.tax)))+" coins.<br>Your total net is "+format(tmp.n.income.sub(player.n.tax.add(player.n.coins.mul(tmp.n.tax))))+" coins.<br>Good news: Income come first. However, be mindful of your coins as running out of them will result in bankruptcy, forcing you to start from ground zero.<br><br><h5>frametax grows every day btw. good luck.</h5>"+(player.n.currentday.gte(11)?"Your income is worsen by "+format(new Decimal(1).sub(tmp.n.extraTax).mul(100))+"% based on how far you've gone past 10 days":"")}], "blank", "milestones", "blank", ["buyables", [1]], "blank", ["buyables", [2]], "blank", ["buyable", 31]],
 			unlocked(){return hasUpgrade("n", 14)}
 		}
 	},
 	update(diff){
 		if(hasUpgrade("n", 14)) player.n.framerule = player.n.framerule.add(diff)
-		if(player.n.framerule.gte(21)) {
+		if(player.n.framerule.gte(hasUpgrade("n", 24)?15:21)) {
 			player.n.framerule = new Decimal(0)
-			player.n.coins = player.n.coins.add(player.n.banked.mul(0.1)).sub(player.n.tax.add(player.n.coins.mul(0.22)))
+			player.n.coins = player.n.coins.add(tmp.n.income).sub(player.n.tax.add(player.n.coins.mul(tmp.n.tax)))
+			if(player.n.coins.gte(0)) player.n.currentday = player.n.currentday.add(1)
+			if(player.n.coins.gte(0)) player.n.bestday = player.n.bestday.max(player.n.currentday)
 			player.n.tax = player.n.tax.add(3)
+			if(player.n.timeout.gt(0)) player.n.timeout = player.n.timeout.sub(1).round()
 		}
 		if(player.n.coins.lt(0)) {
 			player.n.coins = new Decimal(300)
+			player.n.framerule = new Decimal(0)
 			player.n.banked = new Decimal(0)
+			player.n.currentday = new Decimal(0)
 			player.n.tax = new Decimal(3)
+			player.n.timeout = new Decimal(0)
+			player.n.buyables[21] = new Decimal(0)
+			player.n.buyables[22] = new Decimal(0)
 		}
 	},
+	income() {return player.n.banked.mul(0.05).mul(tmp.n.buyables[21].effect).mul(tmp.n.buyables[22].effect).mul(tmp.n.extraTax)},
+	tax() {return new Decimal(0.22).sub(hasUpgrade("n", 25)?0.05:0).add(Decimal.mul(0.01, player.n.buyables[22]))},
+	extraTax() {return Decimal.pow(0.775, player.n.currentday.sub(10).max(0))},
     baseAmount() {return player.ab.negativePoints}, // Get the current amount of baseResource
     type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     exponent: 1.19, // Prestige currency exponent
@@ -2014,19 +2030,22 @@ addLayer("n", {
     layerShown(){return player.ab.points.gte(5) && !player.ab.nostalgia},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
-			player.points = new Decimal(17)
+			player.points = new Decimal(17.77)
 			player.ab.negativePoints = new Decimal(0)
 		}
 		if(tmp[resettingLayer].row > this.row){
 			player[this.layer].points = new Decimal(0)
 			player[this.layer].best = new Decimal(0)
 			player[this.layer].total = new Decimal(0)
-			player[this.layer].coins = new Decimal(300)
+			player[this.layer].coins = new Decimal(300).add(hasUpgrade("n", 23)?100:0)
 			player[this.layer].framerule = new Decimal(0)
+			player[this.layer].currentday = new Decimal(0)
+			player[this.layer].bestday = new Decimal(0)
 			player[this.layer].amount = new Decimal(0.05)
 			player[this.layer].banked = new Decimal(0)
 			player[this.layer].tax = new Decimal(3)
 			player[this.layer].upgrades = []
+			player[this.layer].milestones = []
 		}
 	},
 	buyables: {
@@ -2038,10 +2057,10 @@ addLayer("n", {
 			style() {return{'height': '64px', 'width': '64px'}}
         },
 		12: {
-			title(){return "Invest "+formatWhole(player.n.amount.mul(100))+"% of coins into bank account"},
-			cost(){return new Decimal(1)},
-			display(){return "<h3>You have banked "+format(player.n.banked)+" coins so far"},
-			canAfford(){return player.n.coins.gte(this.cost())},
+			title(){return "Invest "+formatWhole(player.n.amount.mul(100))+"% of coins into bank"},
+			cost(){return new Decimal(0)},
+			display(){return "<h3>You have banked "+format(player.n.banked)+" coins so far</h3>"+(player.n.timeout.gt(0)?"<br>(NO MONEY?)<br>(Bank will reopen in "+formatWhole(player.n.timeout)+" framerules)":"")},
+			canAfford(){return player.n.coins.gte(this.cost()) && player.n.coins.gt(0) && player.n.timeout.eq(0)},
 			buy() {player.n.banked = player.n.banked.add(player.n.coins.mul(player.n.amount))
 				   player.n.coins = player.n.coins.sub(player.n.coins.mul(player.n.amount)).max(0)},
 			style(){return{'height':'125px','width':'175px'}}
@@ -2055,30 +2074,62 @@ addLayer("n", {
         },
 		21: {
 			title(){return "Develop A New Game"},
-			cost(){return new Decimal(100).mul(Decimal.pow(1.2, player.n.buyables[21]))},
-			display(){return `<h3>"Games ain't free, you know."</h3><br>Each game boosts your income by 1%<br>Amount: ${format(player.n.buyables[21])}<br>Cost: ${format(this.cost())} coins`},
+			free(){return new Decimal(hasMilestone("n", 0)?6:0)},
+			effect() {return new Decimal(1).add(Decimal.mul((hasUpgrade("n", 22)?0.07:0.03), player.n.buyables[21].add(tmp.n.buyables[21].free)))},
+			cost(){return new Decimal(60).mul(Decimal.pow(1.35, player.n.buyables[21].add(tmp.n.buyables[21].free)))},
+			display(){return `<h3>"Games ain't free, you know."</h3><br>Each game boosts your income by ${hasUpgrade("n", 22)?7:3}%<br>Amount: ${formatWhole(player.n.buyables[21].add(tmp.n.buyables[21].free))}<br>Cost: ${format(this.cost())} coins`},
 			canAfford(){return player.n.coins.gte(this.cost())},
 			buy() {player.n.coins = player.n.coins.sub(this.cost())
 				   player.n.buyables[21] = player.n.buyables[21].add(1)},
-			style(){return{'height':'125px','width':'200px'}}
+			style(){return{'height':'125px','width':'185px'}}
 		},
 		22: {
 			title(){return "Shamelessly Advertise Your Product"},
-			cost(){return new Decimal(50).mul(Decimal.pow(1.15, player.n.buyables[22]))},
-			display(){return `<h3>"Nothin' unusual here, kiddo."</h3><br>Advertise your product for whooping 10%!... with 1% extra taxframe, that is.<br>Amount: ${format(player.n.buyables[22])}<br>Cost: ${format(this.cost())} coins`},
+			effect() {return new Decimal(1).add(Decimal.mul(0.1, player.n.buyables[21]))},
+			cost(){return new Decimal(10).mul(Decimal.pow(1.15, player.n.buyables[22]))},
+			display(){return `<h3>"Nothin' unusual here, kiddo."</h3><br>Advertise your product for whooping 10%!... with +1% extra base taxframe, that is.<br>Amount: ${formatWhole(player.n.buyables[22])}<br>Cost: ${format(this.cost())} coins`},
 			canAfford(){return player.n.coins.gte(this.cost())},
 			buy() {player.n.coins = player.n.coins.sub(this.cost())
-				   player.n.buyables[21] = player.n.buyables[21].add(1)},
-			style(){return{'height':'125px','width':'200px'}}
+				   player.n.buyables[22] = player.n.buyables[22].add(1)},
+			style(){return{'height':'125px','width':'185px'}}
 		},
 		23: {
 			title(){return "Rob The Bank"},
 			cost(){return new Decimal(1)},
-			display(){return `<h3>"Here we go!"</h3><br>You`},
-			canAfford(){return player.n.coins.gte(this.cost())},
-			buy() {player.n.coins = player.n.coins.sub(this.cost())
-				   player.n.buyables[21] = player.n.buyables[21].add(1)},
-			style(){return{'height':'125px','width':'200px'}}
+			display(){return `<h3>"Here we go!"</h3><br>You rob the bank, emptying the bank and gaining 200% of banked coins but shutting it down for ${formatWhole(hasUpgrade("n", 21)?3:5)} framerules`},
+			canAfford(){return player.n.timeout.eq(0)},
+			buy() {player.n.coins = player.n.coins.add(player.n.banked.mul(2))
+				   player.n.banked = new Decimal(0)
+				   player.n.timeout = new Decimal(hasUpgrade("n", 21)?3:5)},
+			style(){return{'height':'125px','width':'185px'}}
+		},
+		31: {
+			title(){return "Reset your progress"},
+			cost(){return new Decimal(1)},
+			display(){return `<h3>"Have a rotten day."</h3><br>Reset your progress and start from the scratch.`},
+			canAfford(){return true},
+			buy() {player.n.coins = new Decimal(300).add(hasUpgrade("n", 23)?100:0)
+				   player.n.framerule = new Decimal(0)
+				   player.n.banked = new Decimal(0)
+				   player.n.tax = new Decimal(3)
+				   player.n.timeout = new Decimal(0)
+				   player.n.currentday = new Decimal(0)
+				   player.n.buyables[21] = new Decimal(0)
+				   player.n.buyables[22] = new Decimal(0)},
+			style(){return{'height':'75px','width':'350px'}}
+		},
+	},
+	milestones: {
+		0: {
+			requirementDescription: "[WEEK 1]",
+			effectDescription: `"And on 7th day, he published the entire Wario Land franchise"<br>You gain 6 greatest games of all time.`,
+			done() { return player.n.bestday.gte(7) }
+		},
+		1: {
+			requirementDescription: "[WEEK 2]",
+			effectDescription: `"There are no feelings better than pride."<br>First "gonna" upgrade includes Hall of Fame achievements.`,
+			done() { return player.n.bestday.gte(14) },
+			unlocked() {return hasMilestone("n", 0) }
 		},
 	},
 	upgrades: {
@@ -2092,7 +2143,9 @@ addLayer("n", {
 		12: {
 			title: "gonna",
 			description: "You won't believe in what we're gonna do this time around...<br>(Boosts point gain based on completed achievments (hall of fame excluded))",
-			effect(){return player.a.normalAchievements.add(1).log(10).add(1).log(10).add(1)},
+			effect(){let ach = player.a.normalAchievements.add(1).log(10).add(1).log(10).add(1)
+					 if(hasMilestone("n", 1)) ach = ach.add(player.a.fame.mul(6)).log(10).add(1)
+				     return ach},
 			effectDisplay(){return format(this.effect())+"x"},
 			unlocked(){return hasUpgrade("n", 11)},
 			cost: new Decimal(5)
@@ -2119,34 +2172,77 @@ addLayer("n", {
 		},
 		21: {
 			title: "Never",
-			description: "",
+			description: "It's never too late to update mods!<br>Robbing the bank shutdowns it for 3 framerules instead.",
 			unlocked(){return hasUpgrade("n", 15)},
 			cost: new Decimal(5)
 		},
 		22: {
 			title: "gonna",
-			description: "",
+			description: "We're gonna grant your sacred wish... Games now give 7% more income instead!",
 			unlocked(){return hasUpgrade("n", 15)},
 			cost: new Decimal(5)
 		},
 		23: {
 			title: "let",
-			description: "",
+			description: "Let's assume that, hypothetically speaking, you could get away with an additiona startup. (+100 coins)",
 			unlocked(){return hasUpgrade("n", 15)},
+			onPurchase(){player.n.coins = player.n.coins.add(100)},
 			cost: new Decimal(3)
 		},
 		24: {
 			title: "you",
-			description: "",
+			description: "You were expecting another tab, aren't you?... hahaha<br><br>Hold on deez n-<br>Framerule is 6 frame faster",
 			unlocked(){return hasUpgrade("n", 15)},
 			cost: new Decimal(3)
 		},
 		25: {
 			title: "down",
-			description: "",
+			description: "Taxrate has been lowered down by significant amount.<br><br>5% to be exact.",
 			unlocked(){return hasUpgrade("n", 15)},
 			cost: new Decimal(4)
-		}
+		},
+		31: {
+			title: "Never",
+			description: "a.",
+			unlocked(){return player.n.upgrades.length >= 10},
+			cost: new Decimal(5),
+		},
+		32: {
+			title: "gonna",
+			description: "a.",
+			unlocked(){return player.n.upgrades.length >= 10},
+			cost: new Decimal(5),
+		},
+		33: {
+			title: "run",
+			description: "a.",
+			unlocked(){return player.n.upgrades.length >= 10},
+			cost: new Decimal(3),
+		},
+		34: {
+			title: "around",
+			description: "a.",
+			unlocked(){return player.n.upgrades.length >= 10},
+			cost: new Decimal(6),
+		},
+		41: {
+			title: "and",
+			description: "a.",
+			unlocked(){return player.n.upgrades.length >= 14},
+			cost: new Decimal(3),
+		},
+		42: {
+			title: "desert",
+			description: "a.",
+			unlocked(){return player.n.upgrades.length >= 14},
+			cost: new Decimal(6),
+		},
+		43: {
+			title: "you",
+			description: "a.",
+			unlocked(){return player.n.upgrades.length >= 14},
+			cost: new Decimal(3),
+		},
 	},
 })
 
@@ -2157,16 +2253,34 @@ addLayer("m", {
     startData() { return {
         unlocked: false,
 		points: new Decimal(0),
+		offer: new Decimal(0),
+		mango: new Decimal(0),
+		famed: false,
     }},
     color: "#ffdd33",
-    requires: new Decimal(1), // Can be a function that takes requirement increases into account
-    resource: "mango", // Name of prestige currency
+	limiter(){return new Decimal(player.m.milestones.length)},
+    requires() {return new Decimal(1).times((player.n.unlocked&&!player.m.unlocked)?1071:1)},
+    resource: "$", // Name of prestige currency
     baseResource: "negative points", // Name of resource prestige is based on
     baseAmount() {return player.ab.negativePoints}, // Get the current amount of baseResource
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0.5, // Prestige currency exponent
+	tabFormat: {
+		"Mango": {
+			content: ["main-display", "prestige-button", ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+format(player.m.mango)+" mangoes"+(player.m.buyables[11].gte(1)?"<br>You have gifted "+formatWhole(player.m.offer)+" mangoes to the man with donut hands":"")}], "blank",["buyables", [10]], "blank", ["buyables", [2]], "blank", "upgrades"],
+			unlocked(){return hasUpgrade("m", 13) || player.m.buyables[11].gte(1)}
+		},
+		"Donut's Apparition Realm": {
+			content: [["display-text", function(){return player.m.buyables[11].gte(1)?`<h2 style='font-family: "Aster", sans-serif; opacity: ${(Math.sin(player.a.sine*666)+1)/2}'>EXCELLERATION<br>THE DEAL IS REAL<br>AND SO ARE OUR SOURCE OF DOPAMINE<br>IT IS A PEASANT TO KNOW THAT I'M NOT THE ONLY<br>THAT CAN CO-EXIST WITH THIS...<br>DANKNESS-<br>JUST TAKE THEM AND MOVE UP<br>TO THE DARKNESS THAT GROWS</h2>`:`<h2 style='font-family: "Aster", sans-serif; opacity: ${(Math.sin(player.a.sine*666)+1)/2}'>ENTRY NUMBER SEVENTEEN<br>DARK, DARKER, YET DANKER<br>THE LURKNESS KEEPS GLOWING<br>THE SHADOWS PUTTING DEEPER<br>PHOTOS READINGS NEGATIVE<br>THAT NEXT EXPERIMENTAL<br>SEEMS<br>MERRY<br>VARY<br>INTERNATIONAL<br>...<br>I REQUIRE YOUR ASSIST'S ARCS, VISITOR<br><br>MY MIND HASN'T BEEN QUITE UP-TO-DATE, PER SAY<br>IT HAS BEEN CORRUPTED BY THIS VERY VOID<br>AND THE ONLY WAY TO RESTORE IT<br>IS BY GIVING ME MANGOES<br>...<br>MISSHAPED FORMS ASIDES, MY MIND CAN'T BE FIXATED<br>HOWEVER, WE CAN MAKE GREAT DEALS<br>A PROPOSAL<br>YOU GIFT ME MANGOES<br>IN EXCHANGE OF YOUR SO-CALLED PARKS<br>SO, VISITOR<br>DO YOU DEAL THE SEAL?</h2>`}], "blank", ["buyables", [1]], "blank", "milestones"],
+			unlocked(){return hasUpgrade("m", 13) || player.m.buyables[11].gte(1)}
+		}
+	},
+	update(diff){
+		player.m.mango = player.m.mango.add(tmp.m.buyables[21].effect.mul(diff))
+		if(player.m.points.gt(0)) player.m.points = player.m.points.add(Decimal.mul(getResetGain("m"), diff).mul(tmp.m.buyables[23].effect))
+	},
+    exponent(){return new Decimal(2).div(player.ab.negativePoints.add(1).root(3.2))}, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
-        let mult = new Decimal(1)
+        let mult = new Decimal(1).mul(upgradeEffect("m", 11))
         return mult
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -2179,9 +2293,164 @@ addLayer("m", {
     layerShown(){return player.ab.points.gte(5) && !player.ab.nostalgia},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
-			player.points = new Decimal(17)
+			player.points = new Decimal(17.77)
 			player.ab.negativePoints = new Decimal(0)
 		}
+		if(tmp[resettingLayer].row > this.row){
+			player.m.buyables[11] = new Decimal(0)
+			player.m.upgrades = []
+			player.m.points = new Decimal(0)
+			player.m.mango = new Decimal(0)
+			player.m.offer = new Decimal(0)
+			player.m.buyables[21] = new Decimal(0)
+			player.m.buyables[22] = new Decimal(0)
+			player.m.buyables[23] = new Decimal(0)
+		}
+	},
+	buyables: {
+		11: {
+			title: "Yes",
+			canAfford() { return true },
+			buy() {
+				player.m.buyables[11] = player.m.buyables[11].add(1)
+			},
+			style(){return{'height':'100px', 'width':'200px'}},
+			unlocked(){return player.m.buyables[11].eq(0)}
+		},
+		12: {
+			display(){return `<span style='font-family:"Inconsolata", monospace, bold; font-size: 1.333em'>Sacrifice ${formatWhole(player.m.mango)} mangoes<br><br>AND RESET THE PROGRESS`},
+			canAfford() { return true },
+			buy() {
+				player.m.offer = player.m.offer.add(player.m.mango)
+				player.ab.negativePoints = new Decimal(0)
+				player.m.upgrades = []
+				player.points = new Decimal(17.77)
+				player.m.points = new Decimal(0)
+				player.m.mango = new Decimal(0)
+				player.m.buyables[21] = new Decimal(0)
+				player.m.buyables[22] = new Decimal(0)
+				player.m.buyables[23] = new Decimal(0)
+			},
+			style(){return{'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)'}},
+			unlocked(){return player.m.buyables[11].gte(1)}
+		},
+		21: {
+			title(){return "Mango Farm"},
+			cost(){return new Decimal(6).mul(Decimal.pow(6, player.m.buyables[this.id])).mul(Decimal.pow(0.6, player.m.buyables[21]))},
+			effect(){return player.m.buyables[this.id]},
+			sellOne() {
+				player.m.buyables[this.id] = player.m.buyables[this.id].sub(1)
+			},
+			canSellOne() { return player.m.buyables[this.id].gte(1) },
+			display(){return `<h3>Generates ${format(this.effect())} mango`+(tmp.m.buyables[this.id].effect.gt(1)?`es`:``)+` per second</h3><br>Amount: ${formatWhole(player.m.buyables[this.id])}/${tmp.m.limiter.sub(player.m.buyables[22]).sub(player.m.buyables[23])}<br>Cost: ${format(this.cost())} mangoes`},
+			canAfford() { return player.m.mango.gte(this.cost()) && player.m.buyables[this.id].lt(tmp.m.limiter.sub(player.m.buyables[22]).sub(player.m.buyables[23])) },
+			buy() {
+				player.m.mango = player.m.mango.sub(this.cost())
+				player.m.buyables[this.id] = player.m.buyables[this.id].add(1)
+			},
+			unlocked(){return hasMilestone("m", 2)}
+		},
+		22: {
+			title(){return "Mango Well"},
+			cost(){return new Decimal(6).mul(Decimal.pow(6, player.m.buyables[this.id])).mul(Decimal.pow(0.6, player.m.buyables[22]))},
+			effect(){return new Decimal(1).add(player.m.buyables[this.id])},
+			sellOne() {
+				player.m.buyables[this.id] = player.m.buyables[this.id].sub(1)
+			},
+			canSellOne() { return player.m.buyables[this.id].gte(1) },
+			display(){return `<h3>Gains ${formatWhole(this.effect().sub(1).mul(100))}% more mangoes</h3><br>Amount: ${formatWhole(player.m.buyables[this.id])}/${tmp.m.limiter.sub(player.m.buyables[21]).sub(player.m.buyables[23])}<br>Cost: ${format(this.cost())} mangoes`},
+			canAfford() { return player.m.mango.gte(this.cost()) && player.m.buyables[this.id].lt(tmp.m.limiter.sub(player.m.buyables[21]).sub(player.m.buyables[23])) },
+			buy() {
+				player.m.mango = player.m.mango.sub(this.cost())
+				player.m.buyables[this.id] = player.m.buyables[this.id].add(1)
+			},
+			unlocked(){return hasMilestone("m", 2)}
+		},
+		23: {
+			title(){return "Mango Bank"},
+			cost(){return new Decimal(6).mul(Decimal.pow(6, player.m.buyables[this.id])).mul(Decimal.pow(0.6, player.m.buyables[23]))},
+			effect(){return player.m.buyables[this.id].div(100)},
+			sellOne() {
+				player.m.buyables[this.id] = player.m.buyables[this.id].sub(1)
+			},
+			canSellOne() { return player.m.buyables[this.id].gte(1) },
+			display(){return `<h3>Produces ${formatWhole(this.effect().mul(100))}% of $ on reset gain</h3><br>Amount: ${formatWhole(player.m.buyables[this.id])}/${tmp.m.limiter.sub(player.m.buyables[21]).sub(player.m.buyables[22])}<br>Cost: ${format(this.cost())} mangoes`},
+			canAfford() { return player.m.mango.gte(this.cost()) && player.m.buyables[this.id].lt(tmp.m.limiter.sub(player.m.buyables[21]).sub(player.m.buyables[22])) },
+			buy() {
+				player.m.mango = player.m.mango.sub(this.cost())
+				player.m.buyables[this.id] = player.m.buyables[this.id].add(1)
+			},
+			unlocked(){return hasMilestone("m", 2)}
+		},
+		101: {
+			title(){return "Purchase "+format(this.effect())+" mango"},
+			effect(){return new Decimal(1).mul(hasUpgrade("m", 13)?upgradeEffect("m", 13):1).mul(tmp.m.buyables[22].effect)},
+			cost(){return new Decimal(1.5).add(Math.abs(Decimal.mul(Math.sin(player.a.sine.mul(hasMilestone("m", 3)?1:17)), 2.5)))},
+			display() {return `The cost may vary<br>Current cost: ${format(this.cost())}$`},
+			canAfford() { return player.m.points.gte(this.cost()) },
+			buy() {
+				player.m.mango = player.m.mango.add(this.effect())
+				player.m.points = player.m.points.sub(this.cost())
+				if(this.cost().lt(1.505001)) player.m.famed = true
+			},
+			style(){return{'height':'100px', 'width':'200px'}},
+			unlocked(){return true}
+		},
+	},
+	upgrades: {
+		11: {
+			title: "Mango = $",
+			description(){return "You gain more $ based on unspent mangoes"},
+			effect(){return player.m.mango.add(1).log(17).add(1).max(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			cost: new Decimal(2),
+			currencyInternalName: "mango",
+			currencyDisplayName: "mangoes",
+			currencyLayer: "m",
+		},
+		12: {
+			title: "$ = Gain",
+			description(){return "You gain more points based on unspent $"},
+			effect(){return player.m.points.add(1).log(17).add(1).max(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			cost: new Decimal(36),
+		},
+		13: {
+			title(){return hasMilestone("m", 0)?"Gain = Mango":"Gain = ???"},
+			description(){return hasMilestone("m", 0)?"You gain more mangoes based on negative points<br>Currently: "+format(this.effect())+"x":"Unlocks new tab"},
+			cost: new Decimal(36),
+			effect(){return new Decimal(hasMilestone("m", 0)?player.ab.negativePoints.add(1).log(17).add(1).max(1):1)},
+			currencyInternalName: "negativePoints",
+			currencyDisplayName: "negative points",
+			currencyLayer: "ab",
+			unlocked(){return (hasUpgrade("m", 11)&&hasUpgrade("m", 12)) || player.m.buyables[11].gte(1)}
+		},
+	},
+	milestones: {
+		0: {
+			requirementDescription: "1 Mangoes",
+			effectDescription(){return (hasMilestone("m", 0)?`As IT got it's first mango, IT hasn't hesitated to take a huge bite out of it.<br>IT has eaten for the first time in millenniums and IT could truly feel emotions incomprehendable before.<br>IT was happy.<br><br>`:``)+`3rd upgrade's effect is changed and you keep this tab.`},
+			done() { return player.m.offer.gte(1) },
+			unlocked() {return player.m.buyables[11].gte(1)}
+		},
+		1: {
+			requirementDescription: "10 Mangoes",
+			effectDescription(){return (hasMilestone("m", 1)?`IT's life has enriched with this much mangoes at his disposal.<br>Well done, visitor! Keep gathering mangoes and...<br>it will gift you something that can resolve your main obstacle<br><br>`:``)+`Sacrificed mangoes provide point gain boost.<br>Effect: ${format(player.m.offer.add(1).log(17).add(1).max(1))}x`},
+			done() { return player.m.offer.gte(1) },
+			unlocked() {return hasMilestone("m", 0)}
+		},
+		2: {
+			requirementDescription: "100 Mangoes",
+			effectDescription(){return (hasMilestone("m", 2)?`IT is satisfied.<br>Not much here to say. All I can say is good luck with this one.<br><br>`:``)+`Unlocks Mango buyables`},
+			done() { return player.m.offer.gte(100) },
+			unlocked() {return hasMilestone("m", 1)}
+		},
+		3: {
+			requirementDescription: "1,000 Mangoes",
+			effectDescription(){return (hasMilestone("m", 3)?`With the power of 1,000 mangoes, you managed to<br>successfully restore IT's mind...<br>As soon as that happened, it'd remember that he messed up<br>Mango's cost function before losing it's mind.<br>IT has vanished just as IT reappeared in mere seconds.<br>No explanation, no logic, nor reasoning behind it...<br>Althought mango's cost has stabilized.<br>IT also remembered it's own name is Gni K... Sorta...uh <br>IT'll remember it's name eventually.<br><br>`:``)+`Mango's cost changes at much slower rate and unlocks 3 rows of upgrades`},
+			done() { return player.m.offer.gte(1000) },
+			unlocked() {return hasMilestone("m", 2)}
+		},
 	}
 })
 
@@ -2216,7 +2485,7 @@ addLayer("o", {
     layerShown(){return player.ab.points.gte(5) && !player.ab.nostalgia},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
-			player.points = new Decimal(17)
+			player.points = new Decimal(17.77)
 			player.ab.negativePoints = new Decimal(0)
 		}
 	}

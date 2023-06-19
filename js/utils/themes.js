@@ -26,7 +26,7 @@ var colors = {
 		1: "#ffffff",
 		2: "#bfbfbf",
 		3: "#7f7f7f",
-		color: "purple",
+		color: "#aa00b5",
 		points: "#A9C5CE",
 		locked: "cyan",
 		background: "linear-gradient(#11070F, #2D1328)",

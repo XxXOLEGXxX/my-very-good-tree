@@ -150,12 +150,12 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
 			style: {'height':'0px', 'width':'225px'},
         },
         42: {
-            title: "<h3>Post-Irony Cho- please give me more time it ain't done yet",
+            title: "<h3>Post-Irony Choice",
             unlocked() {return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)},
             canClick() {return false},
 			onClick()  {player.ab.fuckyou = true
 						if(player.tab==('s')||player.tab==('t')||player.tab==('st'))player.tab = ''},
-			style: {'height':'0px', 'width':'225px', 'background-color':'gray'},
+			style: {'height':'0px', 'width':'225px', 'background-color': 'gray'},
         },
         51: {
             title: "Space reset",
