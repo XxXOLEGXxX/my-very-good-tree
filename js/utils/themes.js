@@ -29,6 +29,7 @@ var colors = {
 		color: "#aa00b5",
 		points: "#A9C5CE",
 		locked: "cyan",
+		//background: "linear-gradient(#11070F, #2D1328)",
 		background: "linear-gradient(#11070F, #2D1328)",
 		background_tooltip: "rgba(0, 15, 31, 0.75)",
 	},

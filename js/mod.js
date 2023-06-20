@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.5.1",
-	name: "no comments",
+	num: "0.5.2",
+	name: "Early Access",
 }
 
 let changelog = `psssst hey<br>
@@ -23,8 +23,11 @@ let changelog = `psssst hey<br>
 	0.x.0 = available ng-x mode<br>
 	0.0.x = bugfixes and shticks<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v0.5.2: Early Access (v0.2.4)</h4>
+		- Finished 2 more NG----- layers.<br>
 	<h4>v0.5.1: no comment (v0.2.3)</h4>
-		- Fixed Space's Dimension Shift not revealing next shape.<br><br>
+		- Fixed Space's Dimension Shift not revealing next shape.<br>
+		- Updated my own theme.<br><br>
 	<h3>v0.5.0: fuck you nose (v0.2.2)</h3><br>
 		- Changed this mod's ID so it wouldn't conflict with other "mymod" mods<br>
 		- Finished first two layers of NG-----<br>
@@ -81,6 +84,7 @@ function getBypassedPointGen() {
 	if(hasUpgrade("n", 13)) gain = gain.mul(upgradeEffect("n", 13))
 	if(hasUpgrade("n", 14)) gain = gain.mul(tmp.n.bestDayEffect)
 	if(hasUpgrade("m", 12)) gain = gain.mul(upgradeEffect("m", 12))
+	if(hasUpgrade("m", 23)) gain = gain.mul(upgradeEffect("m", 23))
 	if(hasMilestone("m", 1)) gain = gain.mul(player.m.offer.add(1).log(17).add(1).max(1))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
@@ -131,6 +135,7 @@ function getPointGen() {
 	if(hasUpgrade("n", 13)) gain = gain.mul(upgradeEffect("n", 13))
 	if(hasUpgrade("n", 14)) gain = gain.mul(tmp.n.bestDayEffect)
 	if(hasUpgrade("m", 12)) gain = gain.mul(upgradeEffect("m", 12))
+	if(hasUpgrade("m", 23)) gain = gain.mul(upgradeEffect("m", 23))
 	if(hasMilestone("m", 1)) gain = gain.mul(player.m.offer.add(1).log(17).add(1).max(1))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
