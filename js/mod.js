@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.5.2",
-	name: "Early Access",
+	num: "0.5.3",
+	name: "aawdwaawtjwoitgjawipotkaiokaw4",
 }
 
 let changelog = `psssst hey<br>
@@ -23,6 +23,8 @@ let changelog = `psssst hey<br>
 	0.x.0 = available ng-x mode<br>
 	0.0.x = bugfixes and shticks<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v0.5.3: aawdwaawtjwoitgjawipotkaiokaw4 (v0.2.5)</h4>
+		- Fixed some upgrades yielding NaN due players being able to get negative [insert NG----- layer's point name here]
 	<h4>v0.5.2: Early Access (v0.2.4)</h4>
 		- Finished 2 more NG----- layers.<br>
 	<h4>v0.5.1: no comment (v0.2.3)</h4>

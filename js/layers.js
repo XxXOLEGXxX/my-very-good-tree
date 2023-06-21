@@ -2536,7 +2536,9 @@ addLayer("m", {
 		12: {
 			title: "$ = Gain",
 			description(){return "You gain more points based on unspent $"},
-			effect(){return player.m.points.add(1).log(17).add(1).max(1)},
+			effect(){let stupid = player.m.points.add(1).log(17).add(1).max(1)
+					 if(player.m.points.lt(0)) return new Decimal(1)
+				     return stupid},
 			effectDisplay(){return format(this.effect())+"x"},
 			cost: new Decimal(36),
 		},
@@ -2564,7 +2566,9 @@ addLayer("m", {
 		22: {
 			title: "$ = $",
 			description(){return "You gain more $ based on unspent $"},
-			effect(){return player.m.points.add(1).log(17).add(1).max(1)},
+			effect(){let stupid = player.m.points.add(1).log(17).add(1).max(1)
+					 if(player.m.points.lt(0)) return new Decimal(1)
+				     return stupid},
 			effectDisplay(){return format(this.effect())+"x"},
 			cost: new Decimal(350),
 			unlocked(){return hasMilestone("m", 3)}
