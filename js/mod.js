@@ -25,6 +25,7 @@ let changelog = `psssst hey<br>
 	<h1>Changelog:</h1><br><br>
 	<h4>v0.5.3: aawdwaawtjwoitgjawipotkaiokaw4 (v0.2.5)</h4>
 		- Fixed some upgrades yielding NaN due players being able to get negative [insert NG----- layer's point name here]
+		- Fixed 3rd milestone of NG----- layer being given as a bonus for getting 2nd milestone
 	<h4>v0.5.2: Early Access (v0.2.4)</h4>
 		- Finished 2 more NG----- layers.<br>
 	<h4>v0.5.1: no comment (v0.2.3)</h4>

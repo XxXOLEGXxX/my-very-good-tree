@@ -2142,7 +2142,7 @@ addLayer("n", {
 		2: {
 			requirementDescription: "[WEEK 3]",
 			effectDescription: `"You want fun? WARIO SHOW YOU FUN!"<br>Best run also decreases Symbol's cost.`,
-			done() { return player.n.bestday.gte(14) },
+			done() { return player.n.bestday.gte(21) },
 			unlocked() {return hasMilestone("n", 1) }
 		},
 	},
