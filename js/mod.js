@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.5.3",
-	name: "aawdwaawtjwoitgjawipotkaiokaw4",
+	num: "0.5.4",
+	name: "More Accurate Changelog",
 }
 
 let changelog = `psssst hey<br>
@@ -23,15 +23,20 @@ let changelog = `psssst hey<br>
 	0.x.0 = available ng-x mode<br>
 	0.0.x = bugfixes and shticks<br><br><br>
 	<h1>Changelog:</h1><br><br>
-	<h4>v0.5.3: aawdwaawtjwoitgjawipotkaiokaw4 (v0.2.5)</h4>
+	<h4>v0.5.4: More Accurate Changelog (v0.5)</h4>
+		- Fixed NG----- layer's buyable not taking away your resource<br>
+		- Also bashed the said layer to extend game length (:troll:)
+		- Slightly rebalanced both choices
+		- Made 2nd version accurate to the amount of content has been uploaded<br>
+	<h4>v0.5.3: aawdwaawtjwoitgjawipotkaiokaw4 (v0.4.1)</h4>
 		- Fixed some upgrades yielding NaN due players being able to get negative [insert NG----- layer's point name here]<br>
 		- Fixed 3rd milestone of NG----- layer being given as a bonus for getting 2nd milestone<br>
-	<h4>v0.5.2: Early Access (v0.2.4)</h4>
+	<h4>v0.5.2: Early Access (v0.4)</h4>
 		- Finished 2 more NG----- layers.<br>
-	<h4>v0.5.1: no comment (v0.2.3)</h4>
+	<h4>v0.5.1: no comment (v0.3.1)</h4>
 		- Fixed Space's Dimension Shift not revealing next shape.<br>
 		- Updated my own theme.<br><br>
-	<h3>v0.5.0: fuck you nose (v0.2.2)</h3><br>
+	<h3>v0.5.0: fuck you nose (v0.3)</h3><br>
 		- Changed this mod's ID so it wouldn't conflict with other "mymod" mods<br>
 		- Finished first two layers of NG-----<br>
 		- Rebalanced NG----'s late game by accident<br>
