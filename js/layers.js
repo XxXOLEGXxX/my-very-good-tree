@@ -5,32 +5,50 @@ function gimmeManyDimensions(x){
 	//let costScale = ["1e3", "1e4", "1e5", "1e6", "1e8", "1e10", "1e12", "1e15"][i-1]
 	let cI = new Decimal(10)
 	let cSc = new Decimal(1000)
-	let cF = new Decimal(1)
-	let cS = new Decimal(1)
+	let cC = [0, 1]	
 	let costInitial = []
 	let costScale = []
 	for(let i=1;i<x+1;i++){
 		costInitial.push(cI)
 		costScale.push(cSc)
-		let theThing = ["st", "nd", "rd", "th"][i-1>=3?3:i-1]
+		let theThing = ["st", "nd", "rd", "th"][i==21?0:i-1>=3?3:i-1]
 		let trustMeWeNeedThis = ["CM", (i-1)+"CD"][i-1>=1?1:i-1]
 		Object.assign(magicLOL, gimmeDimension(i*10+1,
 					     function(){return `${i+theThing} Crazy Dimension: ${formatWhole(player.c.buyables[this.id])}<br>Cost: ${format(this.cost())} Multiplier: ${format(this.multiplier())}x<br>${trustMeWeNeedThis}/s: ${format(this.effect())}`},
-					     function(){return new Decimal(costInitial[i-1]).mul(Decimal.pow(costScale[i-1], this.amount))},
+					     function(){return new Decimal(costInitial[i-1]).mul(Decimal.pow(costScale[i-1], player.c.bought[i-1]))},
 						 function(){return player.c.crazymatters.gte(this.cost())},
 						 function(){player.c.crazymatters = player.c.crazymatters.sub(this.cost())
 									player.c.buyables[this.id] = player.c.buyables[this.id].add(1)
-									this.amount = this.amount.add(1)},
-					  	 true,
-						 function(){return player.c.buyables[this.id].mul(this.multiplier())},
-						 function(){return{'height':'64px','width':'400px'}},
-						 function(){return Decimal.pow(2, this.amount.sub(1)).max(1)},
-						 new Decimal(0)
+									player.c.bought[i-1] = new Decimal(player.c.bought[i-1]).add(1)},
+					  	 function(){return (i>1)?player.c.buyables[this.id-10].gte(1):true},
+						 function(){return player.c.buyables[this.id].mul(this.multiplier()).mul(Decimal.pow(20, player.c.buyables[i*10+2])).mul(tmp.c.effectCool)},
+						 function(){return{'height':'64px','width':'352px','border-radius':'10%'}},
+						 function(){return Decimal.pow(2, Decimal.sub(player.c.bought[i-1], 1)).mul(Decimal.pow(1.0591341621268264, player.c.achievements.length)).max(1)},
+						 function(){return player.c.bought[i-1]}
 						 ))
-		cS = cF
-		cF = cF.add(cS)
-		cI = new Decimal(10).mul(Decimal.pow(10, cF))
+		cC[i+1] = cC[i-1]+cC[i]	
+		cI = cI.mul(Decimal.pow(10, cC[i+1]))
 		cSc = cSc.mul(Decimal.pow(10, Decimal.pow(1.1892, i).floor()))
+	}
+	return magicLOL
+}
+
+function nowGimmeDimensionUpgraders(x){
+	let magicLOL = {}
+	for(let i=1;i<x+1;i++){
+		Object.assign(magicLOL, gimmeDimension(i*10+2,
+					     function(){return `Ascension<br><h4>Cost: ${format(player.c.bought[i-1])} / ${formatWhole(this.cost())} bought ${(this.id-2)/10}CDs<br>Current Multiplier: ${format(this.effect())}x<br><h5>(You've ascended this dimension ${formatWhole(player.c.buyables[this.id])} times)`},
+					     function(){return new Decimal(10).add(Decimal.mul(15, player.c.buyables[this.id]))},
+						 function(){return new Decimal(player.c.bought[i-1]).gte(this.cost())},
+						 function(){player.c.buyables[i*10+1] = new Decimal(0)
+									player.c.bought[i-1] = new Decimal(0)
+									player.c.buyables[this.id] = player.c.buyables[this.id].add(1)},
+					  	 function(){return (i>1)?tmp.c.buyables[i*10+1].unlocked:true},
+						 function(){return Decimal.pow(20, player.c.buyables[this.id])},
+						 function(){return{'height':'64px','width':'256px','border-radius':'10%'}},
+						 function(){return new Decimal(1)},
+						 false
+						 ))
 	}
 	return magicLOL
 }
@@ -1347,7 +1365,7 @@ addLayer("a", {
 			style(){return {'background-color': (hasAchievement("a",this.id)?'#BF5F5F':'#bf8f8f')}}
 		},
 		61: {
-			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>STOP.<h3/>"},
+			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>New Beginning.<h3/>"},
 			done(){return player.s.unlocked||player.t.unlocked||player.m.unlocked||player.n.unlocked},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Perform a Row -1 reset."},
@@ -1355,7 +1373,7 @@ addLayer("a", {
 			style(){return {'background-color': (hasAchievement("a",this.id)?'#BF5F5F':'#bf8f8f')}}
 		},
 		62: {
-			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>STOP.<h3/>"},
+			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>This is anything but imaginary.<h3/>"},
 			done(){return getBypassedPointGen().lte(-1) && player.ab.negativePoints.gt(1)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Reach -1 points/sec at negative points."},
@@ -1366,7 +1384,15 @@ addLayer("a", {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Gee Acamaeda! How Come Your Engine Lets You Eat Two Layers?<h3/>"},
 			done(){return (player.s.unlocked&&player.t.unlocked)||(player.m.unlocked&&player.n.unlocked)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
-			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Unlock 2 -1 Row layers."},
+			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Unlock 2 Row -1 layers."},
+			unlocked(){return player.ab.points.gte(5)},
+			style(){return {'background-color': (hasAchievement("a",this.id)?'#BF5F5F':'#bf8f8f')}}
+		},
+		64: {
+			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Are we allowed to reuse mechanics from other Incremental Games?<h3/>"},
+			done(){return player.c.unlocked||player.o.unlocked},
+			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
+			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Perform a Row 0 row."},
 			unlocked(){return player.ab.points.gte(5)},
 			style(){return {'background-color': (hasAchievement("a",this.id)?'#BF5F5F':'#bf8f8f')}}
 		},
@@ -1795,6 +1821,7 @@ addLayer("t", {
 		centuries: new Decimal(0),
 		millenniums: new Decimal(0),
 		base: new Decimal(1),
+		power: new Decimal(0),
 		canProgress: true,
     }},
     color: "#FFFFFF",
@@ -1815,7 +1842,7 @@ addLayer("t", {
 	effectDay(){return player.t.days.mul(tmp.t.effectWeek).mul(tmp.t.effectYear).div(10).add(1)},
 	effectWeek(){return player.t.weeks.mul(tmp.t.effectYear).add(1).root(7)},
 	effectMonth(){return player.t.months.mul(tmp.t.effectYear).add(1).log(10).add(1)},
-	effectYear(){return player.t.years.add(1)},
+	effectYear(){return player.t.years.add(1).mul(Decimal.pow(0.975, player.t.years.add(1).root(1.2020)))},
 	update(diff){
 		player.t.seconds = player.t.seconds.add(Decimal.mul(diff, tmp.t.effectClock))
 		if(player.t.canProgress){
@@ -1895,60 +1922,38 @@ addLayer("t", {
 	},
 	clickables: {
 		11: {
-            title: "<<<",
+            title(){return `10<sup>${formatWhole(player.t.power)}</sup><br><`},
             unlocked() {return true},
-            canClick() {return player.t.base.gte(101)},
-			onClick()  {player.t.base = player.t.base.sub(100)},
-            onHold() {player.t.base = player.t.base.sub(100)},
+			canClick() {return player.t.power.gte(1)},
+			onClick() {player.t.power = player.t.power.sub(1)},
 			style() {return{'height': '64px', 'width': '64px'}}
         },
 		12: {
-            title: "<<",
-            unlocked() {return true},
-            canClick() {return player.t.base.gte(11)},
-			onClick()  {player.t.base = player.t.base.sub(10)},
-            onHold() {player.t.base = player.t.base.sub(10)},
-			style() {return{'height': '64px', 'width': '64px'}}
+            title(){return`Decrease bulk`},
+            canClick() {return player.t.base.gte(Decimal.pow(10, player.t.power).add(1))},
+			onClick()  {player.t.base = player.t.base.sub(Decimal.pow(10, player.t.power))},
+            onHold() {player.t.base = player.t.base.sub(Decimal.pow(10, player.t.power))},
         },
 		13: {
-            title: "<",
-            unlocked() {return true},
-            canClick() {return player.t.base.gte(2)},
-			onClick()  {player.t.base = player.t.base.sub(1)},
-            onHold() {player.t.base = player.t.base.sub(1)},
-			style() {return{'height': '64px', 'width': '64px'}}
+            title(){return`Set bulk back to 1`},
+            canClick() {return true},
+			onClick()  {player.t.base = new Decimal(1)},
         },
 		14: {
-            title(){return`Bulk buy time itself<br>Bulk: ${formatWhole(player.t.base)}`},
-            unlocked() {return true},
+            title(){return`Increase bulk`},
             canClick() {return true},
+			onClick()  {player.t.base = player.t.base.add(Decimal.pow(10, player.t.power))},
+            onHold() {player.t.base = player.t.base.add(Decimal.pow(10, player.t.power))},
         },
 		15: {
-            title: ">",
+            title(){return `10<sup>${formatWhole(player.t.power)}</sup><br>>`},
             unlocked() {return true},
-            canClick() {return true},
-			onClick()  {player.t.base = player.t.base.add(1)},
-            onHold() {player.t.base = player.t.base.add(1)},
-			style() {return{'height': '64px', 'width': '64px'}}
-        },
-		16: {
-            title: ">>",
-            unlocked() {return true},
-            canClick() {return true},
-			onClick()  {player.t.base = player.t.base.add(10)},
-            onHold() {player.t.base = player.t.base.add(10)},
-			style() {return{'height': '64px', 'width': '64px'}}
-        },
-		17: {
-            title: ">>>",
-            unlocked() {return true},
-            canClick() {return true},
-			onClick()  {player.t.base = player.t.base.add(100)},
-            onHold() {player.t.base = player.t.base.add(100)},
+			canClick() {return true},
+			onClick() {player.t.power = player.t.power.add(1)},
 			style() {return{'height': '64px', 'width': '64px'}}
         },
 		21: {
-			title() {return "<h2>Purchase Time?<br>"+(player.t.canProgress?"[YES]":"[NO]")},
+			title() {return "<h2>Purchase Time?</h2><h4>(Current Bulk: "+formatWhole(player.t.base)+")</h4><br><h2>"+(player.t.canProgress?"[YES]":"[NO]")},
             unlocked() {return true},
             canClick() {return true},
 			onClick()  {player.t.canProgress = !player.t.canProgress},
@@ -2023,11 +2028,29 @@ addLayer("c", {
 		points: new Decimal(0),
 		crazymatters: new Decimal(0),
 		lol: new Decimal(0),
-		count: new Decimal(1)
-    }},
+		count: new Decimal(1),
+		bought: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+	}},
+	shouldNotify(){let fuckYou = false
+		for(i=1;i<22;i++){
+			if(player.c.crazymatters.gte(tmp.c.buyables[i*10+1].cost)) fuckYou = true
+		}
+	return fuckYou
+	},
+	glowColor: "white",
+	effect(){return player.c.crazymatters.add(1).log(10).add(1)},
+	effectCool(){return player.c.points},
+	effectDescription(){return `which are what makes crazy dimensions work in the first place<br>Current Formula: [C = ${format(this.effectCool())}]`},
 	tabFormat:{
 		"Normal":{
-			content: ["main-display", "prestige-button", ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(player.ab.negativePoints)+" negative points<br>You have "+formatWhole(player.c.crazymatters)+" crazy matters"}], "milestones", "buyables"]
+			content: ["main-display", "prestige-button", ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(player.ab.negativePoints)+" negative points<br>You have "+formatWhole(player.c.crazymatters)+" crazy matters, which boost your point gain by "+format(tmp.c.effect)+"x"}], "milestones", "buyables"]
+		},
+		"Mystery Market":{
+			content: ["main-display", "blank", "upgrades"],
+			unlocked: false
+		},
+		"Achievements":{
+			content: [["display-text", function(){return `<h3>You have ${formatWhole(player.c.achievements.length)} achievements, boosting your dimension effectiveness by ${format(Decimal.pow(1.0591341621268264, player.c.achievements.length))}x`}], "blank", "achievements"]
 		}
 	},
     color: "gray",
@@ -2054,10 +2077,6 @@ addLayer("c", {
 		for(i=1;i<21;i++){
 			player.c.buyables[i*10+1] = player.c.buyables[i*10+1].add(tmp.c.buyables[(1+i)*10+1].effect.mul(diff))
 		}
-		player.c.lol = player.c.lol.add(diff)
-		console.log(player.c.lol.div(player.c.count))
-		player.c.count = player.c.count.add(1)
-		
 	},
 	branches: ["s", "t"],
     layerShown(){return (player.ab.points.gte(5) && !player.ab.fuckyou) || (player.ab.nostalgia && player.ab.fuckyou)},
@@ -2069,6 +2088,12 @@ addLayer("c", {
 		if(tmp[resettingLayer].row > this.row){
 			player[this.layer].points = new Decimal(0)
 		}
+		if(hasUpgrade("t", 14) && tmp[resettingLayer].row>=1) {
+			if(player.ab.buyables[11].gte(3)) player.ab.buyables[11] = new Decimal(2), player.ab.spentPoints = player.ab.spentPoints.sub(3)
+			if(player.ab.buyables[12].gte(3)) player.ab.buyables[12] = new Decimal(2), player.ab.spentPoints = player.ab.spentPoints.sub(3)
+			if(player.ab.buyables[13].gte(3)) player.ab.buyables[13] = new Decimal(2), player.ab.spentPoints = player.ab.spentPoints.sub(3)
+			if(player.ab.buyables[14].gte(3)) player.ab.buyables[14] = new Decimal(2), player.ab.spentPoints = player.ab.spentPoints.sub(3)
+		}
 	},
 	milestones: {
 		0: {
@@ -2078,8 +2103,66 @@ addLayer("c", {
 			onComplete(){player.c.crazymatters=player.c.crazymatters.add(10)}
 		},
 	},
+	upgrades: {
+		11: {
+			name: "lol",
+			description: "lol2",
+			cost: new Decimal(100)
+		}
+	},
+	achievements: {
+		11: {
+			name: "<h4>We have to start off somewhere, right?",
+			done(){return player.c.buyables[11].gte(1)},
+			tooltip: "Buy 1st Crazy Dimension",
+		},
+		12: {
+			name: "<h4>Crazy Recursion",
+			done(){return player.c.buyables[21].gte(1)},
+			tooltip: "Buy 2nd Crazy Dimension",
+		},
+		13: {
+			name: "<h4>NO 3RD SHENANIGANS TREE INSTALLMENT?",
+			done(){return player.c.buyables[31].gte(1)},
+			tooltip: "Buy 3rd Crazy Dimension",
+		},
+		14: {
+			name: "<h4>*insert 2nd piss joke here*",
+			done(){return player.c.buyables[41].gte(1)},
+			tooltip: "Buy 4th Crazy Dimension",
+		},
+		15: {
+			name: "<h4>Go Go Crazy Rangers!",
+			done(){return player.c.buyables[51].gte(1)},
+			tooltip: "Buy 5th Crazy Dimension",
+		},
+		16: {
+			name: "<h4>We couldn't afford 9",
+			done(){return player.c.buyables[61].gte(1)},
+			tooltip: "Buy 6th Crazy Dimension",
+		},
+		17: {
+			name: "<h4>No longer limited to 7 achievements per row",
+			done(){return player.c.buyables[71].gte(1)},
+			tooltip: "Buy 7th Crazy Dimension",
+		},
+		18: {
+			name: "<h4>-90 degrees to infinity",
+			done(){return player.c.buyables[81].gte(1)},
+			tooltip: "Buy 8th Crazy Dimension",
+		},
+		21: {
+			name: "<h4>Is that even legal?",
+			done(){return player.c.buyables[91].gte(1)},
+			tooltip: "Buy 9th Crazy Dimension",
+		},
+	},
 	buyables: {
-		...gimmeManyDimensions(21)
+		...gimmeManyDimensions(21),
+		...nowGimmeDimensionUpgraders(21)
+	},
+	componentStyles: {
+		"achievement"(){return{'height':'77.5px','width':'77.5px'}},
 	}
 })
 
