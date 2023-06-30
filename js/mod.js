@@ -25,8 +25,7 @@ let changelog = `psssst hey<br>
 	<h1>Changelog:</h1><br><br>
 	<h4>v0.5.4: More Accurate Changelog (v0.5)</h4>
 		- Fixed NG----- layer's buyable not taking away your resource<br>
-		- Also bashed the said layer to extend game length (:troll:)
-		- Slightly rebalanced both choices
+		- Rebalanced Nostalgia layers and added more content to them<br>
 		- Made 2nd version accurate to the amount of content has been uploaded<br>
 	<h4>v0.5.3: aawdwaawtjwoitgjawipotkaiokaw4 (v0.4.1)</h4>
 		- Fixed some upgrades yielding NaN due players being able to get negative [insert NG----- layer's point name here]<br>

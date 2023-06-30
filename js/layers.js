@@ -14,7 +14,7 @@ function gimmeManyDimensions(x){
 		let theThing = ["st", "nd", "rd", "th"][i==21?0:i-1>=3?3:i-1]
 		let trustMeWeNeedThis = ["CM", (i-1)+"CD"][i-1>=1?1:i-1]
 		Object.assign(magicLOL, gimmeDimension(i*10+1,
-					     function(){return `${i+theThing} Crazy Dimension: ${formatWhole(player.c.buyables[this.id])}<br>Cost: ${format(this.cost())} Multiplier: ${format(this.multiplier())}x<br>${trustMeWeNeedThis}/s: ${format(this.effect())}`},
+					     function(){return `${i+theThing} Crazy Dimensions: ${formatWhole(player.c.buyables[this.id])}<br>Cost: ${format(this.cost())} Multiplier: ${format(this.multiplier())}x<br>${trustMeWeNeedThis}/s: ${format(this.effect())}`},
 					     function(){return new Decimal(costInitial[i-1]).mul(Decimal.pow(costScale[i-1], player.c.bought[i-1]))},
 						 function(){return player.c.crazymatters.gte(this.cost())},
 						 function(){player.c.crazymatters = player.c.crazymatters.sub(this.cost())
@@ -23,7 +23,7 @@ function gimmeManyDimensions(x){
 					  	 function(){return (i>1)?player.c.buyables[this.id-10].gte(1):true},
 						 function(){return player.c.buyables[this.id].mul(this.multiplier()).mul(Decimal.pow(20, player.c.buyables[i*10+2])).mul(tmp.c.effectCool)},
 						 function(){return{'height':'64px','width':'352px','border-radius':'10%'}},
-						 function(){return Decimal.pow(2, Decimal.sub(player.c.bought[i-1], 1)).mul(Decimal.pow(1.0591341621268264, player.c.achievements.length)).max(1)},
+						 function(){return Decimal.pow(Decimal.mul(2, Decimal.pow(1.0591341621268264, player.c.achievements.length)), Decimal.sub(player.c.bought[i-1], 1)).max(1)},
 						 function(){return player.c.bought[i-1]}
 						 ))
 		cC[i+1] = cC[i-1]+cC[i]	
@@ -40,8 +40,11 @@ function nowGimmeDimensionUpgraders(x){
 					     function(){return `Ascension<br><h4>Cost: ${format(player.c.bought[i-1])} / ${formatWhole(this.cost())} bought ${(this.id-2)/10}CDs<br>Current Multiplier: ${format(this.effect())}x<br><h5>(You've ascended this dimension ${formatWhole(player.c.buyables[this.id])} times)`},
 					     function(){return new Decimal(10).add(Decimal.mul(15, player.c.buyables[this.id]))},
 						 function(){return new Decimal(player.c.bought[i-1]).gte(this.cost())},
-						 function(){player.c.buyables[i*10+1] = new Decimal(0)
-									player.c.bought[i-1] = new Decimal(0)
+						 function(){for(let v=1;v<x;v++){
+										player.c.buyables[v*10+1] = new Decimal(0)
+										player.c.bought[v-1] = new Decimal(0)
+									}
+									player.c.crazymatters = new Decimal(10)
 									player.c.buyables[this.id] = player.c.buyables[this.id].add(1)},
 					  	 function(){return (i>1)?tmp.c.buyables[i*10+1].unlocked:true},
 						 function(){return Decimal.pow(20, player.c.buyables[this.id])},
@@ -1406,8 +1409,15 @@ addLayer("a", {
 		1012: {
 			name(){return hasAchievement("a", 1012)?"a":"PATIENCE 2: ELECTRIC BOOGALOO"},
 			onComplete(){player.a.fame=player.a.fame.add(1)},
-			done(){return (player.t.years.gte(30)||player.m.famed==true)&&(!tmp.st.unlocked&&!tmp.o.unlocked)},
-			tooltip(){return (player.ab.nostalgia?"Reach 30 years":player.ab.fuckyou?"Purchase mangoes at it's cheapest":"???")+" without Row 0 layers.<br>Reward: I am so proud of you. 4x point gain."},
+			done(){return (player.t.years.gte(5)||player.m.famed==true)&&(!tmp.c.unlocked&&!tmp.o.unlocked)},
+			tooltip(){return (player.ab.nostalgia?"Reach 5 years":player.ab.fuckyou?"Purchase mangoes at it's cheapest":"???")+" without Row 0 layers.<br>Reward: I am so proud of you. 4x point gain."},
+			style(){return {'background': (hasAchievement("a",this.id)?'repeating-linear-gradient(#FFDF00, #D4AF37, #FFDF00)':'#bf8f8f'), 'background-size': '40% 75%', 'background-position': '50% '+player.a.XG+'%'}}
+		},
+		1013: {
+			name(){return hasAchievement("a", 1013)?"e":"did you just say ez."},
+			onComplete(){player.a.fame=player.a.fame.add(1)},
+			done(){return player.c.buyables[81].gte(1)&&!(player.c.buyables[12].gte(1)||player.c.buyables[22].gte(1)||player.c.buyables[32].gte(1)||player.c.buyables[42].gte(1)||player.c.buyables[52].gte(1)||player.c.buyables[62].gte(1))},
+			tooltip(){return (player.ab.nostalgia?"Get 8th Crazy Dimension without ever ascending once.":player.ab.fuckyou?"kill yourself.":"???")+"<br>Reward: "+(player.ab.nostalgia?"You gain 100% of space and clocks gain.":player.ab.fuckyou?"kill yourself.":"???")},
 			style(){return {'background': (hasAchievement("a",this.id)?'repeating-linear-gradient(#FFDF00, #D4AF37, #FFDF00)':'#bf8f8f'), 'background-size': '40% 75%', 'background-position': '50% '+player.a.XG+'%'}}
 		},
 	},
@@ -1576,6 +1586,7 @@ addLayer("s", {
     }},
     color: "#000000",
 	shape: "line",
+	passiveGeneration(){return hasAchievement("a", 1013)?1:0},
     requires(){return new Decimal(1).times((player.t.unlocked&&!player.s.unlocked)?76.2:1)}, // Can be a function that takes requirement increases into account
     resource: "spaces", // Name of prestige currency
     baseResource: "negative points", // Name of resource prestige is based on
@@ -1643,8 +1654,8 @@ addLayer("s", {
 			display() { return player.s.buyables[12].gte(3)?"Boosts "+["length","height","width","spissitude"][player.s.buyables[12].add(1)%4]+"'s base by 2x<br>Next multiplier at "+formatWhole(this.cost())+" spaces":"Next shape at "+formatWhole(this.cost())+' spaces' },
 			canAfford() { return player.s.points.gte(this.cost()) },
 			buy() {
-				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 				player.s.points = player.s.points.sub(this.cost())
+				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
 			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?'#7F7F7F':'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?'#1F1F1F':'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return true}
@@ -1824,6 +1835,7 @@ addLayer("t", {
 		power: new Decimal(0),
 		canProgress: true,
     }},
+	passiveGeneration(){return hasAchievement("a", 1013)?1:0},
     color: "#FFFFFF",
 	effectSecond(){let second = player.t.seconds.mul(tmp.t.effectYear)
 				   if(hasUpgrade("t", 15)) second = second.mul(69)
@@ -1841,8 +1853,11 @@ addLayer("t", {
 				  return clocks},
 	effectDay(){return player.t.days.mul(tmp.t.effectWeek).mul(tmp.t.effectYear).div(10).add(1)},
 	effectWeek(){return player.t.weeks.mul(tmp.t.effectYear).add(1).root(7)},
-	effectMonth(){return player.t.months.mul(tmp.t.effectYear).add(1).log(10).add(1)},
-	effectYear(){return player.t.years.add(1).mul(Decimal.pow(0.975, player.t.years.add(1).root(1.2020)))},
+	effectMonth(){return player.t.months.mul(tmp.t.effectYear).add(1).log(10).add(1).log(10).add(1)},
+	effectYear(){let base = new Decimal(2).root(tmp.t.effectCentury)
+				 return player.t.years.add(1).root(base).add(1).log(base).add(1)},
+	effectCentury(){return player.t.centuries.add(1).log(9).add(1).root(9).add(1)},
+	effectMillennium(){return player.t.millenniums.add(1).log(256).add(1).log(256).add(1)},
 	update(diff){
 		player.t.seconds = player.t.seconds.add(Decimal.mul(diff, tmp.t.effectClock))
 		if(player.t.canProgress){
@@ -1881,7 +1896,7 @@ addLayer("t", {
 		}
 	},
 	effectDescription(){return `which generate ${format(tmp.t.effectClock)} seconds per second in total`},
-	tabFormat: ["main-display", "prestige-button", "resource-display", ["display-text", function(){return `You have about...`+(player.t.seconds.gte(1)?`<br>${formatWhole(player.t.seconds)} seconds`+(hasUpgrade("t", 11)?`, giving you ${format(tmp.t.effectSecond)}x point gain boost`:``):``)+(player.t.minutes.gte(1)?`<br>${formatWhole(player.t.minutes)} minutes, granting you ${format(tmp.t.effectMinute)}x clock gain`:``)+(player.t.hours.gte(1)?`<br>${formatWhole(player.t.hours)} hours, blessing you with ${format(tmp.t.effectHour)}x clock acceleration`:``)+(player.t.days.gte(1)?`<br>${formatWhole(player.t.days)} days, offering you a staggering ${format(tmp.t.effectDay)}x space gain`:``)+(player.t.weeks.gte(1)?`<br>${formatWhole(player.t.weeks)} weeks, boosting days by ${format(tmp.t.effectWeek)}x`:``)+(player.t.months.gte(1)?`<br>${formatWhole(player.t.months)} months, empowering balancers by ^${format(tmp.t.effectMonth)}`:``)+(player.t.years.gte(1)?`<br>${formatWhole(player.t.years)} years, enraging all previous time units by ${format(tmp.t.effectYear)}x`:``)+(player.t.centuries.gte(1)?`<br>${formatWhole(player.t.centuries)} centuries`:``)+(player.t.millenniums.gte(1)?`<br>${formatWhole(player.t.millenniums)} millenniums`:``)}], "blank", ["clickables", [1]], "blank", ["clickable", 21], "blank", "upgrades"],
+	tabFormat: ["main-display", "prestige-button", "resource-display", ["display-text", function(){return `You have about...`+(player.t.seconds.gte(1)?`<br>${formatWhole(player.t.seconds)} seconds`+(hasUpgrade("t", 11)?`, giving you ${format(tmp.t.effectSecond)}x point gain boost`:``):``)+(player.t.minutes.gte(1)?`<br>${formatWhole(player.t.minutes)} minutes, granting you ${format(tmp.t.effectMinute)}x clock gain`:``)+(player.t.hours.gte(1)?`<br>${formatWhole(player.t.hours)} hours, blessing you with ${format(tmp.t.effectHour)}x clock acceleration`:``)+(player.t.days.gte(1)?`<br>${formatWhole(player.t.days)} days, offering you a staggering ${format(tmp.t.effectDay)}x space gain`:``)+(player.t.weeks.gte(1)?`<br>${formatWhole(player.t.weeks)} weeks, boosting days by ${format(tmp.t.effectWeek)}x`:``)+(player.t.months.gte(1)?`<br>${formatWhole(player.t.months)} months, empowering balancers by ^${format(tmp.t.effectMonth)}`:``)+(player.t.years.gte(1)?`<br>${formatWhole(player.t.years)} years, enraging all previous time units by ${format(tmp.t.effectYear)}x`:``)+(player.t.centuries.gte(1)?`<br>${formatWhole(player.t.centuries)} centuries, weakening year effect's softcaps by ${format(tmp.t.effectCentury)} root`:``)+(player.t.millenniums.gte(1)?`<br>${formatWhole(player.t.millenniums)} millenniums, boosting your dimensions by ${format(tmp.t.effectMillennium)}x`:``)}], "blank", ["clickables", [1]], "blank", ["clickable", 21], "blank", "upgrades"],
     requires(){return new Decimal(1).times((player.s.unlocked&&!player.t.unlocked)?76.2:1)}, // Can be a function that takes requirement increases into account
     resource: "clocks", // Name of prestige currency
     baseResource: "negative points", // Name of resource prestige is based on
@@ -1902,7 +1917,7 @@ addLayer("t", {
     layerShown(){return (player.ab.points.gte(5) && !player.ab.fuckyou) || (player.ab.nostalgia && player.ab.fuckyou)},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
-			player.points = new Decimal(17.77)
+			player.points = new Decimal(17.77) 
 			player.ab.negativePoints = new Decimal(0)
 		}
 		if(tmp[resettingLayer].row > this.row){
@@ -2040,7 +2055,7 @@ addLayer("c", {
 	glowColor: "white",
 	effect(){return player.c.crazymatters.add(1).log(10).add(1)},
 	effectCool(){return player.c.points},
-	effectDescription(){return `which are what makes crazy dimensions work in the first place<br>Current Formula: [C = ${format(this.effectCool())}]`},
+	effectDescription(){return `which are what makes crazy dimensions work in the first place<br>Current Formula: [Base = C (${format(this.effectCool())})]`},
 	tabFormat:{
 		"Normal":{
 			content: ["main-display", "prestige-button", ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(player.ab.negativePoints)+" negative points<br>You have "+formatWhole(player.c.crazymatters)+" crazy matters, which boost your point gain by "+format(tmp.c.effect)+"x"}], "milestones", "buyables"]
@@ -2050,16 +2065,16 @@ addLayer("c", {
 			unlocked: false
 		},
 		"Achievements":{
-			content: [["display-text", function(){return `<h3>You have ${formatWhole(player.c.achievements.length)} achievements, boosting your dimension effectiveness by ${format(Decimal.pow(1.0591341621268264, player.c.achievements.length))}x`}], "blank", "achievements"]
+			content: [["display-text", function(){return `<h3>You have ${formatWhole(player.c.achievements.length)} achievements, boosting your dimension's multiplier base by ${format(Decimal.pow(1.0591341621268264, player.c.achievements.length))}x`}], "blank", "achievements"]
 		}
 	},
     color: "gray",
-    requires(){return ((player.s.upgrades.length >= 6 && player.t.upgrades.length >= 6)||player.c.unlocked)?new Decimal(315000000):new Decimal("1e600000")}, // Can be a function that takes requirement increases into account
+    requires(){return ((player.s.upgrades.length >= 6 && player.t.upgrades.length >= 6)||player.c.unlocked)?new Decimal(4970000):new Decimal("1e600000")}, // Can be a function that takes requirement increases into account
     resource: "crazy fucklots", // Name of prestige currency
     baseResource: "negative points", // Name of resource prestige is based on
     baseAmount() {return player.ab.negativePoints}, // Get the current amount of baseResource
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0.1, // Prestige currency exponent
+    exponent: 0.095775, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
         return mult
@@ -2067,7 +2082,7 @@ addLayer("c", {
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
-	tooltipLocked: "Reach 315,000,000 negative points to unlock<br><h1>(W.I.P)",
+	tooltipLocked: "Reach 4,970,000 negative points to unlock<br><h1>(W.I.P)",
     row: 2, // Row the layer is in on the tree (0 is the first row)
     hotkeys: [
         {key: "c", description: "C: Reset for crazy fucklots", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
@@ -2101,6 +2116,12 @@ addLayer("c", {
 			effectDescription: `And so, 675th Antimatter Dimension fan mod initiates<br>... Ahem, ten free Crazy Matter. Please.`,
 			done() { return player.c.points.gte(1) },
 			onComplete(){player.c.crazymatters=player.c.crazymatters.add(10)}
+		},
+		1: {
+			requirementDescription: "1 8th Crazy Dimension [WIP]",
+			effectDescription: `Unlock space and time upgrades.`,
+			done() { return player.c.buyables[81].gte(1) },
+			unlocked(){return hasMilestone("c", 0)}
 		},
 	},
 	upgrades: {
@@ -2152,6 +2173,11 @@ addLayer("c", {
 			tooltip: "Buy 8th Crazy Dimension",
 		},
 		21: {
+			name: "<h4>The hell is this?",
+			done(){return player.c.buyables[12].gte(1)||player.c.buyables[22].gte(1)||player.c.buyables[32].gte(1)||player.c.buyables[42].gte(1)||player.c.buyables[52].gte(1)||player.c.buyables[62].gte(1)},
+			tooltip: "Ascend for the first time",
+		},
+		22: {
 			name: "<h4>Is that even legal?",
 			done(){return player.c.buyables[91].gte(1)},
 			tooltip: "Buy 9th Crazy Dimension",
@@ -2843,14 +2869,16 @@ addLayer("o", {
 		points: new Decimal(0),
     }},
     color: "yellow",
-    requires(){return ((player.n.upgrades.length >= 29 && player.m.upgrades.length >= 6 && player.m.milestones.length >= 6 && player.n.milestones.length >= 3)||player.o.unlocked)?new Decimal(227880000):new Decimal("1e600000")}, // Can be a function that takes requirement increases into account
+	effectDescription(){return `granting you a ${formatWhole(player.o.points)} level cap`},
+    requires(){return ((player.n.upgrades.length >= 29 && player.m.upgrades.length >= 6 && player.m.milestones.length >= 6 && player.n.milestones.length >= 3)||player.o.unlocked)?new Decimal(227880000).mul(player.o.points.gte(36)?Decimal.mul(player.o.points.pow(3), player.o.points.div(2).add(32)).div(50):player.o.points.lt(36)&&player.o.points.gte(15)?Decimal.mul(player.o.points.pow(3), player.o.points.add(14)).div(50):player.o.points.lt(15)&&player.o.points.gte(1)?Decimal.mul(player.o.points, player.o.points.add(1).div(3).add(24)).div(50):1):new Decimal("1e600000")}, // Can be a function that takes requirement increases into account
 	tooltipLocked: "Reach 227,880,000 negative points and complete Neverend and Mango layers to unlock",
 	canReset(){return player.ab.negativePoints.gte(tmp.o.requires)},
     resource: "onions", // Name of prestige currency
     baseResource: "negative points", // Name of resource prestige is based on
     baseAmount() {return player.ab.negativePoints}, // Get the current amount of baseResource
-    type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0.5, // Prestige currency exponent
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    base: 40, // Prestige currency exponent
+    exponent: 1.1315975, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
         return mult
