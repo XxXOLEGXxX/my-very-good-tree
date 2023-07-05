@@ -2169,7 +2169,7 @@ addLayer("c", {
 	tooltipLocked: "Reach 4,970,000 negative points and complete Space and Time layers to unlock",
     row: 2, // Row the layer is in on the tree (0 is the first row)
     hotkeys: [
-        {key: "c", description: "C: Reset for crazy fucklots", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+        {key: "c", description: "C: Reset for craneniums", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
 	update(diff){
 		player.c.crazymatters = player.c.crazymatters.add(tmp.c.buyables[11].effect.mul(diff))
@@ -2366,7 +2366,7 @@ addLayer("n", {
     },
     row: 1, // Row the layer is in on the tree (0 is the first row)
     hotkeys: [
-        {key: "n", description: "N: Reset for neverends", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+        {key: "n", description: "N: Reset for symbols", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     layerShown(){return (player.ab.points.gte(5) && !player.ab.nostalgia) || (player.ab.nostalgia && player.ab.fuckyou)},
 	doReset(resettingLayer){
