@@ -14,28 +14,33 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.5.4",
-	name: "More Accurate Changelog",
+	num: "5.5",
+	name: "me omw to make people test this thing",
 }
 
 let changelog = `psssst hey<br>
-	x.0.0 = finished major content<br>
-	0.x.0 = available ng-x mode<br>
-	0.0.x = bugfixes and shticks<br><br><br>
+	x.0 = available ng-x mode<br>
+	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
-	<h4>v0.5.4: More Accurate Changelog (v0.5)</h4>
+	<h4>v5.5: me omw to make people test this thing (v0.6)</h4>
+		- Released Row 0 layers (not finished)<br>
+		- Fixed few more bugs that went unnoticed by everyone<br>
+		- Buffed certain things to make them actually viable compared to other options<br>
+		- Challenges now [REDACTED] whenever you can't obtain them anymore due conditions<br>
+		- 3rd challenge is humanly possible stfu<br>
+	<h4>v5.4: More Accurate Changelog (v0.5)</h4>
 		- Fixed NG----- layer's buyable not taking away your resource or taking away much more resource than what the price says<br>
 		- Rebalanced Nostalgia layers and added more content to them<br>
 		- Made 2nd version accurate to the amount of content has been uploaded<br>
-	<h4>v0.5.3: aawdwaawtjwoitgjawipotkaiokaw4 (v0.4.1)</h4>
+	<h4>v5.3: aawdwaawtjwoitgjawipotkaiokaw4 (v0.4.1)</h4>
 		- Fixed some upgrades yielding NaN due players being able to get negative [insert NG----- layer's point name here]<br>
 		- Fixed 3rd milestone of NG----- layer being given as a bonus for getting 2nd milestone<br>
-	<h4>v0.5.2: Early Access (v0.4)</h4>
+	<h4>v5.2: Early Access (v0.4)</h4>
 		- Finished 2 more NG----- layers.<br>
-	<h4>v0.5.1: no comment (v0.3.1)</h4>
+	<h4>v5.1: no comment (v0.3.1)</h4>
 		- Fixed Space's Dimension Shift not revealing next shape.<br>
 		- Updated my own theme.<br><br>
-	<h3>v0.5.0: fuck you nose (v0.3)</h3><br>
+	<h3>v5.0: fuck you nose (v0.3)</h3><br>
 		- Changed this mod's ID so it wouldn't conflict with other "mymod" mods<br>
 		- Finished first two layers of NG-----<br>
 		- Rebalanced NG----'s late game by accident<br>
@@ -43,15 +48,15 @@ let changelog = `psssst hey<br>
 		- Added Herobrine<br>
 		- Added super duper ultra mega ultimate layer with shortcuts<br>
 		- Two new themes (Hooray! :D)<br><br>
-	<h4>v0.4.1: Mobile QoL (v0.2.1)</h4>
+	<h4>v4.1: Mobile QoL (v0.2.1)</h4>
 		- Fixed some typos and minor tweaks<br>
 		- Made it possible to obtain all achievements no matter what you do<br>
 		- Added clickables to make this mod 10x less sufferable for mobile players<br><br>
-	<h3>v0.4: Inflation Strikes Back (v0.2)</h3><br>
+	<h3>v4: Inflation Strikes Back (v0.2)</h3><br>
 		- Added 3 available layers.<br>
 		- Fixed kilo prestige's hotkey typo and some hotkeys popping out way earlier than intended<br>
 		- Pushed Endgame up to NG----<br><br>
-	<h3>v0.3: PAIN NEVER ENDS (v0.1)</h3><br>
+	<h3>v3: PAIN NEVER ENDS (v0.1)</h3><br>
 		- Added about 9-10 available layers.<br>
 		- Ends at NG---<br>
 		- What else do you expect.`

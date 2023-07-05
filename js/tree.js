@@ -17,7 +17,7 @@ addNode("blank", {
 
 
 addLayer("tree-tab", {
-tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)?"<h1 style='color: darkred; font-size: 2.8em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You may only choose one pair of layers.</h1>":getPointGen().gte(Decimal.pow(2, 1024))?"<h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log(Decimal.pow(2, 1024)).floor())+" scaling root softcaps</h2>":""}], "blank", ["clickables", [4]], ["tree", function() {return (layoutInfo.treeLayout ? layoutInfo.treeLayout : TREE_LAYERS)}], ["clickables", [5]], "blank", ["clickables", [1]], "blank", ["clickables", [2]], "blank", ["clickables", [3]], "blank", ["clickables", [7]]],
+tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)?"<h1 style='color: darkred; font-size: 2.8em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You may only choose one pair of layers.</h1>":getPointGen().gte(Decimal.pow(2, 1024))?"<h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log(Decimal.pow(2, 1024)).floor())+" scaling root softcaps</h2>":""}], "blank", ["clickables", [4]], ["tree", function() {return (layoutInfo.treeLayout ? layoutInfo.treeLayout : TREE_LAYERS)}], ["clickables", [5]], "blank", ["clickables", [6]], "blank", ["clickables", [1]], "blank", ["clickables", [2]], "blank", ["clickables", [3]], "blank", ["clickables", [7]]],
     previousTab: "",
     leftTab: true,
 	clickables: {
@@ -195,6 +195,26 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
             onHold() {if (canReset("m")) doReset("m")},
 			style: {"background-color"(){
                 return tmp.m.color
+            }},
+        },
+        61: {
+            title: "Crazy reset",
+            unlocked() {return player.c.unlocked},
+            canClick() {return true},
+			onClick()  {if (canReset("c")) doReset("c")},
+            onHold() {if (canReset("c")) doReset("c")},
+			style: {"background-color"(){
+                return tmp.c.color
+            }},
+        },
+        62: {
+            title: "Onion reset",
+            unlocked() {return player.o.unlocked},
+            canClick() {return true},
+			onClick()  {if (canReset("o")) doReset("o")},
+            onHold() {if (canReset("o")) doReset("o")},
+			style: {"background-color"(){
+                return tmp.o.color
             }},
         },
         71: {
