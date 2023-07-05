@@ -2154,7 +2154,7 @@ addLayer("c", {
 	},
     color: "gray",
     requires(){return ((player.s.upgrades.length >= 6 && player.t.upgrades.length >= 6)||player.c.unlocked)?new Decimal(4970000):new Decimal("1e600000")}, // Can be a function that takes requirement increases into account
-    resource: "crazy fucklots", // Name of prestige currency
+    resource: "craneniums", // Name of prestige currency
     baseResource: "negative points", // Name of resource prestige is based on
     baseAmount() {return player.ab.negativePoints}, // Get the current amount of baseResource
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
