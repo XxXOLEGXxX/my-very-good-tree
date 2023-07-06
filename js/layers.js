@@ -1517,7 +1517,7 @@ addLayer("sdumsl", {
 						player.s.unlocked = false
 						player.n.unlocked = false
 						player.m.unlocked = false
-						player.st.unlocked = false
+						player.c.unlocked = false
 						player.o.unlocked = false
 						player.a.normalAchievements = new Decimal(5)
 						player.a.fame = new Decimal(0)
@@ -1559,7 +1559,7 @@ addLayer("sdumsl", {
             }},
         },
         14: {
-            title(){return "ACT 4:<br>"+(hasAchievement("a", 1011)?"L":"█")+(hasAchievement("a", 1012)?"a":"█")+"████'s Fury<br><br>[NG----]"},
+            title(){return "ACT 4:<br>"+(hasAchievement("a", 1011)?"L":"█")+(hasAchievement("a", 1012)?"a":"█")+(hasAchievement("a", 1013)?"e":"█")+"███'s Fury<br><br>[NG----]"},
 			//bruh you really thought i'd let you know the name like that
 			
 			//get yo ass up and watch some Party Crashers instead
