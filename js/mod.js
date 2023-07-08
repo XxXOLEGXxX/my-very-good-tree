@@ -14,14 +14,20 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.5",
-	name: "me omw to make people test this thing",
+	num: "5.6",
+	name: "uggh",
 }
 
-let changelog = `psssst hey<br>
+let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
+	psssst hey<br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v5.6: uggh (v0.6.1)</h4>
+		- Pushed endgame a bit further<br>
+		- Added 3 background musics (you can toggle them in options once you progress far enough)<br>
+		- Added few more gags and bugfixes<br>
+		- Nerfed Tetrational Balancer to prevent it from tetrating the hell out of my mod and killing it<br>
 	<h4>v5.5: me omw to make people test this thing (v0.6)</h4>
 		- Released Row 0 layers (not finished)<br>
 		- Fixed few more bugs that went unnoticed by everyone<br>
@@ -91,7 +97,7 @@ function getBypassedPointGen() {
 	if(hasUpgrade("s", 12)) gain = gain.mul(upgradeEffect("s", 12))
 	if(hasUpgrade("t", 11)) gain = gain.mul(tmp.t.effectSecond)
 	gain = gain.mul(tmp.n.totalEffect)
-	if(hasUpgrade("n", 11)&&player.points.gt(0)) gain = gain.mul(upgradeEffect("n", 11))
+	if((hasUpgrade("n", 11)&&player.points.gt(0))||(hasUpgrade("n", 11)&&hasMilestone("o", 3))) gain = gain.mul(upgradeEffect("n", 11))
 	if(hasUpgrade("n", 12)) gain = gain.mul(upgradeEffect("n", 12))
 	if(hasUpgrade("n", 13)) gain = gain.mul(upgradeEffect("n", 13))
 	if(hasUpgrade("n", 14)) gain = gain.mul(tmp.n.bestDayEffect)
@@ -143,7 +149,7 @@ function getPointGen() {
 	if(hasUpgrade("s", 12)) gain = gain.mul(upgradeEffect("s", 12))
 	if(hasUpgrade("t", 11)) gain = gain.mul(tmp.t.effectSecond)
 	gain = gain.mul(tmp.n.totalEffect)
-	if(hasUpgrade("n", 11)&&player.points.gt(0)) gain = gain.mul(upgradeEffect("n", 11))
+	if((hasUpgrade("n", 11)&&player.points.gt(0))||(hasUpgrade("n", 11)&&hasMilestone("o", 3))) gain = gain.mul(upgradeEffect("n", 11))
 	if(hasUpgrade("n", 12)) gain = gain.mul(upgradeEffect("n", 12))
 	if(hasUpgrade("n", 13)) gain = gain.mul(upgradeEffect("n", 13))
 	if(hasUpgrade("n", 14)) gain = gain.mul(tmp.n.bestDayEffect)

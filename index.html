@@ -41,6 +41,15 @@
 
 <body onload="load()" onmousemove="updateMouse(event)">
 	<div id="app">
+		<audio id = "idAudio1" loop>
+			<source src="music/ng1.ogg" type="audio/ogg">
+		</audio>
+		<audio id = "idAudio2" loop>
+			<source src="music/ng2.ogg" type="audio/ogg">
+		</audio>
+		<audio id = "idAudio3" loop>
+			<source src="music/ng3.ogg" type="audio/ogg">
+		</audio>
 		<canvas id="treeCanvas" class="canvas" v-if="!(tmp.gameEnded && !player.keepGoing)"></canvas>
 
 		<div v-if="false" id="loadingSection" class="fullWidth">
