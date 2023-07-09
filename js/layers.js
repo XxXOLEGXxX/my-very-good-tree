@@ -1503,8 +1503,10 @@ addLayer("sdumsl", {
 						player.m.milestones = []
 						player.m.buyables[11] = new Decimal(0)
 						player.ab.points = new Decimal(1)
+						if(!options.musicToggle==0){
 						document.getElementById("idAudio"+(options.musicToggle)).pause()
 						document.getElementById("idAudio"+(options.musicToggle)).currentTime = 0
+						}
 						options.musicToggle = 1
 						document.getElementById("idAudio"+(options.musicToggle)).play()
 						player.n.framerule = new Decimal(0)
@@ -1573,8 +1575,10 @@ addLayer("sdumsl", {
 			onClick()  {tmp.sdumsl.clickables[11].onClick()
 						player.a.achievements = ['11', '12', '13', '14', '15', '21', '22', '23', '24', '25', '31']
 						player.ab.points = new Decimal(2)
+						if(!options.musicToggle==0){
 						document.getElementById("idAudio"+(options.musicToggle)).pause()
 						document.getElementById("idAudio"+(options.musicToggle)).currentTime = 0
+						}
 						options.musicToggle = 2
 						document.getElementById("idAudio"+(options.musicToggle)).play()
 						player.b.unlocked = true
@@ -1594,8 +1598,10 @@ addLayer("sdumsl", {
 			onClick()  {tmp.sdumsl.clickables[12].onClick()
 						player.a.achievements = ['11', '12', '13', '14', '15', '21', '22', '23', '24', '25', '31', '32', '33', '34', '35', '41']
 						player.ab.points = new Decimal(3)
+						if(!options.musicToggle==0){
 						document.getElementById("idAudio"+(options.musicToggle)).pause()
 						document.getElementById("idAudio"+(options.musicToggle)).currentTime = 0
+						}
 						options.musicToggle = 3
 						document.getElementById("idAudio"+(options.musicToggle)).play()
 						player.kb.unlocked = true
