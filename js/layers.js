@@ -2263,12 +2263,6 @@ addLayer("c", {
 		if(tmp[resettingLayer].row > this.row){
 			player[this.layer].points = new Decimal(0)
 		}
-		if(hasUpgrade("t", 14) && tmp[resettingLayer].row>=1) {
-			if(player.ab.buyables[11].gte(3)) player.ab.buyables[11] = new Decimal(2), player.ab.spentPoints = player.ab.spentPoints.sub(3)
-			if(player.ab.buyables[12].gte(3)) player.ab.buyables[12] = new Decimal(2), player.ab.spentPoints = player.ab.spentPoints.sub(3)
-			if(player.ab.buyables[13].gte(3)) player.ab.buyables[13] = new Decimal(2), player.ab.spentPoints = player.ab.spentPoints.sub(3)
-			if(player.ab.buyables[14].gte(3)) player.ab.buyables[14] = new Decimal(2), player.ab.spentPoints = player.ab.spentPoints.sub(3)
-		}
 	},
 	milestones: {
 		0: {
@@ -2400,6 +2394,13 @@ addLayer("c", {
 			player.c.achievements = []
 			player.c.crazymatters = new Decimal(0)
 			player.c.milestones = []
+		}
+		if(tmp[resettingLayer].row>=2&&player.ab.shopPoints.lt(1)) {
+			player.ab.buyables[11] = new Decimal(0)
+			player.ab.buyables[12] = new Decimal(0)
+			player.ab.buyables[13] = new Decimal(0)
+			player.ab.buyables[14] = new Decimal(0)
+			player.ab.spentPoints = new Decimal(0)
 		}
 	}
 })
@@ -3174,6 +3175,13 @@ addLayer("o", {
 		if(tmp[resettingLayer].row > this.row){
 			player.o.points = new Decimal(0)
 			player.o.milestones = []
+		}
+		if(tmp[resettingLayer].row>=2&&player.ab.shopPoints.lt(1)) {
+			player.ab.buyables[11] = new Decimal(0)
+			player.ab.buyables[12] = new Decimal(0)
+			player.ab.buyables[13] = new Decimal(0)
+			player.ab.buyables[14] = new Decimal(0)
+			player.ab.spentPoints = new Decimal(0)
 		}
 	}
 })
