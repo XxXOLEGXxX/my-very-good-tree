@@ -15,16 +15,24 @@ function gimmeManyDimensions(x){
 		let trustMeWeNeedThis = ["CM", (i-1)+"CD"][i-1>=1?1:i-1]
 		Object.assign(magicLOL, gimmeDimension(i*10+1,
 					     function(){return `${i+theThing} Crazy Dimensions: ${formatWhole(player.c.buyables[this.id])}<br>Cost: ${format(this.cost())} Multiplier: ${format(this.multiplier())}x<br>${trustMeWeNeedThis}/s: ${format(this.effect())}`},
-					     function(){return new Decimal(costInitial[i-1]).mul(Decimal.pow(costScale[i-1], player.c.bought[i-1]))},
-						 function(){return player.c.crazymatters.gte(this.cost())},
+					     function(){let letMeScale = new Decimal(player.c.bought[i-1])
+									if(inChallenge("c", 22)){
+										for(let v=21;v>i;v=v-1){
+											letMeScale = letMeScale.add(player.c.bought[v-1])
+										}										
+									}
+									return new Decimal(costInitial[i-1]).mul(Decimal.pow(costScale[i-1], letMeScale))},
+						 function(){return inChallenge("c", 31)&&i>4?false:player.c.crazymatters.gte(this.cost())},
 						 function(){player.c.crazymatters = player.c.crazymatters.sub(new Decimal(costInitial[i-1]).mul(Decimal.pow(costScale[i-1], player.c.bought[i-1]))).max(0)
 									player.c.buyables[this.id] = player.c.buyables[this.id].add(1)
 									player.c.bought[i-1] = new Decimal(player.c.bought[i-1]).add(1)
 									player.c.bester[i-1] = new Decimal(player.c.best[i-1]).max(new Decimal(player.c.bought[i-1]))},
-					  	 function(){return player.subtabs.c.mainTabs=="Normal"?(i>1)?player.c.buyables[this.id-10].gte(1):true:false},
-						 function(){return player.c.buyables[this.id].mul(this.multiplier()).mul(Decimal.pow(20, player.c.buyables[i*10+2])).mul(tmp.c.effectCool)},
+					  	 function(){return player.subtabs.c.mainTabs=="Normal"?(i>1)?inChallenge("c", 31)&&i>4?false:player.c.buyables[this.id-10].gte(1):true:false},
+						 function(){return player.c.buyables[this.id].mul(this.multiplier()).mul(Decimal.pow(20, player.c.buyables[i*10+2])).mul(tmp.c.effectCool).mul(hasUpgrade("c", 11)&&i>=1&&i<=3?upgradeEffect("c", 11):1).mul(hasUpgrade("c", 21)&&i>=4&&i<=6?upgradeEffect("c", 21):1).mul(hasUpgrade("c", 31)&&i>=7&&i<=8?upgradeEffect("c", 31):1).mul(hasUpgrade("c", 41)&&i>=9&&i<=11?upgradeEffect("c", 41):1).mul(hasUpgrade("c", 12)?upgradeEffect("c", 12):1).mul(hasUpgrade("c", 32)?upgradeEffect("c", 32):1)},
 						 function(){return{'height':'64px','width':'352px','border-radius':'10%'}},
-						 function(){return Decimal.pow(Decimal.mul(2, Decimal.pow(1.0591341621268264, player.c.achievements.length)), Decimal.sub(player.c.bought[i-1], 1)).max(1)},
+						 function(){let multiplier = new Decimal(2)
+									if(hasUpgrade("c", 22)) multiplier = new Decimal(2.2)
+									return Decimal.pow(Decimal.mul(multiplier, Decimal.pow(1.0591341621268264, player.c.achievements.length)), Decimal.sub(player.c.bought[i-1], 1)).max(1)},
 						 function(){return player.c.bought[i-1]}
 						 ))
 		cC[i+1] = cC[i-1]+cC[i]	
@@ -749,7 +757,7 @@ addLayer("ab", {
 		0: {
 			requirementDescription: "Did you just beat NG-- without De Noido...?<h5>(you get NG-- achievements you missed)",
 			effectDescription: "",
-			done() { return player.ab.points.gte(3) && (!hasAchievement("a", 34) || !hasAchievement("a", 35)) },
+			done() { return !options.assholeMode&&player.ab.points.gte(3) && (!hasAchievement("a", 34) || !hasAchievement("a", 35)) },
 			onComplete() { if(!hasAchievement("a", 34)) {player.a.achievements.push('34')
 							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
 						   if(!hasAchievement("a", 35)) {player.a.achievements.push('35')
@@ -764,7 +772,7 @@ addLayer("ab", {
 		2: {
 			requirementDescription: "Really? We're doing this again?<h5>(you get NG---- achievements you missed)",
 			effectDescription: "",
-			done() { return player.ab.points.gte(5) && (!hasAchievement("a", 54) || !hasAchievement("a", 55) || !hasAchievement("a", 16) || !hasAchievement("a", 26) || !hasAchievement("a", 36) || !hasAchievement("a", 46) || !hasAchievement("a", 56)) },
+			done() { return !options.assholeMode&&player.ab.points.gte(5) && (!hasAchievement("a", 54) || !hasAchievement("a", 55) || !hasAchievement("a", 16) || !hasAchievement("a", 26) || !hasAchievement("a", 36) || !hasAchievement("a", 46) || !hasAchievement("a", 56)) },
 			onComplete() { if(!hasAchievement("a", 54)) {player.a.achievements.push('54')
 							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
 						   if(!hasAchievement("a", 55)) {player.a.achievements.push('55')
@@ -1158,6 +1166,7 @@ addLayer("a", {
     color: "yellow",
     row: "side",
 	update(diff){
+		player.a.unlocked = !options.assholeMode
 		player.a.vibeCheck = player.a.sine
 		player.a.sine = player.a.sine.add(diff)
 		player.a.X = new Decimal(0).add(Math.sin(player.a.sine*1.618)).times(5)
@@ -1171,7 +1180,7 @@ addLayer("a", {
 		player.a.thirtyTwoY = new Decimal(Math.random()).sub(0.5).times(24)
 		player.a.XG = new Decimal(0).add(Math.sin(player.a.sine*0.2)).times(1000)
 	},
-    layerShown(){return true},
+    layerShown(){return !options.assholeMode},
 	tooltip: "Achievements",
 	tabFormat: {
 		"Achievements": {
@@ -1186,14 +1195,14 @@ addLayer("a", {
 	achievements: {
 		11: {
 			name: "Welcome",
-			done(){return player.p.points.gte(1)},
+			done(){return !options.assholeMode&& player.p.points.gte(1)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Perform a prestige reset.",
 			style(){return {'background-color': (hasAchievement("a",this.id)?(player.ab.points.gte(4)?'#BF5F5F':'#77BF5F'):'#bf8f8f')}}
 		},
 		12: {
 			name: "to",
-			done(){return player.kp.points >=1},
+			done(){return !options.assholeMode&& player.kp.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Perform a kilo prestige reset.",
 			unlocked(){return hasAchievement("a", 11)},
@@ -1201,7 +1210,7 @@ addLayer("a", {
 		},
 		13: {
 			name: "your",
-			done(){return player.mp.points >=1},
+			done(){return !options.assholeMode&& player.mp.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Perform a mega prestige reset.",
 			unlocked(){return hasAchievement("a", 12)},
@@ -1209,7 +1218,7 @@ addLayer("a", {
 		},
 		14: {
 			name: "worst",
-			done(){return player.gp.points >=1},
+			done(){return !options.assholeMode&& player.gp.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Perform a giga prestige reset.",
 			unlocked(){return hasAchievement("a", 13)},
@@ -1217,7 +1226,7 @@ addLayer("a", {
 		},
 		15: {
 			name(){return hasAchievement("a", 15)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:(player.ab.points.gte(4)?player.a.Y2:player.a.Y))+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>nightmare.<h3/>":"AAAUGJRUOGJRO WHAT THE FUCK!!?!? WHAT THE FUCK IS THAT?!"},
-			done(){return player.ab.points >=1},
+			done(){return !options.assholeMode&& player.ab.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return hasAchievement("a", 15)?"Perform an... anti balance reset?<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: There was no reward...<br>... until now.<br>Unlocks Magic Music Box :D<h3/>":"Perform an... anti balance reset?"},
 			unlocked(){return hasAchievement("a", 14)},
@@ -1225,7 +1234,7 @@ addLayer("a", {
 		},
 		21: {
 			name: "ROW! ROW! FIGHT THE POWER!",
-			done(){return player.p.upgrades.length >=3 && player.ab.points >=1},
+			done(){return !options.assholeMode&& player.p.upgrades.length >=3 && player.ab.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Purchase 3 prestige upgrades in NG- mode.",
 			unlocked(){return hasAchievement("a", 15)},
@@ -1233,7 +1242,7 @@ addLayer("a", {
 		},
 		22: {
 			name(){return hasAchievement("a", 22)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>I pity you.<h3/>":"Kilo-Mega Prestige"},
-			done(){return player.gp.points >=1 && player.ab.points >=1},
+			done(){return !options.assholeMode&& player.gp.points >=1 && player.ab.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return hasAchievement("a", 22)?"Perform a giga prestige reset in NG- mode.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: Not all 'Reward' are supposed to be disappointing, after all. Unlocks Booster layer.<h3/>":"Perform a giga prestige reset in NG- mode."},
 			unlocked(){return hasAchievement("a", 15)},
@@ -1241,7 +1250,7 @@ addLayer("a", {
 		},
 		23: {
 			name: "Game Changer",
-			done(){return upgradeRow("kp", 2, true) >= 1 && player.ab.points >=1},
+			done(){return !options.assholeMode&& upgradeRow("kp", 2, true) >= 1 && player.ab.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Purchase 2nd row kilo prestige upgrade in NG- mode.",
 			unlocked(){return hasAchievement("a", 15)},
@@ -1249,7 +1258,7 @@ addLayer("a", {
 		},
 		24: {
 			name(){return (hasAchievement("a", 25))?(player.gp.points.add(getResetGain("gp"))>=100||hasAchievement("a", 31))?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>OnlY 90 mOrE tO gO lmfAAAAAAAO.<h3/>":(player.gp.points.add(getResetGain("gp"))>=95)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>^-^👍<h3/>":(player.gp.points.add(getResetGain("gp"))>=90)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>._.=≡⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=85)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>._.⋗⨿∫≅=≡⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=80)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>'-'⋗⨿∫≅=≡⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=75)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>* ¬*⨿∫≅=≡⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=70)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>* ¬*∫≅=≡⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=70)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>ò ¬ó∫≅=≡⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=65)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>ò ¬ó≅=≡⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=65)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>ò ¬ó=≡⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=60)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>ò ¬ó≡⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=55)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>ò ¬ó⊐-<h3/>":(player.gp.points.add(getResetGain("gp"))>=50)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>ò¬ó-<h3/>":(player.gp.points.add(getResetGain("gp"))>=45)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>ò¬ó<h3/>":(player.gp.points.add(getResetGain("gp"))>=40)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br><br>>;[<h3/>":(player.gp.points.add(getResetGain("gp"))>=35)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br><br>>;[<h3/>":(player.gp.points.add(getResetGain("gp"))>=30)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br><br><br>>;[<h3/>":(player.gp.points.add(getResetGain("gp"))>=25)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br><br><br>>;[<h3/>":hasAchievement("a", 25)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>HEY! Not cool, bro...<br>>;[<h3/>":hasAchievement("a", 24)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>OnlY 90 mOrE tO gO lmfAAAAAAAO.<h3/>":"Only 90 more to go":hasAchievement("a", 24)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>OnlY 90 mOrE tO gO lmfAAAAAAAO.<h3/>":"Only 90 more to go"},
-			done(){return player.gp.points >= 10 && player.ab.points >=1},
+			done(){return !options.assholeMode&& player.gp.points >= 10 && player.ab.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return hasAchievement("a", 24)?"Reach 10 giga prestige points in NG- mode.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: I'm sorry, but this is the funniest thing I've ever seen in this week. Unlocks Primordial Boosters<h3/>":"Reach 10 giga prestige points in NG- mode."},
 			unlocked(){return hasAchievement("a", 15)},
@@ -1257,7 +1266,7 @@ addLayer("a", {
 		},
 		25: {
 			name(){return (hasAchievement("a", 25))?(hasAchievement("a", 33))?"This achievement is -20% cooler than the previous one<br>;]":(player.gp.points.add(getResetGain("gp"))>=100||hasAchievement("a", 31))?"This achievement is -20% cooler than the previous one<br><br><br>;]":(player.gp.points.add(getResetGain("gp"))>=95)?"This achievement is -20% cooler than the previous one<br><br><br>': ]":(player.gp.points.add(getResetGain("gp"))>=90)?"This achievement is -20% cooler than the previous one<br><br><br>': |":(player.gp.points.add(getResetGain("gp"))>=85)?"This achievement is -20% cooler than the previous one<br><br><br>':|":(player.gp.points.add(getResetGain("gp"))>=80)?"This achievement is -20% cooler than the previous<br>':|":(player.gp.points.add(getResetGain("gp"))>=75)?"This achievement is':|0% cooler than the previous one":(player.gp.points.add(getResetGain("gp"))>=70)?"This achievement is 20% cooler than the previous<br>':|":(player.gp.points.add(getResetGain("gp"))>=65)?"This achievement is 20% cooler than the previous one<br><br><br>':|":(player.gp.points.add(getResetGain("gp"))>=60)?"This achievement is 20% cooler than the previous one<br><br><br>': |":(player.gp.points.add(getResetGain("gp"))>=55)?"This achievement is 20% cooler than the previous one<br><br><br>: |":(player.gp.points.add(getResetGain("gp"))>=50)?"This achievement is 20% cooler than the previous one<br><br><br>>: ]":(player.gp.points.add(getResetGain("gp"))>=20||hasAchievement("a", 25))?"This achievement is 20% cooler than the previous one<br><br><br>>:]":(player.gp.points.add(getResetGain("gp"))>=15)?"This achievement is 20% cooler than the previous one >:]":"This achievement is 20% cooler >:]":(player.gp.points.add(getResetGain("gp"))>=20||hasAchievement("a", 25))?"This achievement is 20% cooler than the previous one<br><br><br>>:]":(player.gp.points.add(getResetGain("gp"))>=15)?"This achievement is 20% cooler than the previous one >:]":"This achievement is 20% cooler >:]"},
-			done(){return player.gp.points >=20 && player.ab.points >=1},
+			done(){return !options.assholeMode&& player.gp.points >=20 && player.ab.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Reach 20 giga prestige points in NG- mode<br>Reward: Upgrades are cheaper based on themselves that use the same currency.",
 			unlocked(){return hasAchievement("a", 15)},
@@ -1265,7 +1274,7 @@ addLayer("a", {
 		},
 		31: {
 			name(){return hasAchievement("a", 31)?"Speaking of cretin...":(player.gp.points.add(getResetGain("gp"))>=100)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Alright, I'm done with this cretin. >:[<h3/>":""},
-			done(){return player.ab.points >= 2},
+			done(){return !options.assholeMode&& player.ab.points >= 2},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return (player.gp.points.add(getResetGain("gp"))>=100||hasAchievement("a", 31))?"Perform an anti balance reset. Again. Reward: Each anti-balance unlocks new booster layer. Also unlocks the shop.":" "},
 			unlocked(){return hasAchievement("a", 25)},
@@ -1273,7 +1282,7 @@ addLayer("a", {
 		},
 		32: {
 			name(){return hasAchievement("a", 32)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>I knew I shouldn't have nerfed NG-.<h3/>":"So soon already?!"},
-			done(){return player.kb.points >= 1},
+			done(){return !options.assholeMode&& player.kb.points >= 1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return hasAchievement("a", 32)?"Perform a kilo booster reset.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.thirtyTwoX.add(player.a.X2):player.a.thirtyTwoX)+"px "+(player.ab.points.gte(4)?player.a.thirtyTwoY.add(player.a.Y2):player.a.thirtyTwoY)+"px "+(player.ab.points.gte(4)?player.a.thirtyTwoS.add(player.a.S2):player.a.thirtyTwoS)+"px;'>Reward: <h3>[Strength Type]</h3><br><h3/>":"Perform a kilo booster reset."},
 			unlocked(){return hasAchievement("a", 31)},
@@ -1281,7 +1290,7 @@ addLayer("a", {
 		},
 		33: {
 			name(){return hasAchievement("a", 33)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>U mad mobile?<br><br>i didn't really mean that btw<br>。_。<h3/>":"Heaven's Gift"},
-			done(){return player.gp.points >= 200 && player.ab.points.gte(2)},
+			done(){return !options.assholeMode&& player.gp.points >= 200 && player.ab.points.gte(2)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return hasAchievement("a", 33)?"Reach 200 giga prestige points.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: uhhhh de noido<h3/>":"Reach 200 giga prestige points."},
 			unlocked(){return hasAchievement("a", 31)},
@@ -1289,7 +1298,7 @@ addLayer("a", {
 		},
 		34: {
 			name(){return "<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>This De Noido is pissing me off.<h3/>"},
-			done(){return player.dn.pogos.gte(1)},
+			done(){return !options.assholeMode&& player.dn.pogos.gte(1)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return hasAchievement("a", 34)?"Reach 1 pogo.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+player.a.X+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: Let me create an upgrade, just for you.<h3/>":"Reach 1 pogo."},
 			unlocked(){return hasAchievement("a", 33) ||hasAchievement("a", 34)},
@@ -1297,7 +1306,7 @@ addLayer("a", {
 		},
 		35: {
 			name(){return "<h3 style='color: yellow;, font-family: 'Comic Sans MS';'>PARADOXICAL ANAL BULLSHITERY<h3/>"},
-			done(){return player.dn.points.gte(2)},
+			done(){return !options.assholeMode&& player.dn.points.gte(2)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<span style='color: yellow;, font-family: 'Comic Sans MS';'>Reach 2 de noidos.<br>Reward: start running.<span/>"},
 			unlocked(){return hasUpgrade("dn", 11)||hasAchievement("a", 35)},
@@ -1305,7 +1314,7 @@ addLayer("a", {
 		},
 		41: {
 			name: "Never Again",
-			done(){return player.ab.points >=3},
+			done(){return !options.assholeMode&& player.ab.points >=3},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Perform an anti balance reset for the third time.",
 			unlocked(){return hasAchievement("a", 35)},
@@ -1313,7 +1322,7 @@ addLayer("a", {
 		},
 		42: {
 			name: "Seems Familiar",
-			done(){return player.mb.points >=1},
+			done(){return !options.assholeMode&& player.mb.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Perform a mega booster reset.",
 			unlocked(){return hasAchievement("a", 41)},
@@ -1321,7 +1330,7 @@ addLayer("a", {
 		},
 		43: {
 			name: "Hell Awaits",
-			done(){return upgradeRow("mp", 3, true) >= 1 && player.ab.points >=3},
+			done(){return !options.assholeMode&& upgradeRow("mp", 3, true) >= 1 && player.ab.points >=3},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Purchase 3rd row mega prestige upgrade in NG--- mode.",
 			unlocked(){return hasAchievement("a", 41)},
@@ -1329,7 +1338,7 @@ addLayer("a", {
 		},
 		44: {
 			name: "Full Set",
-			done(){return player.gp.upgrades.length + player.mp.upgrades.length + player.kp.upgrades.length + player.p.upgrades.length >= 30},
+			done(){return !options.assholeMode&& player.gp.upgrades.length + player.mp.upgrades.length + player.kp.upgrades.length + player.p.upgrades.length >= 30},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip: "Purchase all 30 upgrades in NG--- mode.",
 			unlocked(){return hasAchievement("a", 43)},
@@ -1337,7 +1346,7 @@ addLayer("a", {
 		},
 		45: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>I've let you live long enough.<h3/>"},
-			done(){return player.ab.points.gte(4)},
+			done(){return !options.assholeMode&& player.ab.points.gte(4)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Perform an anti balance reset for the fourth time."},
 			unlocked(){return hasAchievement("a", 44)},
@@ -1345,7 +1354,7 @@ addLayer("a", {
 		},
 		51: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>It was a misinput MISINPUT CALM DOWN YOU CALM THE FUCK DOWN THERE WAS A MISINPUT.<h3/>"},
-			done(){return player.g.points.gte(1) && player.ab.points.gte(4)},
+			done(){return !options.assholeMode&& player.g.points.gte(1) && player.ab.points.gte(4)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Perform a generator reset...<br><br>Oops."},
 			unlocked(){return hasAchievement("a", 45)},
@@ -1353,7 +1362,7 @@ addLayer("a", {
 		},
 		52: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>"+(hasAchievement("a", 52)?"oh no":"This is it.")+"<h3/>"},
-			done(){return player.gp.points.gte(1) && player.ab.points.gte(4)},
+			done(){return !options.assholeMode&& player.gp.points.gte(1) && player.ab.points.gte(4)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>"+(hasAchievement("a", 52)?"oh god no<br><br>no wait the fu-<br><br>I LITERALLY JUST BLINKED HOW DID YOU GET THOSE LAYERS ALREADY?!":"Perform a giga prestige reset. Cutely.")},
 			unlocked(){return hasAchievement("a", 45)},
@@ -1361,7 +1370,7 @@ addLayer("a", {
 		},
 		53: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Disastrous Gameplay.<h3/>"},
-			done(){return player.mpkb.points.gte(1) || player.kbg.points.gte(1)},
+			done(){return !options.assholeMode&& player.mpkb.points.gte(1) || player.kbg.points.gte(1)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Perform Prestigious Booster or Unstability reset<br>Reward: Two can play this game."},
 			unlocked(){return hasAchievement("a", 52)},
@@ -1369,7 +1378,7 @@ addLayer("a", {
 		},
 		54: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Hehehehehe. That should hold 'em alright.<h3/>"},
-			done(){return player.pb.points.gte(1) && player.ab.points.gte(4)},
+			done(){return !options.assholeMode&& player.pb.points.gte(1) && player.ab.points.gte(4)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Perform a Primordial Booster reset in NG---- mode<br>Unintended Reward: You can reset Primordial Booster's stored boosters"},
 			unlocked(){return hasAchievement("a", 52)},
@@ -1377,7 +1386,7 @@ addLayer("a", {
 		},
 		55: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Is it even wortht grinding anymore?<h3/>"},
-			done(){return player.gb.points.gte(2)},
+			done(){return !options.assholeMode&& player.gb.points.gte(2)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Reach 2 giga boosters"},
 			unlocked(){return hasAchievement("a", 52)},
@@ -1385,7 +1394,7 @@ addLayer("a", {
 		},
 		16: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>STOP.<h3/>"},
-			done(){return player.gp.points.gte(100000)},
+			done(){return !options.assholeMode&& player.gp.points.gte(100000)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Reach 100,000 giga prestige points.<br>Reward: Giga Prestige Point gain is doubled."},
 			unlocked(){return hasAchievement("a", 55)},
@@ -1393,7 +1402,7 @@ addLayer("a", {
 		},
 		26: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Primordial Rage.<h3/>"},
-			done(){return player.gp.points.gte(1000000)},
+			done(){return !options.assholeMode&& player.gp.points.gte(1000000)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Reach 1,000,000 giga prestige points.<br>Reward: Giga Boosters no longer reset anything."},
 			unlocked(){return hasAchievement("a", 55)},
@@ -1401,7 +1410,7 @@ addLayer("a", {
 		},
 		36: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>I didn't know it was even possible to go THIS far...<h3/>"},
-			done(){return player.points.gte(Decimal.pow(2, 1024))},
+			done(){return !options.assholeMode&& player.points.gte(Decimal.pow(2, 1024))},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Reach 1.79e308 points.<br>Reward: Get softcapped, stupid idiot dumb."},
 			unlocked(){return hasAchievement("a", 55)},
@@ -1409,7 +1418,7 @@ addLayer("a", {
 		},
 		46: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>That's twice the amount required to buy max generators!<h3/>"},
-			done(){return player.g.points.gte(30)},
+			done(){return !options.assholeMode&& player.g.points.gte(30)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Reach 30 generators.<br>Reward: You generate 1 generator per second whenever they're available."},
 			unlocked(){return hasAchievement("a", 55)},
@@ -1417,7 +1426,7 @@ addLayer("a", {
 		},
 		56: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>"+(player.ab.points.lt(5)&&player.gp.points.gte("5e85")?"oops .-.":player.ab.points.lt(5)&&player.gp.points.gte("2e85")?"THIS ISN'T OVER.":"The game truly begins.")+"<h3/>"},
-			done(){return player.ab.points.gte(5)},
+			done(){return !options.assholeMode&& player.ab.points.gte(5)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Perform a Anti-Balance reset for the 5th time."},
 			unlocked(){return hasAchievement("a", 55)},
@@ -1425,7 +1434,7 @@ addLayer("a", {
 		},
 		61: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>New Beginning.<h3/>"},
-			done(){return player.s.unlocked||player.t.unlocked||player.m.unlocked||player.n.unlocked},
+			done(){return !options.assholeMode&& player.s.unlocked||player.t.unlocked||player.m.unlocked||player.n.unlocked},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Perform a Row -1 reset."},
 			unlocked(){return player.ab.points.gte(5)},
@@ -1433,7 +1442,7 @@ addLayer("a", {
 		},
 		62: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>This is anything but imaginary.<h3/>"},
-			done(){return getBypassedPointGen().lte(-1) && player.ab.negativePoints.gt(1)},
+			done(){return !options.assholeMode&& getBypassedPointGen().lte(-1) && player.ab.negativePoints.gt(1)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Reach -1 points/sec at negative points."},
 			unlocked(){return player.ab.points.gte(5)},
@@ -1441,7 +1450,7 @@ addLayer("a", {
 		},
 		63: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Gee Acamaeda! How Come Your Engine Lets You Eat Two Layers?<h3/>"},
-			done(){return (player.s.unlocked&&player.t.unlocked)||(player.m.unlocked&&player.n.unlocked)},
+			done(){return !options.assholeMode&& (player.s.unlocked&&player.t.unlocked)||(player.m.unlocked&&player.n.unlocked)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Unlock 2 Row -1 layers."},
 			unlocked(){return player.ab.points.gte(5)},
@@ -1449,7 +1458,7 @@ addLayer("a", {
 		},
 		64: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Are we allowed to reuse mechanics from other Incremental Games?<h3/>"},
-			done(){return player.c.unlocked||player.o.unlocked},
+			done(){return !options.assholeMode&& player.c.unlocked||player.o.unlocked},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Perform a Row 0 row."},
 			unlocked(){return player.ab.points.gte(5)},
@@ -1458,21 +1467,21 @@ addLayer("a", {
 		1011: {
 			name(){return (player.s.unlocked || player.t.unlocked || player.n.unlocked || player.m.unlocked)&&!hasAchievement("a", 1011)?"":hasAchievement("a", 1011)?"L":"PATIENCE"},
 			onComplete(){player.a.fame=player.a.fame.add(1)},
-			done(){return player.ab.negativePoints.gte(10) && player.ab.buyables[11].lte(0) && player.ab.buyables[12].lte(0) && player.ab.buyables[13].lte(0) && player.ab.buyables[14].lte(0) && !player.s.unlocked && !player.t.unlocked && !player.n.unlocked && !player.m.unlocked},
+			done(){return !options.assholeMode&& player.ab.negativePoints.gte(10) && player.ab.buyables[11].lte(0) && player.ab.buyables[12].lte(0) && player.ab.buyables[13].lte(0) && player.ab.buyables[14].lte(0) && !player.s.unlocked && !player.t.unlocked && !player.n.unlocked && !player.m.unlocked},
 			tooltip(){return (player.s.unlocked || player.t.unlocked || player.n.unlocked || player.m.unlocked)&&!hasAchievement("a", 1011)?"[REDACTED]":"Reach -10 points without Balancers or -1 Row layers.<br>Reward: You can respec Balancers without resetting the progress."},
 			style(){return {'background': ((player.s.unlocked || player.t.unlocked || player.n.unlocked || player.m.unlocked)&&!hasAchievement("a", 1011)?'black':hasAchievement("a",this.id)?'repeating-linear-gradient('+(player.a.fame.gte(3)?'cyan, lightblue, cyan':'#FFDF00, #D4AF37, #FFDF00')+')':'#bf8f8f'), 'background-size': '40% 75%', 'background-position': '50% '+player.a.XG+'%'}}
 		},
 		1012: {
 			name(){return (tmp.c.unlocked || tmp.o.unlocked) && hasAchievement("a", 1012)?"":hasAchievement("a", 1012)?"a":"PATIENCE 2: ELECTRIC BOOGALOO"},
 			onComplete(){player.a.fame=player.a.fame.add(1)},
-			done(){return (player.t.years.gte(5)||player.m.famed==true)&&(!tmp.c.unlocked&&!tmp.o.unlocked)},
+			done(){return !options.assholeMode&& (player.t.years.gte(5)||player.m.famed==true)&&(!tmp.c.unlocked&&!tmp.o.unlocked)},
 			tooltip(){return (tmp.c.unlocked || tmp.o.unlocked) && hasAchievement("a", 1012)?"[REDACTED]":(player.ab.nostalgia?"Reach 5 years":player.ab.fuckyou?"Purchase mangoes at it's cheapest":"???")+" without Row 0 layers.<br>Reward: I am so proud of you. 4x point gain."},
 			style(){return {'background': ((tmp.c.unlocked || tmp.o.unlocked) && hasAchievement("a", 1012)?'black':hasAchievement("a",this.id)?'repeating-linear-gradient('+(player.a.fame.gte(3)?'cyan, lightblue, cyan':'#FFDF00, #D4AF37, #FFDF00')+')':'#bf8f8f'), 'background-size': '40% 75%', 'background-position': '50% '+player.a.XG+'%'}}
 		},
 		1013: {
 			name(){return ((player.c.buyables[81].gte(1)&&(player.c.buyables[12].gte(1)||player.c.buyables[22].gte(1)||player.c.buyables[32].gte(1)||player.c.buyables[42].gte(1)||player.c.buyables[52].gte(1)||player.c.buyables[62].gte(1)))||player.o.points.gte(4))&&!hasAchievement("a",this.id)?"":hasAchievement("a", 1013)?"e":"did you just say ez."},
 			onComplete(){player.a.fame=player.a.fame.add(1)},
-			done(){return (player.c.buyables[81].gte(1)&&!(player.c.buyables[12].gte(1)||player.c.buyables[22].gte(1)||player.c.buyables[32].gte(1)||player.c.buyables[42].gte(1)||player.c.buyables[52].gte(1)||player.c.buyables[62].gte(1)))||(player.o.points.lt(4)&&player.n.currentday.gte(19)&&player.n.thief==false)},
+			done(){return !options.assholeMode&& (player.c.buyables[81].gte(1)&&!(player.c.buyables[12].gte(1)||player.c.buyables[22].gte(1)||player.c.buyables[32].gte(1)||player.c.buyables[42].gte(1)||player.c.buyables[52].gte(1)||player.c.buyables[62].gte(1)))||(player.o.points.lt(4)&&player.n.currentday.gte(19)&&player.n.thief==false)},
 			tooltip(){return ((player.c.buyables[81].gte(1)&&(player.c.buyables[12].gte(1)||player.c.buyables[22].gte(1)||player.c.buyables[32].gte(1)||player.c.buyables[42].gte(1)||player.c.buyables[52].gte(1)||player.c.buyables[62].gte(1)))||player.o.points.gte(4))&&!hasAchievement("a",this.id)?"[REDACTED]":(player.ab.nostalgia?"Get 8th Crazy Dimension without ever ascending once.":player.ab.fuckyou?"Survive 19 days without ever robbing the bank with 3 layers of life at most.":"???")+"<br>Reward: "+(player.ab.nostalgia?"You gain 100% of space and clocks gain.":player.ab.fuckyou?"You keep your best run and Neverend milestones on reset.":"???")},
 			style(){return {'background': (((player.c.buyables[81].gte(1)&&(player.c.buyables[12].gte(1)||player.c.buyables[22].gte(1)||player.c.buyables[32].gte(1)||player.c.buyables[42].gte(1)||player.c.buyables[52].gte(1)||player.c.buyables[62].gte(1)))||player.o.points.gte(4))&&!hasAchievement("a",this.id)?'black':hasAchievement("a",this.id)?'repeating-linear-gradient('+(player.a.fame.gte(3)?'cyan, lightblue, cyan':'#FFDF00, #D4AF37, #FFDF00')+')':'#bf8f8f'), 'background-size': '40% 75%', 'background-position': '50% '+player.a.XG+'%'}}
 		},
@@ -1489,7 +1498,7 @@ addLayer("sdumsl", {
     }},
     color: "#0f0f0f",
     row: "side",
-    layerShown(){return true},
+    layerShown(){return !options.assholeMode},
 	tooltip: "",
 	tabFormat: ["clickables"],
 	clickables: {
@@ -1658,10 +1667,11 @@ addLayer("s", {
     startData() { return {
         unlocked: false,
 		points: new Decimal(0),
+		holdUp: new Decimal(0),
     }},
     color: "#000000",
 	shape: "line",
-	passiveGeneration(){return hasAchievement("a", 1013)?1:0},
+	passiveGeneration(){return hasAchievement("a", 1013)&&!inChallenge("c", 11)?1:0},
     requires(){return new Decimal(1).times((player.t.unlocked&&!player.s.unlocked)?76.2:1)}, // Can be a function that takes requirement increases into account
     resource: "spaces", // Name of prestige currency
     baseResource: "negative points", // Name of resource prestige is based on
@@ -1672,6 +1682,7 @@ addLayer("s", {
 						if(player.s.buyables[12].gte(3)) value = value.times(Decimal.div(453, 175)).mul(Decimal.pow(Decimal.add(10, player.s.buyables[12].sub(4)), player.s.buyables[12].sub(3)))
 						return player.s.points.div(value).min(1)},
 	effect() {let size = tmp.s.lеngth.mul(tmp.s.height).mul(tmp.s.width).mul(tmp.s.spissitude)
+			  if(inChallenge("c", 21)) size = size.root(tmp.t.effectHour)
 			  return size.root(4)},
 	lеngth() {let size = tmp.s.buyables[11].size
 			 return size},
@@ -1683,10 +1694,14 @@ addLayer("s", {
 				  return size},
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1).mul(tmp.t.effectDay)
-        return mult
+        return mult.mul(hasUpgrade("c", 23)?upgradeEffect("c", 23):1).mul(hasUpgrade("c", 43)?upgradeEffect("c", 43):1)
     },
 	update(diff){
 		tmp.s.shape = ["line", "square", "cube", "terrasect"][player.s.buyables[12].gte(3)?3:player.s.buyables[12]]
+		if(hasUpgrade("s", 33) && player.s.holdUp.lt(1)){
+			player.s.holdUp = player.s.holdUp.add(diff)
+			player.ab.negativePoints = new Decimal(0)
+		}
 	},
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
@@ -1696,7 +1711,7 @@ addLayer("s", {
     hotkeys: [
         {key: "s", description: "S: Reset for spaces", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
-    layerShown(){return (player.ab.points.gte(5) && !player.ab.fuckyou) || (player.ab.nostalgia && player.ab.fuckyou)},
+    layerShown(){return ((player.ab.points.gte(5) && !player.ab.fuckyou) || (player.ab.nostalgia && player.ab.fuckyou))&&!inChallenge("c", 11)},
 	nodeStyle() {return {'color': (player.s.unlocked||player.ab.negativePoints.gte(tmp.s.requires)?'#7F7F7F':''), 'border-color': (player.s.unlocked||player.ab.negativePoints.gte(tmp.s.requires)?'#1F1F1F':'')}},
 	componentStyles: {
 		"prestige-button"() {return canReset("s")?{'color': '#7F7F7F', 'border-color': '#1F1F1F'}:{'color': 'black', 'border-color': 'rgba(0, 0, 0, 0.125)'}},
@@ -1712,7 +1727,7 @@ addLayer("s", {
 					 if(hasUpgrade("s", 11)) size = size.add(base)
 					 if(hasUpgrade("s", 13)) size = Decimal.mul(base.add(2), base.add(1))
 					 if(hasUpgrade("s", 32)) size = size.mul(tmp.s.buyables[41].size.log(10).add(1))
-					 return size},
+					 return size.max(1)},
 			display() { return "Your "+tmp.s.shape+" is currently:<br><h3>"+format(this.size())+"m</h3> long<br>Cost: "+format(this.cost())+" spaces<br>You have purchased it "+player.s.buyables[11]+" times" },
 			canAfford() { return player.s.points.gte(this.cost()) },
 			buy() {
@@ -1726,7 +1741,7 @@ addLayer("s", {
 			title(){return player.s.buyables[12].gte(3)?"Dimensional Booster #"+player.s.buyables[12].sub(2):"Dimension Shifter"},
 			cost() { let cost = new Decimal(tmp.s.bars.FUCKYOU.height) 
 				     if(player.s.buyables[12].gte(3)) cost = cost.times(Decimal.div(453, 175)).mul(Decimal.pow(Decimal.add(10, player.s.buyables[12].sub(4)), player.s.buyables[12].sub(3)))
-					 return cost},
+					 return cost.div(hasUpgrade("c", 33)?upgradeEffect("c", 33):1)},
 			display() { return player.s.buyables[12].gte(3)?"Boosts "+["length","height","width","spissitude"][player.s.buyables[12].add(1)%4]+"'s base by 2x<br>Next multiplier at "+formatWhole(this.cost())+" spaces":"Next shape at "+formatWhole(this.cost())+' spaces' },
 			canAfford() { return player.s.points.gte(this.cost()) },
 			buy() {
@@ -1734,7 +1749,7 @@ addLayer("s", {
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
 			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?'#7F7F7F':'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?'#1F1F1F':'#rgba(0, 0, 0, 0.125)')}},
-			unlocked(){return true}
+			unlocked(){return !hasUpgrade("s", 33)}
 		},
 		21: {
 			title: "Height",
@@ -1745,7 +1760,7 @@ addLayer("s", {
 					 let size = base.add(1)
 					 if(hasUpgrade("s", 21)) size = size.pow(2)
 					 if(hasUpgrade("s", 32)) size = size.mul(tmp.s.buyables[41].size.log(10).add(1))
-					 return size},
+					 return size.max(1)},
 			display() { return "Your "+tmp.s.shape+" is currently:<br><h3>"+format(this.size())+"m</h3> high<br>Cost: "+format(this.cost())+" spaces<br>You have purchased it "+player.s.buyables[21]+" times" },
 			canAfford() { return player.s.points.gte(this.cost()) },
 			buy() {
@@ -1763,8 +1778,9 @@ addLayer("s", {
 			size() { let base = player.s.buyables[31].mul(player.s.buyables[12].sub(2).div(4).add(1).floor())
 					 let size = base.add(1)
 					 if(hasUpgrade("s", 31)) size = size.mul(upgradeEffect("s", 31))
-					 if(hasUpgrade("s", 32)) size = size.mul(tmp.s.buyables[41].size.log(10).add(1))
-					 return size},
+					 if(hasUpgrade("s", 32)) size = size.mul(tmp.s.buyables[41].size.log(2).add(1))
+					 if(hasUpgrade("s", 33)) return size.max(tmp.s.lеngth.mul(tmp.s.height).mul(tmp.s.spissitude).mul(-1))
+					 return size.max(1)},
 			display() { return "Your "+tmp.s.shape+" is currently:<br><h3>"+format(this.size())+"m</h3> wide<br>Cost: "+format(this.cost())+" spaces<br>You have purchased it "+player.s.buyables[31]+" times" },
 			canAfford() { return player.s.points.gte(this.cost()) },
 			buy() {
@@ -1782,7 +1798,7 @@ addLayer("s", {
 			size() { let base = player.s.buyables[41].mul(player.s.buyables[12].sub(3).div(4).add(1).floor())
 					 let size = base.add(1)
 					 if(hasUpgrade("s", 23)) size = size.mul(upgradeEffect("s", 23))
-					 return size},
+					 return size.max(1)},
 			display() { return "Your "+tmp.s.shape+" is currently:<br><h3>"+format(this.size())+"m</h3> dense<br>Cost: "+format(this.cost())+" spaces<br>You have purchased it "+player.s.buyables[41]+" times" },
 			canAfford() { return player.s.points.gte(this.cost()) },
 			buy() {
@@ -1908,15 +1924,14 @@ addLayer("s", {
 		},
 		33: {
 			title: "Negative Zone",
-			description: "Reveals 7th upgrade's true potential",
+			description: "Reveals 7th upgrade's true potential and hardcap Width",
 			unlocked(){return hasMilestone("c", 1)},
-			cost: new Decimal(9999),
+			cost: new Decimal("1e42"),
 			onPurchase(){player.s.buyables[12] = new Decimal(3)},
-			canAfford(){return player.s.buyables[12].gte(10002)},
-            currencyLocation() {return player.s.buyables},
-			currencyDisplayName: "dimensional boosters",
-			currencyInternalName: 12,
-			currencyLayer: "s",
+			canAfford(){return player.ab.negativePoints.gte("1e42")},
+			currencyDisplayName: "negative points",
+			currencyInternalName: "negativePoints",
+			currencyLayer: "ab",
 			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", 33)?'#7F7F7F':''), 'border-color': (this.canAfford()&&!hasUpgrade("s", 33)?'#1F1F1F':'')}},
 		},
 	},
@@ -1957,7 +1972,7 @@ addLayer("t", {
 		power: new Decimal(0),
 		canProgress: true,
     }},
-	passiveGeneration(){return hasAchievement("a", 1013)?1:0},
+	passiveGeneration(){return hasAchievement("a", 1013)&&!inChallenge("c", 13)?1:0},
     color: "#FFFFFF",
 	effectSecond(){let second = player.t.seconds.mul(tmp.t.effectYear)
 				   if(hasUpgrade("t", 15)) second = second.mul(69)
@@ -1966,6 +1981,7 @@ addLayer("t", {
 				   return minute.add(1).log(10).add(1)},
 	effectHour(){let base = player.t.hours
 				 if(hasUpgrade("t", 23)) base = base.mul(10000000)
+				 if(inChallenge("c", 21)) base = base.root(tmp.s.effect)
 				 return base.mul(tmp.t.effectYear).add(1).root(3)},
 	clockPower(){let clock = tmp.t.effectHour
 				 if(hasUpgrade("t", 12)) clock = clock.mul(1.8)
@@ -1974,14 +1990,14 @@ addLayer("t", {
 	effectClock(){let clocks = player.t.points.mul(tmp.t.effectHour)
 				  if(hasUpgrade("t", 12)) clocks = clocks.mul(1.8)
 				  if(hasUpgrade("t", 21)) clocks = clocks.mul(new Decimal(2).pow(player.s.buyables[12].sub(3)).max(1))
-				  return clocks},
+				  return clocks.mul(hasUpgrade("c", 13)?upgradeEffect("c", 13):1)},
 	effectDay(){return player.t.days.mul(tmp.t.effectWeek).mul(tmp.t.effectYear).div(10).add(1)},
 	effectWeek(){return player.t.weeks.mul(tmp.t.effectYear).add(1).root(7)},
 	effectMonth(){return player.t.months.mul(tmp.t.effectYear).add(1).log(10).add(1).log(10).add(1)},
 	effectYear(){let base = new Decimal(2).root(tmp.t.effectCentury)
 				 return player.t.years.add(1).root(base).add(1).log(base).add(1)},
 	effectCentury(){return player.t.centuries.add(1).log(9).add(1).root(9).add(1)},
-	effectMillennium(){return player.t.millenniums.add(1).log(256).add(1).log(256).add(1)},
+	effectMillennium(){return player.t.millenniums.add(1).log(256).add(1).log(256).add(1).pow(hasUpgrade("t", 24)?2.023:1)},
 	update(diff){
 		player.t.seconds = player.t.seconds.add(Decimal.mul(diff, tmp.t.effectClock))
 		if(player.t.canProgress){
@@ -2030,7 +2046,7 @@ addLayer("t", {
     exponent: 0.150515, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1).mul(tmp.t.effectMinute)
-        return mult
+        return mult.mul(hasUpgrade("c", 23)?upgradeEffect("c", 23):1)
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
@@ -2039,7 +2055,7 @@ addLayer("t", {
     hotkeys: [
         {key: "t", description: "T: Reset for clocks", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
-    layerShown(){return (player.ab.points.gte(5) && !player.ab.fuckyou) || (player.ab.nostalgia && player.ab.fuckyou)},
+    layerShown(){return ((player.ab.points.gte(5) && !player.ab.fuckyou) || (player.ab.nostalgia && player.ab.fuckyou))&&!inChallenge("c", 13)},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
 			player.points = new Decimal(17.77) 
@@ -2174,6 +2190,15 @@ addLayer("t", {
 			currencyDisplayName: "clocks",
 			currencyLayer: "t",
 		},
+		24: {
+			title: "This joke. Again.",
+			description: "Millennium effect is ^2.023 stronger",
+			unlocked(){return hasMilestone("c", 1)},
+			cost: new Decimal("2e23"),
+			currencyInternalName: "millenniums",
+			currencyDisplayName: "millenniums",
+			currencyLayer: "t",
+		},
 	}
 })
 
@@ -2187,11 +2212,14 @@ addLayer("c", {
 		crazymatters: new Decimal(0),
 		lol: new Decimal(0),
 		count: new Decimal(1),
+		bozo: false,
 		bought: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 		bester: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 		autobuy: [],
 		infinityPoints: new Decimal(0),
-		infinities: new Decimal(0)
+		infinities: new Decimal(0),
+		infinityTime: new Decimal(0),
+		bestInfinity: new Decimal(999999999999999999999999999999999999)
 	}},
 	shouldNotify(){let fuckYou = false
 		for(i=1;i<22;i++){
@@ -2201,7 +2229,9 @@ addLayer("c", {
 	},
 	glowColor: "white",
 	effect(){return player.c.crazymatters.add(1).log(10).add(1)},
-	effectCool(){return player.c.points},
+	effectCool(){let cool = player.c.points
+				 if(inChallenge("c", 12)) cool = new Decimal(1)
+				 return cool},
 	effectDescription(){return `which are what makes crazy dimensions work in the first place<br>Current Formula: [Base = C (${format(this.effectCool())})]`},
 	tabFormat:{
 		"Normal":{
@@ -2215,12 +2245,17 @@ addLayer("c", {
 			content: ["main-display", "blank", "buyables"],
 			unlocked(){return hasMilestone("c", 2)}
 		},
-		"Infinity":{
-			content: [["display-text", function() {return "It seems like you have managed to reach the Infinity despite multiple obstacles on your way...<br><br>Huh? You've gone far past that before?<br>Well, it may be true outside this realm, but there are limitations that doesn't let you progress any further.<br><br>All you can do now is RESET.<br><br><br><br><br>oh there are no buttons uhhhhhh i'll be back<br><br>enjoy your endgame for now"}]],
+		"Infinite":{
+			content: [["display-text", function() {return player.c.crazymatters.gte(Decimal.pow(2, 1024))&&player.c.infinities.eq(0)?"It seems like you have managed to reach the Infinity despite multiple obstacles on your way...<br><br>Huh? You've gone far past that before?<br>Well, it may be true outside this realm, but there are limitations that doesn't let you progress any further.<br><br>All you can do now is<br><br><br>":""}], ["display-text", function() {return player.c.infinities.gte(1)?"<span>You have <h2 style='color: rgba("+format(Math.sin(player.a.sine*2.5)*63+192)+", "+format(Math.sin(player.a.sine*3.3)*127+128)+", "+format(Math.sin(player.a.sine.add(3.14))*192)+", 1); text-shadow: rgba("+format(Math.sin(player.a.sine*2.5)*63+192)+", "+format(Math.sin(player.a.sine*3.3)*127+128)+", "+format(Math.sin(player.a.sine.add(3.14))*192)+", 1) 0px 0px 10px;'>"+formatWhole(player.c.infinityPoints)+"</h2> infinity points</span><br>You've infinitied "+formatWhole(player.c.infinities)+" times":""}], "blank", ["buyable", "lol"], "blank", "upgrades", ["buyable", "extra"]],
 			unlocked(){return player.c.crazymatters.gte(Decimal.pow(2, 1024))||player.c.infinities.gte(1)}
 		},
+		"Infinite Challenges":{
+			content: [["display-text", function() {return player.c.infinities.gte(1)?"<span>You have <h2 style='color: rgba("+format(Math.sin(player.a.sine*2.5)*63+192)+", "+format(Math.sin(player.a.sine*3.3)*127+128)+", "+format(Math.sin(player.a.sine.add(3.14))*192)+", 1); text-shadow: rgba("+format(Math.sin(player.a.sine*2.5)*63+192)+", "+format(Math.sin(player.a.sine*3.3)*127+128)+", "+format(Math.sin(player.a.sine.add(3.14))*192)+", 1) 0px 0px 10px;'>"+formatWhole(player.c.infinityPoints)+"</h2> infinity points</span><br>You've infinitied "+formatWhole(player.c.infinities)+" times<br>You've beaten "+formatWhole(infiniteChallenges())+" infinite challenges, each increasing IP base gain by 1":""}], "blank", "challenges"],
+			unlocked(){return hasMilestone("c", 3)}
+		},
 		"Achievements":{
-			content: [["display-text", function(){return `<h3>You have ${formatWhole(player.c.achievements.length)} achievements, boosting your dimension's multiplier base by ${format(Decimal.pow(1.0591341621268264, player.c.achievements.length))}x`}], "blank", "achievements"]
+			content: [["display-text", function(){return `<h3>You have ${formatWhole(player.c.achievements.length)} achievements, boosting your dimension's multiplier base by ${format(Decimal.pow(1.0591341621268264, player.c.achievements.length))}x`}], "blank", "achievements"],
+			unlocked(){return !options.assholeMode}
 		}
 	},
     color: "gray",
@@ -2243,8 +2278,9 @@ addLayer("c", {
         {key: "c", description: "C: Reset for craneniums", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
 	update(diff){
+		player.c.infinityTime = player.c.infinityTime.add(diff)
 		if(player.c.crazymatters.lt(Decimal.pow(2, 1024))){
-			player.c.crazymatters = player.c.crazymatters.add(tmp.c.buyables[11].effect.mul(diff))
+			player.c.crazymatters = player.c.crazymatters.add(tmp.c.buyables[11].effect.mul(diff).mul(hasUpgrade("c", 42)?upgradeEffect("c", 42):1))
 			for(i=1;i<21;i++){
 				player.c.buyables[i*10+1] = player.c.buyables[i*10+1].add(tmp.c.buyables[(1+i)*10+1].effect.mul(diff))
 				if(player.c.autobuy[i-1]&&tmp.c.buyables[i*10+1].canAfford) {
@@ -2272,7 +2308,7 @@ addLayer("c", {
 			onComplete(){player.c.crazymatters=player.c.crazymatters.add(10)}
 		},
 		1: {
-			requirementDescription: "1 8th Crazy Dimension [WIP]",
+			requirementDescription: "1 8th Crazy Dimension",
 			effectDescription: `Unlock space and time upgrades.`,
 			done() { return player.c.buyables[81].gte(1) },
 			unlocked(){return hasMilestone("c", 0)}
@@ -2285,78 +2321,242 @@ addLayer("c", {
 		},
 		3: {
 			requirementDescription: "10 Infinities",
-			effectDescription: `Unlocks shop`,
+			effectDescription: `Unlocks challenge`,
 			done() { return player.c.infinities.gte(10) },
 			unlocked(){return hasMilestone("c", 2)}
+		},
+		4: {
+			requirementDescription: "16 Infinite Upgrades",
+			effectDescription: `Unlocks rebuyable infinite upgrade`,
+			done() { return player.c.upgrades.length>=16 },
+			unlocked(){return hasMilestone("c", 3)}
+		},
+		5: {
+			requirementDescription: "8 Completed Infinite Challenges",
+			effectDescription: `Unlocks 9th and final infinite challenge`,
+			done() { return infiniteChallenges().gte(8) },
+			unlocked(){return hasMilestone("c", 3)}
 		},
 	},
 	upgrades: {
 		11: {
-			name: "lol",
-			description: "lol2",
-			cost: new Decimal(1000000)
-		}
+			description: "First three crazy dimensions are stronger based on infinities",
+			cost: new Decimal(1),
+			effect(){return player.c.infinities.add(1).log(8).add(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		21: {
+			description: "4th, 5th and 6th crazy dimensions are stronger based on infinities",
+			cost: new Decimal(1),
+			effect(){return player.c.infinities.add(1).log(11).add(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			canAfford(){return hasUpgrade("c", 11)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		31: {
+			description: "7th, 8th crazy dimensions are stronger based on infinities",
+			cost: new Decimal(2),
+			effect(){return player.c.infinities.add(1).log(14).add(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			canAfford(){return hasUpgrade("c", 21)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		41: {
+			description: "9th, 10th and 11th crazy dimensions are stronger based on infinities",
+			cost: new Decimal(5),
+			effect(){return player.c.infinities.add(1).log(17).add(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			canAfford(){return hasUpgrade("c", 31)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		12: {
+			description: "Crazy dimensions are stronger based on total time spent playing",
+			cost: new Decimal(5),
+			effect(){return new Decimal(player.timePlayed).log(10)},
+			effectDisplay(){return format(this.effect())+"x"},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		22: {
+			description: "Base multipliers are stronger<br>[2x => 2.2x]",
+			cost: new Decimal(10),
+			canAfford(){return hasUpgrade("c", 12)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		32: {
+			description: "Crazy dimension gain additional boost based on time spent in Infinity",
+			cost: new Decimal(20),
+			effect(){return player.c.infinityTime.add(1).root(3).log(3).add(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			canAfford(){return hasUpgrade("c", 22)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		42: {
+			description: "Space's and clock's magnitudes multiply crazymatter gain",
+			cost: new Decimal(40),
+			canAfford(){return hasUpgrade("c", 32)},
+			effect(){return player.t.points.add(1).log(10).add(1).mul(player.s.points.add(1).log(10).add(1))},
+			effectDisplay(){return format(this.effect())+"x"},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		13: {
+			description: "Clocks are stronger based on unspent infinity points",
+			cost: new Decimal(6),
+			effect(){return player.c.infinityPoints.add(1).log(12).add(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		23: {
+			description: "Total size boosts space gain",
+			cost: new Decimal(11),
+			effect(){return tmp.s.lеngth.mul(tmp.s.height).mul(tmp.s.width).mul(tmp.s.spissitude).add(1).log(10).add(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			canAfford(){return hasUpgrade("c", 13)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		33: {
+			description: "Dimension Boosters are cheaper based on your best infinity",
+			cost: new Decimal(21),
+			effect(){return new Decimal(2000000).root(player.c.bestInfinity.add(0.8).root(3).max(1))},
+			effectDisplay(){return format(this.effect())+"/"},
+			canAfford(){return hasUpgrade("c", 23)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		43: {
+			description: "Crazymatter boosts clock and space gain",
+			cost: new Decimal(69),
+			effect(){return player.c.crazymatters.add(1).root(10).log(10).add(1)},
+			effectDisplay(){return format(this.effect())+"x"},
+			canAfford(){return hasUpgrade("c", 33)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		14: {
+			description: "You start Infinity with 1 8th crazy dimension",
+			cost: new Decimal(50),
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		24: {
+			description: "You start Infinity with 1 9th crazy dimension",
+			cost: new Decimal(100),
+			canAfford(){return hasUpgrade("c", 14)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		34: {
+			description: "You start Infinity with 1 10th crazy dimension",
+			cost: new Decimal(250),
+			canAfford(){return hasUpgrade("c", 24)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		44: {
+			description: "You start Infinity with 1 11th crazy dimension",
+			cost: new Decimal(500),
+			canAfford(){return hasUpgrade("c", 34)},
+			currencyInternalName: "infinityPoints",
+			currencyDisplayName: "infinity points",
+			currencyLayer: "c",
+		},
+		
 	},
 	achievements: {
 		11: {
 			name: "<h4>We have to start off somewhere, right?",
-			done(){return player.c.buyables[11].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[11].gte(1)},
 			tooltip: "Buy 1st Crazy Dimension",
 		},
 		12: {
 			name: "<h4>Crazy Recursion",
-			done(){return player.c.buyables[21].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[21].gte(1)},
 			tooltip: "Buy 2nd Crazy Dimension",
 		},
 		13: {
 			name: "<h4>NO 3RD SHENANIGANS TREE INSTALLMENT?",
-			done(){return player.c.buyables[31].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[31].gte(1)},
 			tooltip: "Buy 3rd Crazy Dimension",
 		},
 		14: {
 			name: "<h4>*insert 2nd piss joke here*",
-			done(){return player.c.buyables[41].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[41].gte(1)},
 			tooltip: "Buy 4th Crazy Dimension",
 		},
 		15: {
 			name: "<h4>Go Go Crazy Rangers!",
-			done(){return player.c.buyables[51].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[51].gte(1)},
 			tooltip: "Buy 5th Crazy Dimension",
 		},
 		16: {
 			name: "<h4>We couldn't afford 9",
-			done(){return player.c.buyables[61].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[61].gte(1)},
 			tooltip: "Buy 6th Crazy Dimension",
 		},
 		17: {
 			name: "<h4>No longer limited to 7 achievements per row",
-			done(){return player.c.buyables[71].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[71].gte(1)},
 			tooltip: "Buy 7th Crazy Dimension",
 		},
 		18: {
 			name: "<h4>-90 degrees to infinity",
-			done(){return player.c.buyables[81].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[81].gte(1)},
 			tooltip: "Buy 8th Crazy Dimension",
 		},
 		21: {
 			name: "<h4>The hell is this?",
-			done(){return player.c.buyables[12].gte(1)||player.c.buyables[22].gte(1)||player.c.buyables[32].gte(1)||player.c.buyables[42].gte(1)||player.c.buyables[52].gte(1)||player.c.buyables[62].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[12].gte(1)||player.c.buyables[22].gte(1)||player.c.buyables[32].gte(1)||player.c.buyables[42].gte(1)||player.c.buyables[52].gte(1)||player.c.buyables[62].gte(1)},
 			tooltip: "Ascend for the first time",
 		},
 		22: {
 			name: "<h4>Is that even legal?",
-			done(){return player.c.buyables[91].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[91].gte(1)},
 			tooltip: "Buy 9th Crazy Dimension",
 		},
 		23: {
 			name: "<h4>Seems about right",
-			done(){return player.c.buyables[101].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[101].gte(1)},
 			tooltip: "Buy 10th Crazy Dimension",
 		},
 		24: {
 			name: "<h4>The One Above All",
-			done(){return player.c.buyables[111].gte(1)},
+			done(){return !options.assholeMode&& player.c.buyables[111].gte(1)},
 			tooltip: "Buy 11th Crazy Dimension",
+		},
+		25: {
+			name: "<h4>infinity wip name",
+			done(){return !options.assholeMode&&player.c.infinities.gte(1)},
+			tooltip: "Reach Infinity",
+		},
+		26: {
+			name: "<h4>WAY PAST FAST",
+			done(){return player.c.bozo},
+			tooltip: "Reach Infinity without ever ascending in 10 seconds or less",
 		},
 	},
 	buyables: {
@@ -2370,12 +2570,191 @@ addLayer("c", {
 			buy() {let fuckOffSTR = player.c.crazymatters
 					for(i=1;i<21;i++){
 				       if(fuckOffSTR.gte(tmp.c.buyables[i*10+1].cost)) {
-						   fuckOffSTR = fuckOffSTR.sub(tmp.c.buyables[i*10+1].cost)
-						   tmp.c.buyables[i*10+1].buy()
+						   if(!(inChallenge("c", 31)&&i>4)){
+								fuckOffSTR = fuckOffSTR.sub(tmp.c.buyables[i*10+1].cost)
+								tmp.c.buyables[i*10+1].buy()
+						   }
 					   }
 				  }
 			},
 			style(){return{'height':'50px','width':'250px'}}
+		},
+		lol: {
+			display(){return `<span style='font-family:"Inconsolata", monospace, bold; font-size: 1.333em'>RESET.<br>RINSE.<br>REPEAT.`},
+			canAfford() { return player.c.crazymatters.gte(Decimal.pow(2, 1024)) },
+			buy() {
+				let lol = new Decimal(0)
+				for(i=1;i<21;i++){
+					lol = lol.add(player.c.buyables[i*10+2])
+					player.c.buyables[i*10+1] = new Decimal(0)
+					player.c.buyables[i*10+2] = new Decimal(0)
+					player.c.bought[i-1] = new Decimal(0)
+					player.c.bester[i-1] = new Decimal(0)
+					player.c.autobuy[i-1] = false
+				}
+				if(lol.eq(0)&&player.c.infinityTime.lte(10)) player.c.bozo = true
+				player.c.bestInfinity = player.c.infinityTime
+				player.c.infinityTime = new Decimal(0)
+				player.c.crazymatters = new Decimal(10)
+				player.c.infinities = player.c.infinities.add(1)
+				if(hasUpgrade("c", 14)){ player.c.bought[7] = new Decimal(1); player.c.buyables[81] = new Decimal(1)}
+				if(hasUpgrade("c", 24)){ player.c.bought[8] = new Decimal(1); player.c.buyables[91] = new Decimal(1)}
+				if(hasUpgrade("c", 34)){ player.c.bought[9] = new Decimal(1); player.c.buyables[101] = new Decimal(1)}
+				if(hasUpgrade("c", 44)){ player.c.bought[10] = new Decimal(1); player.c.buyables[111] = new Decimal(1)}
+				player.c.infinityPoints = player.c.infinityPoints.add(tmp.c.buyables["extra"].effect.mul(infiniteChallenges().add(1)))
+			},
+			style(){return{'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)'}},
+			unlocked(){return true}
+		},
+		extra: {
+			title(){return `2x IP Multiplier<br>Cost: ${format(this.cost())}<br>Multiplier: ${format(this.effect())}`},
+			effect(){return Decimal.pow(2, player.c.buyables[this.id])},
+			cost(){return Decimal.pow(10, player.c.buyables[this.id]).mul(10)},
+			unlocked(){return player.c.upgrades.length>=16},
+			canAfford(){return player.c.infinityPoints.gte(this.cost())},
+			buy() {
+				player.c.infinityPoints = player.c.infinityPoints.sub(this.cost())
+				player.c.buyables["extra"] = player.c.buyables["extra"].add(1)
+			},
+			style(){return{'height':'100px','width':'200px'}}
+		},
+	},
+	challenges: {
+		11: {
+			name: "Infinite Challenge 1:<br>Vacuumless",
+			challengeDescription: "Space layer does not exist.",
+			canComplete: function() {return player.ab.negativePoints.gte("1e42")},
+			goalDescription: "1e42 negative points",
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
+		},
+		12: {
+			name: "Infinite Challenge 2:<br>Order",
+			challengeDescription: "C is always set to 1",
+			canComplete: function() {return player.c.crazymatters.gte(Decimal.pow(2, 1024))},
+			onEnter() {
+				for(i=1;i<21;i++){
+					player.c.buyables[i*10+1] = new Decimal(0)
+					player.c.buyables[i*10+2] = new Decimal(0)
+					player.c.bought[i-1] = new Decimal(0)
+					player.c.bester[i-1] = new Decimal(0)
+					player.c.autobuy[i-1] = false
+				}
+				player.c.crazymatters = new Decimal(10)
+			},
+			goalDescription: "1.78e308 crazymatters",
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
+		},
+		13: {
+			name: "Infinite Challenge 3:<br>Freeflow",
+			challengeDescription: "Time layer does not exist.",
+			canComplete: function() {return player.ab.negativePoints.gte("1e42")},
+			goalDescription: "1e42 negative points",
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
+		},
+		21: {
+			name: "Infinite Challenge 4:<br>Spacetime Malfunction",
+			challengeDescription: "Space (total size's effect) and Time (hours's effect) layers nerf each other.",
+			canComplete: function() {return player.ab.negativePoints.gte("1e42")},
+			goalDescription: "1e42 negative points",
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
+		},
+		22: {
+			name: "Infinite Challenge 5:<br>Exploitable Economy",
+			challengeDescription: "Buying crazy dimension will increase lower crazy dimensions's cost",
+			canComplete: function() {return player.c.crazymatters.gte(Decimal.pow(2, 1024))},
+			onEnter() {
+				for(i=1;i<21;i++){
+					player.c.buyables[i*10+1] = new Decimal(0)
+					player.c.buyables[i*10+2] = new Decimal(0)
+					player.c.bought[i-1] = new Decimal(0)
+					player.c.bester[i-1] = new Decimal(0)
+					player.c.autobuy[i-1] = false
+				}
+				player.c.crazymatters = new Decimal(10)
+			},
+			goalDescription: "1.78e308 crazymatters",
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
+		},
+		23: {
+			name: "Infinite Challenge 6:<br>Reversal Tetration",
+			challengeDescription: "Point gain is tetrated to 0.5.",
+			canComplete: function() {return player.ab.negativePoints.gte("1e42")},
+			onEnter() {
+				for(i=1;i<21;i++){
+					player.c.buyables[i*10+1] = new Decimal(0)
+					player.c.buyables[i*10+2] = new Decimal(0)
+					player.c.bought[i-1] = new Decimal(0)
+					player.c.bester[i-1] = new Decimal(0)
+					player.c.autobuy[i-1] = false
+				}
+				player.c.crazymatters = new Decimal(10)
+			},
+			goalDescription: "1e42 negative points",
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
+		},
+		31: {
+			name: "Infinite Challenge 7:<br>Classic Antimatter Dimensions",
+			challengeDescription: "There are only 4 crazy dimensions now.",
+			canComplete: function() {return player.c.crazymatters.gte(Decimal.pow(2, 1024))},
+			onEnter() {
+				for(i=1;i<21;i++){
+					player.c.buyables[i*10+1] = new Decimal(0)
+					player.c.buyables[i*10+2] = new Decimal(0)
+					player.c.bought[i-1] = new Decimal(0)
+					player.c.bester[i-1] = new Decimal(0)
+					player.c.autobuy[i-1] = false
+				}
+				player.c.crazymatters = new Decimal(10)
+			},
+			goalDescription: "1.78e308 crazymatters",
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
+		},
+		32: {
+			name: "Infinite Challenge 8:<br>Absurdly Useless Layer",
+			challengeDescription: "You start off with 0 crazymatters.",
+			canComplete: function() {return player.ab.negativePoints.gte("1e42")},
+			onEnter() {
+				for(i=1;i<21;i++){
+					player.c.buyables[i*10+1] = new Decimal(0)
+					player.c.buyables[i*10+2] = new Decimal(0)
+					player.c.bought[i-1] = new Decimal(0)
+					player.c.bester[i-1] = new Decimal(0)
+					player.c.autobuy[i-1] = false
+				}
+				player.c.crazymatters = new Decimal(0)
+			},
+			onExit(){player.c.crazymatters = new Decimal(10)},
+			goalDescription: "1e42 negative points",
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
+		},
+		41: {
+			name: "Infinite Challenge 9:<br>Every Final Challenge Ever",
+			challengeDescription: "All challenges expect Vacuumless and Freeflow are appled.",
+			countsAs: [12,21,22,23,31,32],
+			unlocked(){return infiniteChallenges().gte(8)},
+			canComplete: function() {return player.ab.negativePoints.gte("1e42") || player.c.crazymatters.gte(Decimal.pow(2, 1024))},
+			onEnter() {
+				for(i=1;i<21;i++){
+					player.c.buyables[i*10+1] = new Decimal(0)
+					player.c.buyables[i*10+2] = new Decimal(0)
+					player.c.bought[i-1] = new Decimal(0)
+					player.c.bester[i-1] = new Decimal(0)
+					player.c.autobuy[i-1] = false
+				}
+				player.c.crazymatters = new Decimal(0)
+			},
+			onExit(){player.c.crazymatters = new Decimal(10)},
+			goalDescription: "??? points",
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			style(){return{'height':'194px','width':'640px','border-radius':'10%'}}
 		},
 	},
 	componentStyles: {
@@ -2395,7 +2774,7 @@ addLayer("c", {
 			player.c.crazymatters = new Decimal(0)
 			player.c.milestones = []
 		}
-		if(tmp[resettingLayer].row>=2&&player.ab.shopPoints.lt(1)) {
+		if(tmp[resettingLayer].row>=2&&player.ab.shopPoints.lt(1)&&player.ab.points.gte(5)) {
 			player.ab.buyables[11] = new Decimal(0)
 			player.ab.buyables[12] = new Decimal(0)
 			player.ab.buyables[13] = new Decimal(0)
@@ -2480,7 +2859,7 @@ addLayer("n", {
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
 		if(hasMilestone("n", 2)) mult = mult.div(tmp.n.bestDayEffect)
-        return mult
+        return mult.div(player.o.firstLevel)
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
@@ -2864,7 +3243,7 @@ addLayer("m", {
         let mult = new Decimal(1)
 		if(hasUpgrade("m", 11)) mult = mult.mul(upgradeEffect("m", 11))
 		if(hasUpgrade("m", 22)) mult = mult.mul(upgradeEffect("m", 22))
-        return mult
+        return mult.mul(player.o.secondLevel)
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
@@ -3104,18 +3483,61 @@ addLayer("o", {
     position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: false,
+		unlocked2: false,
 		points: new Decimal(0),
+		onions: new Decimal(0),
+		first: new Decimal(0),
+		second: new Decimal(0),
+		third: new Decimal(0),
+		firstLevel: new Decimal(1),
+		secondLevel: new Decimal(1),
+		thirdLevel: new Decimal(1),
+		vibeCheck: new Decimal(0),
 	}},
+	tabFormat:{
+		"Layers of Life":{
+			content:["main-display","prestige-button","resource-display","milestones"],
+			unlocked(){return player.o.unlocked2||hasMilestone("o", 6)},
+		},
+		"Onions La Ordinarance":{
+			content:[["display-text", function() {return "<span>You have <h2 style='color: rgba(194, 255, 128, 1); text-shadow: rgba(194, 255, 128, 1) 0px 0px 10px;'>"+formatWhole(player.o.onions)+"</h2> Onions La Ordinarance</span>"}],"blank",["buyable", 11],"resource-display","blank",["buyables", [2]], "blank", ["row", [["bar", "one"],["blank", ["114px", "0px"]],["bar", "two"],["blank", ["114px", "0px"]],["bar", "three"]]]],
+			unlocked(){return player.o.unlocked2||hasMilestone("o", 6)},
+			buttonStyle(){return{'border-color':'rgba(194, 255, 128, 1)'}}
+		},
+	},
+	update(diff){
+		player.o.first = player.o.first.add(player.o.buyables[21].mul(diff))
+		if(player.o.first.gte(new Decimal(10).mul(player.o.firstLevel.pow(2)))){
+			player.o.first = new Decimal(0)
+			player.o.firstLevel = player.o.firstLevel.add(1)
+		}
+		player.o.second = player.o.second.add(player.o.buyables[22].mul(diff))
+		if(player.o.second.gte(new Decimal(10).mul(player.o.secondLevel.pow(2)))){
+			player.o.second = new Decimal(0)
+			player.o.secondLevel = player.o.secondLevel.add(1)
+		}
+		player.o.third = player.o.third.add(player.o.buyables[23].mul(diff))
+		if(player.o.third.gte(new Decimal(10).mul(player.o.thirdLevel.pow(2)))){
+			player.o.third = new Decimal(0)
+			player.o.thirdLevel = player.o.thirdLevel.add(1)
+		}
+		if(player.o.buyables[21].lt(0)||player.o.buyables[22].lt(0)||player.o.buyables[23].lt(0)){
+			player.o.buyables[21] = new Decimal(0)
+			player.o.buyables[22] = new Decimal(0)
+			player.o.buyables[23] = new Decimal(0)
+			player.o.onions = player.o.vibeCheck
+		}
+	},
     color: "yellow",
-    requires(){return ((player.n.upgrades.length >= 29 && player.m.upgrades.length >= 6 && player.m.milestones.length >= 6 && player.n.milestones.length >= 3)||player.o.unlocked)?new Decimal(227880000).pow(player.o.points.gte(7)?"1e100":1).mul(player.o.points.gte(36)?Decimal.mul(player.o.points.pow(3), player.o.points.div(2).add(32)).div(50):player.o.points.lt(36)&&player.o.points.gte(15)?Decimal.mul(player.o.points.pow(3), player.o.points.add(14)).div(50):player.o.points.lt(15)&&player.o.points.gte(1)?Decimal.mul(player.o.points, player.o.points.add(1).div(3).add(24)).div(50):1):new Decimal("1e600000")}, // Can be a function that takes requirement increases into account
+    requires(){return ((player.n.upgrades.length >= 29 && player.m.upgrades.length >= 6 && player.m.milestones.length >= 6 && player.n.milestones.length >= 3)||player.o.unlocked)?new Decimal(227880000).mul(player.o.points.gte(36)?Decimal.mul(player.o.points.pow(3), player.o.points.div(2).add(32)).div(50):player.o.points.lt(36)&&player.o.points.gte(15)?Decimal.mul(player.o.points.pow(3), player.o.points.add(14)).div(50):player.o.points.lt(15)&&player.o.points.gte(1)?Decimal.mul(player.o.points, player.o.points.add(1).div(3).add(24)).div(50):1):new Decimal("1e600000")}, // Can be a function that takes requirement increases into account
 	tooltipLocked: "Reach 227,880,000 negative points and complete Neverend and Mango layers to unlock",
 	effectDescription(){return `increasing your initial coins by ${format(player.o.points.mul(70))} and mango gain by ${format(player.o.points.add(1).root(Math.E).tetrate(Math.E))}x`},
     resource: "layers of life", // Name of prestige currency
     baseResource: "negative points", // Name of resource prestige is based on
     baseAmount() {return player.ab.negativePoints}, // Get the current amount of baseResource
     type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    base: -1, // Prestige currency exponent
-    exponent: -10000000000, // Prestige currency exponent
+    base(){return player.o.points.add(player.o.onions).gte(7)?player.o.points.add(player.o.onions):-1}, // Prestige currency exponent
+	exponent(){return player.o.points.add(player.o.onions).gte(7)?0.5:-10000000000}, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
         return mult
@@ -3165,6 +3587,95 @@ addLayer("o", {
 			done() { return player.o.points.gte(7) }
 		},
 	},
+	buyables:{
+		11:{
+			display(){return `<span style='font-family:"Inconsolata", monospace, bold; font-size: 1.333em'>Reset for +1 onion<br><br>Req: ${format(player.o.points)} / ${format(player.o.vibeCheck.add(7))} LoLs`},
+			canAfford() { return player.o.points.gte(player.o.vibeCheck.add(7)) },
+			buy() {
+				player.o.points = new Decimal(0)
+				player.o.milestones = []
+				player.o.onions = player.o.onions.add(1)
+				player.o.vibeCheck = player.o.vibeCheck.add(1)
+				player.o.unlocked2 = true
+			},
+			style(){return{'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)','background-color':(this.canAfford()?'rgba(194, 255, 128, 1)':'#bf8f8f')}},
+			unlocked(){return true}
+		},
+		21:{
+			title(){return `Neverend Cheapener`},
+			display(){return `<h3>Cost: ${format(this.cost())}<br>Amount: ${format(player.o.buyables[21])}<br>Level: ${formatWhole(player.o.firstLevel.sub(1))}<br>Effect: ${format(player.o.firstLevel)}/`},
+			canAfford() { return player.o.onions.gte(1) },
+			cost(){return player.o.buyables[21].add(1)},
+			buy(){
+				player.o.onions = player.o.onions.sub(this.cost())
+				player.o.buyables[21] = player.o.buyables[21].add(1)
+			},
+			sellOne(){
+				player.o.onions = player.o.onions.add(player.o.buyables[21])
+				player.o.buyables[21] = player.o.buyables[21].sub(1)
+			},
+			style(){return{'height':'150px', 'width':'180px'}},
+			unlocked(){return true}
+		},
+		22:{
+			title(){return `Dollar Enricher`},
+			display(){return `<h3>Cost: ${format(this.cost())}<br>Amount: ${format(player.o.buyables[22])}<br>Level: ${formatWhole(player.o.secondLevel.sub(1))}<br>Effect: ${format(player.o.secondLevel)}x`},
+			canAfford() { return player.o.onions.gte(1) },
+			cost(){return player.o.buyables[22].add(1)},
+			buy(){
+				player.o.onions = player.o.onions.sub(this.cost())
+				player.o.buyables[22] = player.o.buyables[22].add(1)
+			},
+			sellOne(){
+				player.o.onions = player.o.onions.add(player.o.buyables[22])
+				player.o.buyables[22] = player.o.buyables[22].sub(1)
+			},
+			style(){return{'height':'150px', 'width':'180px'}},
+			unlocked(){return true}
+		},
+		23:{
+			title(){return `Point Booster`},
+			display(){return `<h3>Cost: ${format(this.cost())}<br>Amount: ${format(player.o.buyables[23])}<br>Level: ${formatWhole(player.o.thirdLevel.sub(1))}<br>Effect: ${format(player.o.thirdLevel)}x`},
+			canAfford() { return player.o.onions.gte(1) },
+			cost(){return player.o.buyables[23].add(1)},
+			buy(){
+				player.o.onions = player.o.onions.sub(this.cost())
+				player.o.buyables[23] = player.o.buyables[23].add(1)
+			},
+			sellOne(){
+				player.o.onions = player.o.onions.add(player.o.buyables[23])
+				player.o.buyables[23] = player.o.buyables[23].sub(1)
+			},
+			style(){return{'height':'150px', 'width':'180px'}},
+			unlocked(){return true}
+		},
+	},
+	bars: {
+		one: {
+			direction: UP,
+			width: 75,
+			height: 250,
+			display(){return format(player.o.first)+" / "+format(player.o.firstLevel.pow(2).mul(10))},
+			progress() { return player.o.first.div(10).div(player.o.firstLevel.pow(2)) },
+			style(){return{'color':(this.progress().gte(0.5)?'black':'white')}}
+		},
+		two: {
+			direction: UP,
+			width: 75,
+			height: 250,
+			display(){return format(player.o.second)+" / "+format(player.o.secondLevel.pow(2).mul(10))},
+			progress() { return player.o.second.div(10).div(player.o.secondLevel.pow(2)) },
+			style(){return{'color':(this.progress().gte(0.5)?'black':'white')}}
+		},
+		three: {
+			direction: UP,
+			width: 75,
+			height: 250,
+			display(){return format(player.o.third)+" / "+format(player.o.thirdLevel.pow(2).mul(10))},
+			progress() { return player.o.third.div(10).div(player.o.thirdLevel.pow(2)) },
+			style(){return{'color':(this.progress().gte(0.5)?'black':'white')}}
+		}
+	},
 	branches: ["n", "m"],
     layerShown(){return (player.ab.points.gte(5) && !player.ab.nostalgia) || (player.ab.nostalgia && player.ab.fuckyou)},
 	doReset(resettingLayer){
@@ -3176,7 +3687,7 @@ addLayer("o", {
 			player.o.points = new Decimal(0)
 			player.o.milestones = []
 		}
-		if(tmp[resettingLayer].row>=2&&player.ab.shopPoints.lt(1)) {
+		if(tmp[resettingLayer].row>=2&&player.ab.shopPoints.lt(1)&&player.ab.points.gte(5)) {
 			player.ab.buyables[11] = new Decimal(0)
 			player.ab.buyables[12] = new Decimal(0)
 			player.ab.buyables[13] = new Decimal(0)

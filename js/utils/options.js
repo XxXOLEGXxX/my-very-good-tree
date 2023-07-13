@@ -15,6 +15,8 @@ function getStartOptions() {
 		oldStyle: false,
 		tooltipForcing: true,
 		musicToggle: 0,
+		assholeMode: false,
+		meSmart: false,
 	}
 }
 
@@ -43,6 +45,21 @@ function toggleOpt(name) {
 		changeTreeQuality();
 	if (name == "oldStyle")
 		updateStyle();
+}
+function assholeToggle(){
+	if(options.assholeMode==true){
+		alert("Bro...")
+	}
+	if(options.assholeMode==false){
+		if(confirm("Are you REALLY sure you want to do this? Entering this mode will take away your achievements, buff softcaps startup and you won't be able to switch back to normal mode. You've been warned.\n\nyou better put that goddamn console before i beat the sh")){
+			player["tree-tab"].doubt = new Decimal(0)
+			options.assholeMode = !options.assholeMode
+			options.meSmart = !options.meSmart
+			player.a.achievements = []
+			options.autosave = false
+			player.c.achievements = []
+		}
+	}
 }
 var styleCooldown = 0;
 function updateStyle() {

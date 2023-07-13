@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.6",
-	name: "uggh",
+	num: "5.7",
+	name: "Today, we're eating well tonight",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,11 +23,16 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v5.7: Today, we're eating well tonight (v0.7)</h4>
+		- Fixed game's pace breaking bug which allowed players to force respec Balancers<br>
+		- Added Infinite and some extra content<br>
+		- Added a bit of content for Onion layer (my bad i had to upload bugfix before more people blitz'd through the game)<br>
+		- Added Asshole Mode (Warning: It'll kick your ass)<br>
 	<h4>v5.6: uggh (v0.6.1)</h4>
 		- Pushed endgame a bit further<br>
 		- Added 3 background musics (you can toggle them in options once you progress far enough)<br>
 		- Added few more gags and bugfixes<br>
-		- Nerfed Tetrational Balancer to prevent it from tetrating the hell out of my mod and killing it<br>
+		- Buffed NG----'s nerf to specifically Tetrational Balancer to prevent it from tetrating the hell out of my mod and killing it<br>
 	<h4>v5.5: me omw to make people test this thing (v0.6)</h4>
 		- Released Row 0 layers (not finished)<br>
 		- Fixed few more bugs that went unnoticed by everyone<br>
@@ -105,6 +110,7 @@ function getBypassedPointGen() {
 	if(hasUpgrade("m", 23)) gain = gain.mul(upgradeEffect("m", 23))
 	if(hasMilestone("m", 1)) gain = gain.mul(player.m.offer.add(1).log(17).add(1).max(1))
 	if(player.c.unlocked) gain = gain.mul(tmp.c.effect)
+	if(player.o.unlocked2) gain = gain.mul(player.o.thirdLevel)
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
@@ -113,14 +119,29 @@ function getBypassedPointGen() {
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
 	let notSoInfinite = new Decimal(2).pow(1024)
 	if(hasUpgrade("t", 13) && player.points.gt(0)) gain = gain.mul(6)
-	for(let iAmMortal = 1; gain.gte(Decimal.pow(notSoInfinite, iAmMortal)); iAmMortal++) {
-	gain = gain.div(gain.div(Decimal.pow(notSoInfinite, iAmMortal)).root(Decimal.add(1, Decimal.div(1, Decimal.root(iAmMortal, iAmMortal)))))
+	if(inChallenge("c", 23)) gain = gain.tetrate(0.5)
+	for(let iAmMortal = 1; gain.gte(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)); iAmMortal++) {
+	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)).root(Decimal.add(1, Decimal.div(1, Decimal.root(iAmMortal, iAmMortal)))))
 	}
-	for(let iAmGod = 1; gain.gte(Decimal.pow("1e10000", iAmGod)); iAmGod++) {
-	gain = gain.div(gain.div(Decimal.pow("1e10000", iAmGod)).root(Decimal.add(1, Decimal.div(1, Decimal.tetrate(iAmGod, iAmGod)))))
+	for(let iAmGod = 1; gain.gte(Decimal.pow((options.assholeMode?1000:"1e10000"), iAmGod)); iAmGod++) {
+	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?1000:"1e10000"), iAmGod)).root(Decimal.add(1, Decimal.div(1, Decimal.tetrate(iAmGod, iAmGod)))))
 	}
 	if(player.ab.points.gte(5)) gain = gain.times(-1)
 	return gain
+}
+
+function infiniteChallenges(){
+	let base = new Decimal(0)
+	for(i=1;i<4;i++){
+		for(v=1;v<4;v++){
+			base = base.add(player.c.challenges[i*10+v])
+		}
+	}
+	return base
+}
+
+function smartAchievementEffect(layer, id, def = new Decimal(1)) {
+    return (hasAchievement(layer, id) ? achievementEffect(layer, id) : def)
 }
 
 function denoido() {
@@ -157,6 +178,7 @@ function getPointGen() {
 	if(hasUpgrade("m", 23)) gain = gain.mul(upgradeEffect("m", 23))
 	if(hasMilestone("m", 1)) gain = gain.mul(player.m.offer.add(1).log(17).add(1).max(1))
 	if(player.c.unlocked) gain = gain.mul(tmp.c.effect)
+	if(player.o.unlocked2) gain = gain.mul(player.o.thirdLevel)
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
@@ -165,11 +187,12 @@ function getPointGen() {
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
 	let notSoInfinite = new Decimal(2).pow(1024)
 	if(hasUpgrade("t", 13) && player.points.gt(0)) gain = gain.mul(6)
-	for(let iAmMortal = 1; gain.gte(Decimal.pow(notSoInfinite, iAmMortal)); iAmMortal++) {
-	gain = gain.div(gain.div(Decimal.pow(notSoInfinite, iAmMortal)).root(Decimal.add(1, Decimal.div(1, Decimal.root(iAmMortal, iAmMortal)))))
+	if(inChallenge("c", 23)) gain = gain.tetrate(0.5)
+	for(let iAmMortal = 1; gain.gte(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)); iAmMortal++) {
+	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)).root(Decimal.add(1, Decimal.div(1, Decimal.root(iAmMortal, iAmMortal)))))
 	}
-	for(let iAmGod = 1; gain.gte(Decimal.pow("1e10000", iAmGod)); iAmGod++) {
-	gain = gain.div(gain.div(Decimal.pow("1e10000", iAmGod)).root(Decimal.add(1, Decimal.div(1, Decimal.tetrate(iAmGod, iAmGod)))))
+	for(let iAmGod = 1; gain.gte(Decimal.pow((options.assholeMode?1000:"1e10000"), iAmGod)); iAmGod++) {
+	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?1000:"1e10000"), iAmGod)).root(Decimal.add(1, Decimal.div(1, Decimal.tetrate(iAmGod, iAmGod)))))
 	}
 	if(player.ab.points.gte(5)) gain = gain.times(-1)
 	return gain
