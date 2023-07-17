@@ -2662,7 +2662,7 @@ addLayer("c", {
 			challengeDescription: "Space layer does not exist.",
 			canComplete: function() {return tmp.c.baseAmount.gte("1e42")},
 			goalDescription(){return "1e42 "+tmp.c.baseResource},
-			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription()}`},
 			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
 		},
 		12: {
@@ -2688,7 +2688,7 @@ addLayer("c", {
 			challengeDescription: "Time layer does not exist.",
 			canComplete: function() {return tmp.c.baseAmount.gte("1e42")},
 			goalDescription(){return "1e42 "+tmp.c.baseResource},
-			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription()}`},
 			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
 		},
 		21: {
@@ -2696,7 +2696,7 @@ addLayer("c", {
 			challengeDescription: "Space (total size's effect) and Time (hours's effect) layers nerf each other.",
 			canComplete: function() {return tmp.c.baseAmount.gte("1e42")},
 			goalDescription(){return "1e42 "+tmp.c.baseResource},
-			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription()}`},
 			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
 		},
 		22: {
@@ -2732,7 +2732,7 @@ addLayer("c", {
 				player.c.crazymatters = new Decimal(10)
 			},
 			goalDescription(){return "1e42 "+tmp.c.baseResource},
-			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription()}`},
 			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
 		},
 		31: {
@@ -2769,7 +2769,7 @@ addLayer("c", {
 			},
 			onExit(){player.c.crazymatters = new Decimal(10)},
 			goalDescription(){return "1e42 "+tmp.c.baseResource},
-			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription}`},
+			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription()}`},
 			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
 		},
 		41: {
@@ -2810,6 +2810,11 @@ addLayer("c", {
 			player.c.achievements = []
 			player.c.crazymatters = new Decimal(0)
 			player.c.milestones = []
+			player.c.infinities = new Decimal(0)
+			player.c.infinityPoints = new Decimal(0)
+			player.c.bozo = false
+			player.c.bestInfinity = new Decimal(999999999999999999999999999999999999)
+			player.c.infinityTime = new Decimal(0)
 		}
 		if(tmp[resettingLayer].row>=2&&player.ab.shopPoints.lt(1)&&player.ab.points.gte(5)) {
 			player.ab.buyables[11] = new Decimal(0)
