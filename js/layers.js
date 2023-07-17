@@ -2810,6 +2810,7 @@ addLayer("c", {
 			player.c.achievements = []
 			player.c.crazymatters = new Decimal(0)
 			player.c.milestones = []
+			player.c.upgrades = []
 			player.c.infinities = new Decimal(0)
 			player.c.infinityPoints = new Decimal(0)
 			player.c.bozo = false
