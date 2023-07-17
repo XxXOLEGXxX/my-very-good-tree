@@ -1,7 +1,7 @@
 let modInfo = {
 	name: "You get the idea",
 	id: "howdidifuckthisoneupohmygod",
-	author: "nobody",
+	author: "Oleg",
 	pointsName: "points",
 	modFiles: ["layers.js", "tree.js"],
 	soWhatsMyName: "",
@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.7",
-	name: "Today, we're eating well tonight",
+	num: "5.8",
+	name: "Shrek is Love, Shrek is Life",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,6 +23,10 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v5.8: Shrek is Love, Shrek is Life (v0.8)</h4>
+		- Gave Onion layer an approriate amount of content<br>
+		- Some polishing, funni mode and new musics added<br>
+		- that's all<br>
 	<h4>v5.7: Today, we're eating well tonight (v0.7)</h4>
 		- Fixed game's pace breaking bug which allowed players to force respec Balancers<br>
 		- Added Infinite and some extra content<br>
@@ -51,7 +55,7 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	<h4>v5.1: no comment (v0.3.1)</h4>
 		- Fixed Space's Dimension Shift not revealing next shape.<br>
 		- Updated my own theme.<br><br>
-	<h3>v5.0: fuck you nose (v0.3)</h3><br>
+	<h3>v5: fuck you nose (v0.3)</h3><br>
 		- Changed this mod's ID so it wouldn't conflict with other "mymod" mods<br>
 		- Finished first two layers of NG-----<br>
 		- Rebalanced NG----'s late game by accident<br>
@@ -111,6 +115,9 @@ function getBypassedPointGen() {
 	if(hasMilestone("m", 1)) gain = gain.mul(player.m.offer.add(1).log(17).add(1).max(1))
 	if(player.c.unlocked) gain = gain.mul(tmp.c.effect)
 	if(player.o.unlocked2) gain = gain.mul(player.o.thirdLevel)
+	if(player.o.unlocked3) gain = gain.mul(player.o.burgers.add(1).pow(3).root(2))
+	if(hasUpgrade("o", 11)) gain = gain.mul(upgradeEffect("o", 11))
+	if(hasUpgrade("o", 12)) gain = gain.mul(Decimal.pow(1/9+1, player.o.fifthLevel.sub(1)))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
@@ -120,6 +127,7 @@ function getBypassedPointGen() {
 	let notSoInfinite = new Decimal(2).pow(1024)
 	if(hasUpgrade("t", 13) && player.points.gt(0)) gain = gain.mul(6)
 	if(inChallenge("c", 23)) gain = gain.tetrate(0.5)
+	if(inChallenge("o", 22)) gain = gain.pow(0.69)
 	for(let iAmMortal = 1; gain.gte(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)); iAmMortal++) {
 	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)).root(Decimal.add(1, Decimal.div(1, Decimal.root(iAmMortal, iAmMortal)))))
 	}
@@ -179,6 +187,9 @@ function getPointGen() {
 	if(hasMilestone("m", 1)) gain = gain.mul(player.m.offer.add(1).log(17).add(1).max(1))
 	if(player.c.unlocked) gain = gain.mul(tmp.c.effect)
 	if(player.o.unlocked2) gain = gain.mul(player.o.thirdLevel)
+	if(player.o.unlocked3) gain = gain.mul(player.o.burgers.add(1).pow(3).root(2))
+	if(hasUpgrade("o", 11)) gain = gain.mul(upgradeEffect("o", 11))
+	if(hasUpgrade("o", 12)) gain = gain.mul(Decimal.pow(1/9+1, player.o.fifthLevel.sub(1)))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
@@ -188,6 +199,7 @@ function getPointGen() {
 	let notSoInfinite = new Decimal(2).pow(1024)
 	if(hasUpgrade("t", 13) && player.points.gt(0)) gain = gain.mul(6)
 	if(inChallenge("c", 23)) gain = gain.tetrate(0.5)
+	if(inChallenge("o", 22)) gain = gain.pow(0.69)
 	for(let iAmMortal = 1; gain.gte(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)); iAmMortal++) {
 	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)).root(Decimal.add(1, Decimal.div(1, Decimal.root(iAmMortal, iAmMortal)))))
 	}

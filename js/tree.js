@@ -36,7 +36,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
 	clickables: {
         11: {
             title: "Prestige reset",
-            unlocked() {return true},
+            unlocked() {return options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("p")) doReset("p")},
             onHold() {if (canReset("p")) doReset("p")},
@@ -46,7 +46,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         12: {
             title: "Kilo Prestige reset",
-            unlocked() {return player.kp.unlocked && tmp.kp.layerShown},
+            unlocked() {return player.kp.unlocked && tmp.kp.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("kp")) doReset("kp")},
             onHold() {if (canReset("kp")) doReset("kp")},
@@ -56,7 +56,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         13: {
             title: "Mega Prestige reset",
-            unlocked() {return player.mp.unlocked && tmp.mp.layerShown},
+            unlocked() {return player.mp.unlocked && tmp.mp.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("mp")) doReset("mp")},
             onHold() {if (canReset("mp")) doReset("mp")},
@@ -66,7 +66,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         14: {
             title: "Giga Prestige reset",
-            unlocked() {return player.gp.unlocked && tmp.gp.layerShown},
+            unlocked() {return player.gp.unlocked && tmp.gp.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("gp")) doReset("gp")},
             onHold() {if (canReset("gp")) doReset("gp")},
@@ -76,7 +76,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         21: {
             title: "Booster reset",
-            unlocked() {return player.b.unlocked && tmp.b.layerShown},
+            unlocked() {return player.b.unlocked && tmp.b.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("b")) doReset("b")},
             onHold() {if (canReset("b")) doReset("b")},
@@ -86,7 +86,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         22: {
             title: "Kilo Booster reset",
-            unlocked() {return player.kb.unlocked && tmp.kb.layerShown},
+            unlocked() {return player.kb.unlocked && tmp.kb.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("kb")) doReset("kb")},
             onHold() {if (canReset("kb")) doReset("kb")},
@@ -96,7 +96,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         23: {
             title: "Mega Booster reset",
-            unlocked() {return player.mb.unlocked && tmp.mb.layerShown},
+            unlocked() {return player.mb.unlocked && tmp.mb.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("mb")) doReset("mb")},
             onHold() {if (canReset("mb")) doReset("mb")},
@@ -106,7 +106,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         24: {
             title: "Giga Booster reset",
-            unlocked() {return player.gb.unlocked && tmp.gb.layerShown},
+            unlocked() {return player.gb.unlocked && tmp.gb.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("gb")) doReset("gb")},
             onHold() {if (canReset("gb")) doReset("gb")},
@@ -116,7 +116,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         31: {
             title: "De Noido reset",
-            unlocked() {return hasAchievement("a", 33) && !player.dn.points.gte(1) && !hasAchievement("a", 41)},
+            unlocked() {return hasAchievement("a", 33) && !player.dn.points.gte(1) && !hasAchievement("a", 41)&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("dn")) doReset("dn")},
             onHold() {if (canReset("dn")) doReset("dn")},
@@ -126,7 +126,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         32: {
             title: "Generator reset",
-            unlocked() {return player.g.unlocked && player.ab.points.gte(4) && tmp.g.layerShown},
+            unlocked() {return player.g.unlocked && player.ab.points.gte(4) && tmp.g.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("g")) doReset("g")},
             onHold() {if (canReset("g")) doReset("g")},
@@ -136,7 +136,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         33: {
             title: "Prestigious Booster reset",
-            unlocked() {return player.mpkb.unlocked && hasAchievement("a", 52) && tmp.mpkb.layerShown},
+            unlocked() {return player.mpkb.unlocked && hasAchievement("a", 52) && tmp.mpkb.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("mpkb")) doReset("mpkb")},
             onHold() {if (canReset("mpkb")) doReset("mpkb")},
@@ -146,7 +146,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         34: {
             title: "Uлs1A8I1I1Y reset",
-            unlocked() {return player.kbg.unlocked && hasAchievement("a", 52) && tmp.kbg.layerShown},
+            unlocked() {return player.kbg.unlocked && hasAchievement("a", 52) && tmp.kbg.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("kbg")) doReset("kbg")},
             onHold() {if (canReset("kbg")) doReset("kbg")},
@@ -156,7 +156,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         41: {
             title: "<h3>Nostalgia Choice",
-            unlocked() {return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)},
+            unlocked() {return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou || options.why)},
             canClick() {return true},
 			onClick()  {player.ab.nostalgia = true
 						if(player.tab==('m')||player.tab==('n')||player.tab==('o'))player.tab = ''},
@@ -164,7 +164,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         42: {
             title: "<h3>Post-Irony Choice",
-            unlocked() {return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)},
+            unlocked() {return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou || options.why)},
             canClick() {return true},
 			onClick()  {player.ab.fuckyou = true
 						if(player.tab==('s')||player.tab==('t')||player.tab==('st'))player.tab = ''},
@@ -172,7 +172,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         51: {
             title: "Space reset",
-            unlocked() {return player.s.unlocked && tmp.s.layerShown},
+            unlocked() {return player.s.unlocked && tmp.s.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("s")) doReset("s")},
             onHold() {if (canReset("s")) doReset("s")},
@@ -182,7 +182,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         52: {
             title: "Time reset",
-            unlocked() {return player.t.unlocked && tmp.t.layerShown},
+            unlocked() {return player.t.unlocked && tmp.t.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("t")) doReset("t")},
             onHold() {if (canReset("t")) doReset("t")},
@@ -192,27 +192,27 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         53: {
             title: "Neverend reset",
-            unlocked() {return player.n.unlocked && tmp.n.layerShown},
+            unlocked() {return player.n.unlocked && tmp.n.layerShown&&!inChallenge("o", 21)&&options.mobileButtons},
             canClick() {return true},
-			onClick()  {if (canReset("n")) doReset("n")},
-            onHold() {if (canReset("n")) doReset("n")},
+			onClick()  {if (canReset("n")&&!inChallenge("o", 21)) doReset("n")},
+            onHold() {if (canReset("n")&&!inChallenge("o", 21)) doReset("n")},
 			style: {"background-color"(){
                 return tmp.n.color
             }},
         },
         54: {
             title: "Mango reset",
-            unlocked() {return player.m.unlocked && tmp.m.layerShown},
+            unlocked() {return player.m.unlocked && tmp.m.layerShown&&!inChallenge("o", 21)&&options.mobileButtons},
             canClick() {return true},
-			onClick()  {if (canReset("m")) doReset("m")},
-            onHold() {if (canReset("m")) doReset("m")},
+			onClick()  {if (canReset("m")&&!inChallenge("o", 21)) doReset("m")},
+            onHold() {if (canReset("m")&&!inChallenge("o", 21)) doReset("m")},
 			style: {"background-color"(){
                 return tmp.m.color
             }},
         },
         61: {
             title: "Crazy reset",
-            unlocked() {return player.c.unlocked && tmp.c.layerShown},
+            unlocked() {return player.c.unlocked && tmp.c.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("c")) doReset("c")},
             onHold() {if (canReset("c")) doReset("c")},
@@ -222,7 +222,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         62: {
             title: "Onion reset",
-            unlocked() {return player.o.unlocked && tmp.o.layerShown},
+            unlocked() {return player.o.unlocked && tmp.o.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("o")) doReset("o")},
             onHold() {if (canReset("o")) doReset("o")},
@@ -232,7 +232,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         71: {
             title: "Anti Balancer reset",
-            unlocked() {return player.ab.unlocked && tmp.ab.layerShown},
+            unlocked() {return player.ab.unlocked && tmp.ab.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("ab")) doReset("ab")},
             onHold() {if (canReset("ab")) doReset("ab")},
@@ -242,7 +242,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
         },
         72: {
             title: "Primordial Booster reset",
-            unlocked() {return hasAchievement("a", 24) && tmp.pb.layerShown},
+            unlocked() {return hasAchievement("a", 24) && tmp.pb.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("pb")) doReset("pb")},
             onHold() {if (canReset("pb")) doReset("pb")},
