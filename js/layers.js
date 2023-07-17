@@ -1734,6 +1734,7 @@ addLayer("s", {
     },
 	update(diff){
 		tmp.s.shape = ["line", "square", "cube", "terrasect"][player.s.buyables[12].gte(3)?3:player.s.buyables[12]]
+		if(!hasUpgrade("s", 33)) player.s.holdUp = new Decimal(0)
 		if(hasUpgrade("s", 33) && player.s.holdUp.lt(1)){
 			player.s.holdUp = player.s.holdUp.add(diff)
 			options.why?player.points = new Decimal(0):player.ab.negativePoints = new Decimal(0)
@@ -2463,7 +2464,7 @@ addLayer("c", {
 		23: {
 			description: "Total size boosts space gain",
 			cost: new Decimal(11),
-			effect(){return tmp.s.lеngth.mul(tmp.s.height).mul(tmp.s.width).mul(tmp.s.spissitude).add(1).log(10).add(1)},
+			effect(){return tmp.s.lеngth.mul(tmp.s.height).mul(tmp.s.width.lt(0)?tmp.s.width.mul(-1):tmp.s.width).mul(tmp.s.spissitude).add(1).log(10).add(1)},
 			effectDisplay(){return format(this.effect())+"x"},
 			canAfford(){return hasUpgrade("c", 13)},
 			currencyInternalName: "infinityPoints",

@@ -27,6 +27,7 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 		- Gave Onion layer an approriate amount of content<br>
 		- Some polishing, funni mode and new musics added<br>
 		- that's all<br>
+		edit: - Fixed Infinite Upgrade 23 causing NaN
 	<h4>v5.7: Today, we're eating well tonight (v0.7)</h4>
 		- Fixed game's pace breaking bug which allowed players to force respec Balancers<br>
 		- Added Infinite and some extra content<br>
