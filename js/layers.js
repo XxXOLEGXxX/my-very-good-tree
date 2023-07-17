@@ -2630,7 +2630,7 @@ addLayer("c", {
 					player.c.autobuy[i-1] = false
 				}
 				if(lol.eq(0)&&player.c.infinityTime.lte(10)) player.c.bozo = true
-				player.c.bestInfinity = player.c.infinityTime
+				player.c.bestInfinity = player.c.bestInfinity.min(player.c.infinityTime)
 				player.c.infinityTime = new Decimal(0)
 				player.c.crazymatters = new Decimal(10)
 				player.c.infinities = player.c.infinities.add(1)
@@ -2815,6 +2815,15 @@ addLayer("c", {
 			player.c.bozo = false
 			player.c.bestInfinity = new Decimal(999999999999999999999999999999999999)
 			player.c.infinityTime = new Decimal(0)
+			player.c.challenges[11]=0
+			player.c.challenges[12]=0
+			player.c.challenges[13]=0
+			player.c.challenges[21]=0
+			player.c.challenges[22]=0
+			player.c.challenges[23]=0
+			player.c.challenges[31]=0
+			player.c.challenges[32]=0
+			player.c.challenges[41]=0
 		}
 		if(tmp[resettingLayer].row>=2&&player.ab.shopPoints.lt(1)&&player.ab.points.gte(5)) {
 			player.ab.buyables[11] = new Decimal(0)
