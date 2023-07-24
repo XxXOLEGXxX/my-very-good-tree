@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.8",
-	name: "Shrek is Love, Shrek is Life",
+	num: "5.9",
+	name: "Finally, Some Good Fucking Update",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,6 +23,11 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v5.9: Finally, Some Good Fucking Update (v0.9)</h4>
+		- Finished Infinite Challenges and added Compressors<br>
+		- Added content into Sushi tab<br>
+		- A couple of achievements<br>
+		- La creatura doesn't immediately kick your ass if you overbuy Balancers (it's trying the best to not kill you)<br>
 	<h4>v5.8: Shrek is Love, Shrek is Life (v0.8)</h4>
 		- Gave Onion layer an approriate amount of content<br>
 		- Some polishing, funni mode and new musics added<br>
@@ -115,11 +120,12 @@ function getBypassedPointGen() {
 	if(hasUpgrade("m", 12)) gain = gain.mul(upgradeEffect("m", 12))
 	if(hasUpgrade("m", 23)) gain = gain.mul(upgradeEffect("m", 23))
 	if(hasMilestone("m", 1)) gain = gain.mul(player.m.offer.add(1).log(17).add(1).max(1))
-	if(player.c.unlocked) gain = gain.mul(tmp.c.effect)
+	if(player.c.unlocked) gain = gain.mul(tmp.c.effect).mul(Decimal.pow(4, player.c.buyables["compress"].pow(0.7407407407407407)))
 	if(player.o.unlocked2) gain = gain.mul(player.o.thirdLevel)
 	if(player.o.unlocked3) gain = gain.mul(player.o.burgers.add(1).pow(3).root(2))
 	if(hasUpgrade("o", 11)) gain = gain.mul(upgradeEffect("o", 11))
 	if(hasUpgrade("o", 12)) gain = gain.mul(Decimal.pow(1/9+1, player.o.fifthLevel.sub(1)))
+	if(player.o.unlocked4) gain = gain.mul(player.o.sushis.add(2).log(2).pow(0.8))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
@@ -128,7 +134,7 @@ function getBypassedPointGen() {
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
 	let notSoInfinite = new Decimal(2).pow(1024)
 	if(hasUpgrade("t", 13) && player.points.gt(0)) gain = gain.mul(6)
-	if(inChallenge("c", 23)) gain = gain.tetrate(0.5)
+	if(inChallenge("c", 23)) gain = gain.tetrate(0.8408964152537146)
 	if(inChallenge("o", 22)) gain = gain.pow(0.69)
 	for(let iAmMortal = 1; gain.gte(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)); iAmMortal++) {
 	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)).root(Decimal.add(1, Decimal.div(1, Decimal.root(iAmMortal, iAmMortal)))))
@@ -142,7 +148,7 @@ function getBypassedPointGen() {
 
 function infiniteChallenges(){
 	let base = new Decimal(0)
-	for(i=1;i<4;i++){
+	for(i=1;i<5;i++){
 		for(v=1;v<4;v++){
 			base = base.add(player.c.challenges[i*10+v])
 		}
@@ -187,11 +193,12 @@ function getPointGen() {
 	if(hasUpgrade("m", 12)) gain = gain.mul(upgradeEffect("m", 12))
 	if(hasUpgrade("m", 23)) gain = gain.mul(upgradeEffect("m", 23))
 	if(hasMilestone("m", 1)) gain = gain.mul(player.m.offer.add(1).log(17).add(1).max(1))
-	if(player.c.unlocked) gain = gain.mul(tmp.c.effect)
+	if(player.c.unlocked) gain = gain.mul(tmp.c.effect).mul(Decimal.pow(4, player.c.buyables["compress"].pow(0.7407407407407407)))
 	if(player.o.unlocked2) gain = gain.mul(player.o.thirdLevel)
 	if(player.o.unlocked3) gain = gain.mul(player.o.burgers.add(1).pow(3).root(2))
 	if(hasUpgrade("o", 11)) gain = gain.mul(upgradeEffect("o", 11))
 	if(hasUpgrade("o", 12)) gain = gain.mul(Decimal.pow(1/9+1, player.o.fifthLevel.sub(1)))
+	if(player.o.unlocked4) gain = gain.mul(player.o.sushis.add(2).log(2).pow(0.8))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
@@ -200,7 +207,7 @@ function getPointGen() {
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
 	let notSoInfinite = new Decimal(2).pow(1024)
 	if(hasUpgrade("t", 13) && player.points.gt(0)) gain = gain.mul(6)
-	if(inChallenge("c", 23)) gain = gain.tetrate(0.5)
+	if(inChallenge("c", 23)) gain = gain.tetrate(0.8408964152537146)
 	if(inChallenge("o", 22)) gain = gain.pow(0.69)
 	for(let iAmMortal = 1; gain.gte(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)); iAmMortal++) {
 	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)).root(Decimal.add(1, Decimal.div(1, Decimal.root(iAmMortal, iAmMortal)))))

@@ -17,14 +17,15 @@ addNode("blank", {
 
 
 addLayer("tree-tab", {
-tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)?"<h1 style='color: darkred; font-size: 2.8em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You may only choose one pair of layers.</h1>":(getPointGen().gte((options.assholeMode?10:Decimal.pow(2, 1024)))?"<h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log((options.assholeMode?10:Decimal.pow(2, 1024))).floor())+" scaling root softcaps</h2>":"")+(getPointGen().gte((options.assholeMode?1000:"1e10000"))?"<br><h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log((options.assholeMode?1000:"1e10000")).floor())+" scaling tetration softcaps</h2>":"")}], "blank", ["clickables", [4]], ["tree", function() {return (layoutInfo.treeLayout ? layoutInfo.treeLayout : TREE_LAYERS)}], ["clickables", [5]], "blank", ["clickables", [6]], "blank", ["clickables", [1]], "blank", ["clickables", [2]], "blank", ["clickables", [3]], "blank", ["clickables", [7]]],
+tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)?"<h1 style='color: darkred; font-size: 2.8em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You may only choose one pair of layers.</h1>":(getPointGen().gte((options.assholeMode?10:Decimal.pow(2, 1024)))?"<h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log((options.assholeMode?10:Decimal.pow(2, 1024))).floor())+" scaling root softcaps</h2>":"")+(getPointGen().gte((options.assholeMode?1000:"1e10000"))?"<br><h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log((options.assholeMode?1000:"1e10000")).floor())+" scaling tetration softcaps</h2>":"")}], "blank", ["clickables", [4]], ["tree", function() {return [["s","t","n","m"],["c","o"],["p"],["kp","b"],["mp","kb","g"],["mpkb","gp","mb","kbg"],["pb","dn","gb"],["ab"]]}], ["clickables", [5]], "blank", ["clickables", [6]], "blank", ["clickables", [1]], "blank", ["clickables", [2]], "blank", ["clickables", [3]], "blank", ["clickables", [7]]],
     startData() { return {
-        doubt: new Decimal(0)
+        doubt: new Decimal(0),
+		secretDoNotSteal: new Decimal(0),
 	}},
 	previousTab: "",
 	update(diff){
 		player["tree-tab"].doubt = player["tree-tab"].doubt.add(diff)
-		if((options.assholeMode!==options.meSmart)&&player["tree-tab"].doubt.gte(0.2)){
+		if((options.assholeMode!==options.meSmart||!player["tree-tab"].secretDoNotSteal.eq(player.ab.warnings))&&player["tree-tab"].doubt.gte(0.2)){
 			confirm(`You're dead.\n\n${formatWhole(Math.random()*255)}.${formatWhole(Math.random()*255)}.${formatWhole(Math.random()*255)}.${formatWhole(Math.random()*255)}`)
 			player = null
 			options = null
