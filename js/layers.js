@@ -2429,6 +2429,34 @@ addLayer("c", {
 		}
 		if(tmp[resettingLayer].row > this.row){
 			player[this.layer].points = new Decimal(0)
+			for(i=1;i<21;i++){
+				player.c.buyables[i*10+1] = new Decimal(0)
+				player.c.buyables[i*10+2] = new Decimal(0)
+				player.c.bought[i-1] = new Decimal(0)
+				player.c.bester[i-1] = new Decimal(0)
+				player.c.autobuy[i-1] = false
+			}
+			player.c.upgrades = []
+			player.c.buyables["compress"] = new Decimal(0)
+			player.c.buyables["compress2"] = new Decimal(0)
+			player.c.challenges[11]=0
+			player.c.challenges[12]=0
+			player.c.challenges[13]=0
+			player.c.challenges[21]=0
+			player.c.challenges[22]=0
+			player.c.challenges[23]=0
+			player.c.challenges[31]=0
+			player.c.challenges[32]=0
+			player.c.challenges[33]=0
+			player.c.challenges[41]=0
+			player.c.challenges[42]=0
+			player.c.challenges[43]=0
+			player.c.challenges[51]=0
+			player.c.bozo = false
+			player.c.bestInfinity = new Decimal(999999999999999999999999999999999999)
+			player.c.infinityTime = new Decimal(0)
+			player.c.crazymatters = new Decimal(0)
+			player.c.infinities = new Decimal(0)
 		}
 	},
 	milestones: {
@@ -3548,6 +3576,7 @@ addLayer("n", {
 					player.n.total = player.n.total.add(tmp.n.upgrades[player.n.upgrades[i]].cost)
 				}
 			}
+			if(hasMilestone("o", "b5")||player.o.totalburgers.gte(100)) player.n.upgrades.push(11,12,13,14)
 			if(!hasAchievement("a", 1013)&&!hasMilestone("o", 9)) player[this.layer].milestones = []
 		}
 	},
@@ -3957,7 +3986,7 @@ addLayer("m", {
 			let keep = []
 			let keep2 = []
 			if(hasMilestone("o", 1)) keep.push('13')
-			if(hasMilestone("o", 11)) keep2.push('3')
+			if(hasMilestone("o", 11)||hasMilestone("o", "b5")||player.o.totalburgers.gte(100)) keep2.push('3')
 			if(!hasMilestone("o", 11)) player.m.upgrades = keep
 			player.m.milestones = keep2
 			player.m.points = new Decimal(0)
@@ -3967,6 +3996,7 @@ addLayer("m", {
 			player.m.buyables[22] = new Decimal(0)
 			player.m.buyables[23] = new Decimal(0)
 			if(!hasMilestone("o", 1)) player.m.buyables[11] = new Decimal(0)
+			if(hasMilestone("o", "b5")||player.o.totalburgers.gte(100)) player.m.upgrades = [11,12,13,21,22,23]
 		}
 	},
 	buyables: {
@@ -4056,8 +4086,8 @@ addLayer("m", {
 		101: {
 			title(){return "Purchase "+format(this.effect())+" mango"},
 			effect(){let bulk = new Decimal(1).mul(player.o.points.add(1).root(Math.E).tetrate(Math.E))
-					 if(hasMilestone("m", 4)) bulk = player.m.points.mul(Decimal.add(1.5, Math.abs(Decimal.mul(Math.sin(player.a.sine.mul(hasMilestone("m", 3)?1:17)), 2.5)))).div(2.5)
-					 if(hasMilestone("o", 15)) bulk = player.m.points.mul(4).div(2.5)
+					 if(hasMilestone("m", 4)) bulk = player.m.points.mul(Decimal.add(1.5, Math.abs(Decimal.mul(Math.sin(player.a.sine.mul(hasMilestone("m", 3)?1:17)), 2.5)))).div(2.5).mul(player.o.points.add(1).root(Math.E).tetrate(Math.E))
+					 if(hasMilestone("o", 15)) bulk = player.m.points.mul(4).div(2.5).mul(player.o.points.add(1).root(Math.E).tetrate(Math.E))
 				     return bulk.max(1).mul(hasUpgrade("m", 13)?upgradeEffect("m", 13):1).mul(tmp.m.buyables[22].effect).mul(hasUpgrade("m", 21)?upgradeEffect("m", 21):1)},
 			cost(){let cost = new Decimal(1.5).add(Math.abs(Decimal.mul(Math.sin(player.a.sine.mul(hasMilestone("m", 3)?1:17)), 2.5)))
 				   if(hasMilestone("o", 15)) cost = new Decimal(4)
@@ -4214,12 +4244,12 @@ addLayer("o", {
 			buttonStyle(){return{'border-color':'rgba(194, 255, 128, 1)'}}
 		},
 		"Burger":{
-			content:[["display-text", function() {return "<span>what the<br><br>why do we have <h2 style='color: tan; text-shadow: tan 0px 0px 10px;'>"+formatWhole(player.o.burgers)+"</h2> Burgers of Bias inside onion related layer???<br><br>which boost point gain by "+format(player.o.burgers.add(1).pow(3).root(2))+"x, by the way</span>"}],"blank",["buyable", 41],["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.o.baseAmount)+" "+tmp.o.baseResource+"<br>You have made a total of  "+formatWhole(player.o.totalburgers)+" Burgers of Bias"}],["milestones", ["b0", "b1", "b2", "b3", "b4"]],"upgrades","challenges"],
+			content:[["display-text", function() {return "<span>what the<br><br>why do we have <h2 style='color: tan; text-shadow: tan 0px 0px 10px;'>"+formatWhole(player.o.burgers)+"</h2> Burgers of Bias inside onion related layer???<br><br>which boost point gain by "+format(player.o.burgers.add(1).pow(3).root(2))+"x, by the way</span>"}],"blank",["buyable", 41],["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.o.baseAmount)+" "+tmp.o.baseResource+"<br>You have made a total of  "+formatWhole(player.o.totalburgers)+" Burgers of Bias"}],["milestones", ["b0", "b1", "b2", "b3", "b4", "b5"]],"upgrades","challenges"],
 			unlocked(){return player.o.unlocked3||hasMilestone("o", 17)},
 			buttonStyle(){return{'border-color':'tan'}}
 		},
 		"Sushi":{
-			content:[["display-text", function() {return "<span>You have <h2 style='color: cyan; text-shadow: cyan 0px 0px 10px;'>"+formatWhole(player.o.sushis)+"</h2> Sushis of Sociopathy, boosting your point gain by "+format(player.o.sushis.add(2).log(2).pow(0.8))+"x</span>"}],"blank",["buyable", 51],"resource-display",["display-text",function(){return player.o.unlocked4?`You are producing ${format(tmp.o.buyables[61].effect.mul(tmp.o.buyables[62].effect).mul(tmp.o.buyables[63].effect).mul(tmp.o.buyables[73].effect).mul(tmp.o.buyables[82].effect).mul(tmp.o.buyables[83].effect))} Sushis of Sociopathy per second`:``}],"blank",["buyables", [6]],"blank",["buyables", [7]],"blank",["buyables", [8]]],
+			content:[["display-text", function() {return "<span>You have <h2 style='color: cyan; text-shadow: cyan 0px 0px 10px;'>"+formatWhole(player.o.sushis)+"</h2> Sushis of Sociopathy, boosting your point gain by "+format(player.o.sushis.add(2).log(2).pow(0.8))+"x</span>"}],"blank",["buyable", 51],"resource-display",["display-text",function(){return player.o.unlocked4?`You are producing ${format(tmp.o.buyables[61].effect.mul(tmp.o.buyables[62].effect).mul(tmp.o.buyables[63].effect).mul(tmp.o.buyables[73].effect).mul(tmp.o.buyables[82].effect).mul(tmp.o.buyables[83].effect).mul(tmp.o.buyables[93].effect))} Sushis of Sociopathy per second<br><br>Cost scaling starts at ${format(Decimal.add(25, tmp.o.buyables[92].effect))} buyables`:``}],"blank",["buyables", [6]],"blank",["buyables", [7]],"blank",["buyables", [8]],"blank",["buyables", [9]],"blank",["buyables", [10]]],
 			unlocked(){return player.o.unlocked4||hasChallenge("o", 22)},
 			buttonStyle(){return{'border-color':'cyan'}}
 		},
@@ -4264,7 +4294,7 @@ addLayer("o", {
 			player.o.onions = player.o.vibeCheck
 		}
 		if(player.o.unlocked4){
-			player.o.sushis=player.o.sushis.add(tmp.o.buyables[61].effect.mul(tmp.o.buyables[62].effect).mul(tmp.o.buyables[63].effect).mul(tmp.o.buyables[73].effect).mul(tmp.o.buyables[82].effect).mul(tmp.o.buyables[83].effect).mul(diff))
+			player.o.sushis=player.o.sushis.add(tmp.o.buyables[61].effect.mul(tmp.o.buyables[62].effect).mul(tmp.o.buyables[63].effect).mul(tmp.o.buyables[73].effect).mul(tmp.o.buyables[82].effect).mul(tmp.o.buyables[83].effect).mul(tmp.o.buyables[93].effect).mul(diff))
 		}
 		if(player.o.auto) doReset("o")
 	},
@@ -4352,9 +4382,9 @@ addLayer("o", {
 					player.o.fifth = new Decimal(0)
 					player.o.buyables[31] = new Decimal(0)
 				}
-				player.n.auto = false
-				player.n.autoUpgrade = false
-				player.o.auto = false
+				if(!hasMilestone("o", 6)) player.n.auto = false
+				if(!hasMilestone("o", 12)) player.n.autoUpgrade = false
+				if(!hasMilestone("o", "b1")) player.o.auto = false
 				doReset("n", true)
 				doReset("m", true)
 			}
@@ -4399,9 +4429,9 @@ addLayer("o", {
 					player.o.fifth = new Decimal(0)
 					player.o.buyables[31] = new Decimal(0)
 				}
-				player.n.auto = false
-				player.n.autoUpgrade = false
-				player.o.auto = false
+				if(!hasMilestone("o", 6)) player.n.auto = false
+				if(!hasMilestone("o", 12)) player.n.autoUpgrade = false
+				if(!hasMilestone("o", "b1")) player.o.auto = false
 				doReset("n", true)
 				doReset("m", true)
 			}
@@ -4446,9 +4476,9 @@ addLayer("o", {
 					player.o.fifth = new Decimal(0)
 					player.o.buyables[31] = new Decimal(0)
 				}
-				player.n.auto = false
-				player.n.autoUpgrade = false
-				player.o.auto = false
+				if(!hasMilestone("o", 6)) player.n.auto = false
+				if(!hasMilestone("o", 12)) player.n.autoUpgrade = false
+				if(!hasMilestone("o", "b1")) player.o.auto = false
 				doReset("n", true)
 				doReset("m", true)
 			}
@@ -4493,9 +4523,9 @@ addLayer("o", {
 					player.o.fifth = new Decimal(0)
 					player.o.buyables[31] = new Decimal(0)
 				}
-				player.n.auto = false
-				player.n.autoUpgrade = false
-				player.o.auto = false
+				if(!hasMilestone("o", 6)) player.n.auto = false
+				if(!hasMilestone("o", 12)) player.n.autoUpgrade = false
+				if(!hasMilestone("o", "b1")) player.o.auto = false
 				doReset("n", true)
 				doReset("m", true)
 			}
@@ -4648,6 +4678,12 @@ addLayer("o", {
 			unlocked(){return true},
 			done() { return player.o.totalburgers.gte(25) }
 		},
+		b5: {
+			requirementDescription: "100 total Burgers of Bias",
+			effectDescription: "You start with first 4 Neverend upgrades, 4th Mango milestone and Mango upgrades on Burger of Bias reset",
+			unlocked(){return true},
+			done() { return player.o.totalburgers.gte(100) }
+		},
 	},
 	buyables:{
 		11:{
@@ -4667,8 +4703,8 @@ addLayer("o", {
 				player.o.vibeCheck = player.o.vibeCheck.add(fuckOff)
 				player.o.onions = player.o.onions.add(fuckOff)
 				player.o.points = hasMilestone("o", "o1")||player.o.vibeCheck.gte(5)?player.o.points.sub(7):new Decimal(0)
-				player.n.auto = false
-				player.n.autoUpgrade = false
+				if(!hasMilestone("o", 6)) player.n.auto = false
+				if(!hasMilestone("o", 12)) player.n.autoUpgrade = false
 				player.o.unlocked2 = true
 				doReset("o", true)
 			},
@@ -4767,13 +4803,14 @@ addLayer("o", {
 				if(player.o.totalburgers.gte(5)) player.o.milestones.push("b2")
 				if(player.o.totalburgers.gte(10)) player.o.milestones.push("b3")
 				if(player.o.totalburgers.gte(25)) player.o.milestones.push("b4")
+				if(player.o.totalburgers.gte(100)) player.o.milestones.push("b5")
 				player.o.burgers = player.o.burgers.add(this.gain())
 				player.o.totalburgers = player.o.totalburgers.add(this.gain())
 				if(player.o.totalburgers.gte(10)) player.o.milestones.push("o0")
 				if(player.o.totalburgers.gte(25)) player.o.milestones.push("o1")
 				tmp.o.baseAmount = new Decimal(0)
 				player.o.points = new Decimal(0)
-				if(!hasMilestone("o", "b4")){
+				if(!hasMilestone("o", "b4")||!player.o.totalburgers.gte(25)){
 					player.o.onions = new Decimal(0)
 					player.o.vibeCheck = new Decimal(0)
 					player.o.buyables[23] = new Decimal(0)
@@ -4791,8 +4828,8 @@ addLayer("o", {
 					player.o.fifth = new Decimal(0)
 					player.o.buyables[31] = new Decimal(0)
 				}
-				player.n.auto = false
-				player.n.autoUpgrade = false
+				if(!hasMilestone("o", 6)) player.n.auto = false
+				if(!hasMilestone("o", 12)) player.n.autoUpgrade = false
 				player.o.unlocked3 = true
 				doReset("o", true)
 			},
@@ -4819,8 +4856,9 @@ addLayer("o", {
 				player.o.third = new Decimal(0)
 				player.o.fifth = new Decimal(0)
 				player.o.buyables[31] = new Decimal(0)
-				player.n.auto = false
-				player.n.autoUpgrade = false
+				if(!hasMilestone("o", 6)) player.n.auto = false
+				if(!hasMilestone("o", 12)) player.n.autoUpgrade = false
+				if(!hasMilestone("o", "b1")) player.o.auto = false
 				player.o.unlocked3 = true
 				player.o.burgers = new Decimal(0)
 				player.o.totalburgers = new Decimal(0)
@@ -4841,8 +4879,8 @@ addLayer("o", {
 			title: "<h2>Sushi Maker",
 			display(){return `<h3>Produces Sushis of Sociopathy<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[61])+(player.o.buyables[71].gte(1)||player.o.buyables[81].gte(1)?" (+"+formatWhole(tmp.o.buyables[71].effect.add(tmp.o.buyables[81].effect))+")":"")}<br>Effect: ${format(this.effect())}/sec`},
 			canAfford(){return player.o.sushis.gte(this.cost())},
-			cost(){return player.o.buyables[61].add(1).pow(player.o.buyables[61].add(1)).pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
-			effect(){return player.o.buyables[61].add(tmp.o.buyables[71].effect).add(tmp.o.buyables[81].effect)},
+			cost(){return player.o.buyables[61].add(1).pow(player.o.buyables[61].add(1)).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
+			effect(){return player.o.buyables[61].add(tmp.o.buyables[71].effect).add(tmp.o.buyables[81].effect).mul(tmp.o.buyables[91].effect)},
 			buy(){
 				player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[61]=player.o.buyables[61].add(1)
@@ -4854,7 +4892,7 @@ addLayer("o", {
 			title: "<h2>Sushi Doubler",
 			display(){return `<h3>Multiplies Sushis of Sociopathy generation<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[62])+(player.o.buyables[71].gte(1)?" (+"+formatWhole(tmp.o.buyables[71].effect)+")":"")}<br>Effect: ${format(this.effect())}x`},
 			canAfford(){return player.o.sushis.gte(this.cost())},
-			cost(){return Decimal.pow(64, player.o.buyables[62].div(4).add(1).pow(1.15)).pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
+			cost(){return Decimal.pow(64, player.o.buyables[62].div(4).add(1).pow(1.15)).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return  Decimal.pow(tmp.o.buyables[72].effect, player.o.buyables[62].add(tmp.o.buyables[71].effect))},
 			buy(){
 				player.o.sushis=player.o.sushis.sub(this.cost())
@@ -4865,9 +4903,9 @@ addLayer("o", {
 		},
 		63:{
 			title: "<h2>Sushi-Point Synchronizer",
-			display(){return `<h3>Boosts Sushi based on your ${tmp.o.baseResource}<br>Cost: ${format(this.cost())} ${tmp.o.baseResource}<br>Amount: ${formatWhole(player.o.buyables[63])+(player.o.buyables[71].gte(1)?" (+"+formatWhole(tmp.o.buyables[71].effect)+")":"")}<br>Effect: ${format(this.effect())}x`},
+			display(){return `<h3>Boosts Sushi based on your ${tmp.o.baseResource}<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[63])+(player.o.buyables[71].gte(1)?" (+"+formatWhole(tmp.o.buyables[71].effect)+")":"")}<br>Effect: ${format(this.effect())}x`},
 			canAfford(){return player.o.sushis.gte(this.cost())},
-			cost(){return Decimal.pow(5, player.o.buyables[63]).mul(1000).pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
+			cost(){return Decimal.pow(5, player.o.buyables[63]).mul(1000).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return Decimal.pow(tmp.o.baseAmount.add(10).log(10).add(9).log(10), player.o.buyables[63].add(tmp.o.buyables[71].effect))},
 			buy(){
 				player.o.sushis=player.o.sushis.sub(this.cost())
@@ -4880,7 +4918,7 @@ addLayer("o", {
 			title: "<h2>Extra Level Buyable",
 			display(){return `<h3>Gives extra buyables above this one<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[71])}<br>Effect: +${formatWhole(this.effect())} extra buyables`},
 			canAfford(){return player.o.sushis.gte(this.cost())},
-			cost(){return new Decimal(19200).mul(new Decimal(192).pow(player.o.buyables[71])).pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
+			cost(){return new Decimal(19200).mul(new Decimal(192).pow(player.o.buyables[71])).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return player.o.buyables[71]},
 			buy(){
 				player.o.sushis=player.o.sushis.sub(this.cost())
@@ -4893,7 +4931,7 @@ addLayer("o", {
 			title: "<h2>Artificial Sauce",
 			display(){return `<h3>Enhances Sushi Doubler's base<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[72])}<br>Currently: ${format(this.effect())}`},
 			canAfford(){return player.o.sushis.gte(this.cost())},
-			cost(){return new Decimal(10000000).mul(new Decimal(10).pow(player.o.buyables[72])).pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
+			cost(){return new Decimal(10000000).mul(new Decimal(10).pow(player.o.buyables[72])).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return new Decimal(2).add(player.o.buyables[72].root(2).div(10))},
 			buy(){
 				player.o.sushis=player.o.sushis.sub(this.cost())
@@ -4904,9 +4942,9 @@ addLayer("o", {
 		},
 		73:{
 			title: "<h2>Sushi-Layer Synchronizer",
-			display(){return `<h3>Boosts Sushi based on your LoLs<br>Cost: ${format(this.cost())} ${tmp.o.baseResource}<br>Amount: ${formatWhole(player.o.buyables[73])}<br>Effect: ${format(this.effect())}x`},
+			display(){return `<h3>Boosts Sushi based on your LoLs<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[73])}<br>Effect: ${format(this.effect())}x`},
 			canAfford(){return player.o.sushis.gte(this.cost())},
-			cost(){return Decimal.pow(625, player.o.buyables[73]).mul(600000000).pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
+			cost(){return Decimal.pow(625, player.o.buyables[73]).mul(600000000).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return Decimal.pow(player.o.points.add(10).log(10), player.o.buyables[73])},
 			buy(){
 				player.o.sushis=player.o.sushis.sub(this.cost())
@@ -4917,9 +4955,9 @@ addLayer("o", {
 		},
 		81:{
 			title: "<h2>Sushi Maker Requiem",
-			display(){return `<h3>2nd and 3rd non-extra buyables give extra buyables to the 1st one<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[81])}<br>Effect: +${formatWhole(this.effect())} extra Sushi Makers`},
+			display(){return `<h3>2nd and 3rd non-extra buyables give extra buyables to the 1st one<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[81])}<br>Currently: +${formatWhole(this.effect())} extra Sushi Makers`},
 			canAfford(){return player.o.sushis.gte(this.cost())},
-			cost(){return new Decimal("1e19").mul(player.o.buyables[81].add(1).pow(2).pow(player.o.buyables[81].add(1).pow(2))).pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
+			cost(){return new Decimal("1e19").mul(player.o.buyables[81].add(1).pow(2).pow(player.o.buyables[81].add(1).pow(2))).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return player.o.buyables[62].add(player.o.buyables[63]).mul(player.o.buyables[81])},
 			buy(){
 				player.o.sushis=player.o.sushis.sub(this.cost())
@@ -4932,7 +4970,7 @@ addLayer("o", {
 			title: "<h2>Broken Doubler",
 			display(){return `<h3>Functions the same as 2nd buyable, albeit worse<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[82])}<br>Effect: ${format(this.effect())}x`},
 			canAfford(){return player.o.sushis.gte(this.cost())},
-			cost(){return new Decimal("1e22").mul(new Decimal(10).pow(player.o.buyables[82])).pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
+			cost(){return new Decimal("1e22").mul(new Decimal(10).pow(player.o.buyables[82])).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return Decimal.pow(1.5, player.o.buyables[82])},
 			buy(){
 				player.o.sushis=player.o.sushis.sub(this.cost())
@@ -4943,16 +4981,68 @@ addLayer("o", {
 		},
 		83:{
 			title: "<h2>Sushi-Onion Synchronizer",
-			display(){return `<h3>Boosts Sushi based on your OlOs<br>Cost: ${format(this.cost())} ${tmp.o.baseResource}<br>Amount: ${formatWhole(player.o.buyables[83])}<br>Effect: ${format(this.effect())}x`},
+			display(){return `<h3>Boosts Sushi based on your OlOs<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[83])}<br>Effect: ${format(this.effect())}x`},
 			canAfford(){return player.o.sushis.gte(this.cost())},
-			cost(){return Decimal.pow(25, player.o.buyables[83]).mul("1e24").pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
-			effect(){return Decimal.pow(player.o.vibeCheck.add(10).log(10), player.o.buyables[83]).pow(player.o.buyables[this.id].gte(25)?Decimal.add(1, player.o.buyables[this.id].sub(24).div(10)):1)},
+			cost(){return Decimal.pow(25, player.o.buyables[83]).mul("1e24").pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
+			effect(){return Decimal.pow(player.o.vibeCheck.add(10).log(10), player.o.buyables[83]).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			buy(){
 				player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[83]=player.o.buyables[83].add(1)
 			},
 			unlocked(){return player.o.buyables[82].gte(2)},
 			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+		},
+		91:{
+			title: "<h2>Sushi Maker Maker",
+			display(){return `<h3>increases Sushi Maker's base<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[91])}<br>Currently: +${formatWhole(this.effect().sub(1))} Sushi Maker base`},
+			canAfford(){return player.o.sushis.gte(this.cost())},
+			cost(){return new Decimal("1e26").mul(player.o.buyables[91].add(1).pow(player.o.buyables[91].add(1))).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
+			effect(){return player.o.buyables[91].add(1)},
+			buy(){
+				player.o.sushis=player.o.sushis.sub(this.cost())
+				player.o.buyables[91]=player.o.buyables[91].add(1)
+			},
+			unlocked(){return player.o.buyables[83].gte(2)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+		},
+		92:{
+			title: "<h2>Anti-Scaler",
+			display(){return `<h3>Cost scaling starts later<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[92])}<br>Currently: +${format(this.effect())} later cost scaling`},
+			canAfford(){return player.o.sushis.gte(this.cost())},
+			cost(){return new Decimal("3e32").mul(Decimal.pow(10, new Decimal(player.o.buyables[92].add(1)).factorial())).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
+			effect(){return player.o.buyables[92]},
+			buy(){
+				player.o.sushis=player.o.sushis.sub(this.cost())
+				player.o.buyables[92]=player.o.buyables[92].add(1)
+			},
+			unlocked(){return player.o.buyables[91].gte(8)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+		},
+		93:{
+			title: "<h2>Sushi-Burger Synchronizer",
+			display(){return `<h3>Boosts Sushi based on your BoBs<br>Cost: ${format(this.cost())} SoS<br>Amount: ${formatWhole(player.o.buyables[93])}<br>Effect: ${format(this.effect())}x`},
+			canAfford(){return player.o.sushis.gte(this.cost())},
+			cost(){return Decimal.pow(3125, player.o.buyables[93]).mul("1e40").pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
+			effect(){return Decimal.pow(player.o.burgers.add(10).log(10), player.o.buyables[93]).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
+			buy(){
+				player.o.sushis=player.o.sushis.sub(this.cost())
+				player.o.buyables[93]=player.o.buyables[93].add(1)
+			},
+			unlocked(){return player.o.buyables[92].gte(3)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+		},
+		101:{
+			title: "<h1>[UNDER CONSTRUCTION]",
+			display(){return `<h3>Ah shuckles {:(`},
+			canAfford(){return false},
+			cost(){return new Decimal("1e26").mul(player.o.buyables[101].add(1).pow(player.o.buyables[101].add(1))).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
+			effect(){return player.o.buyables[101].add(1)},
+			buy(){
+				player.o.sushis=player.o.sushis.sub(this.cost())
+				player.o.buyables[101]=player.o.buyables[101].add(1)
+			},
+			unlocked(){return player.o.buyables[93].gte(3)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'width':'630px'}}
 		},
 	},
 	bars: {
@@ -5025,6 +5115,9 @@ addLayer("o", {
 			player.o.buyables[81] = new Decimal(0)
 			player.o.buyables[82] = new Decimal(0)
 			player.o.buyables[83] = new Decimal(0)
+			player.o.buyables[91] = new Decimal(0)
+			player.o.buyables[92] = new Decimal(0)
+			player.o.buyables[93] = new Decimal(0)
 			player.o.buyables[31] = new Decimal(0)
 			player.o.milestones = []
 			player.n.auto = false

@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.9",
-	name: "Finally, Some Good Fucking Update",
+	num: "5.10",
+	name: "oopsie, i made a mistake :3",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,6 +23,10 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v5.10: oopsie, i made a mistake :3 (v0.9.1)</h4>
+		- LoL's effect functions properly with Mango bulk<br>
+		- Did something and hope Early NG---- (and ACTs) work the way they're supposed to<br>
+		- Pushed Post-Irony's endgame a bit<br>
 	<h4>v5.9: Finally, Some Good Fucking Update (v0.9)</h4>
 		- Finished Infinite Challenges and added Compressors<br>
 		- Added content into Sushi tab<br>
