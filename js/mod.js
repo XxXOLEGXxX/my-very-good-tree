@@ -1,7 +1,7 @@
 let modInfo = {
 	name: "You get the idea",
 	id: "howdidifuckthisoneupohmygod",
-	author: "Oleg",
+	author: "Oleg (fuckyousegabutdeezcord in Discord)",
 	pointsName: "points",
 	modFiles: ["layers.js", "tree.js"],
 	soWhatsMyName: "",
@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.10",
-	name: "oopsie, i made a mistake :3",
+	num: "5.11",
+	name: "Take a load of this!",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,6 +23,17 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v5.11: Take a load of this! (v0.10)</h4>
+		-Added much shorter explanation in Primordial Booster layer<br>
+		-Tooltip has been resized and Crazy achievements were rearranged<br>
+		-There's no way you can miss Hall of Fame now IT'S LITERALLY IN ANTI BALANCER PLEASE<br>
+		-Added even more QoL for mobile players (perhaps a bit too much)<br>
+		-Final Crazy Challenge got it's proper treatment it deserves<br>
+		-Each of Onion's tab's content has their respectful color... except for challenge buttons<br>
+		-Optimized Onion milestones<br>
+		-Added option to translate prestige upgrades (and ruin fun >:[)<br>
+		-Added new Onion tab! (Trust me, it has lots of content)<br>
+		-Improved Oleg's theme (did nothing for AD theme tho)<br>
 	<h4>v5.10: oopsie, i made a mistake :3 (v0.9.1)</h4>
 		- LoL's effect functions properly with Mango bulk<br>
 		- Did something and hope Early NG---- (and ACTs) work the way they're supposed to<br>
@@ -129,7 +140,7 @@ function getBypassedPointGen() {
 	if(player.o.unlocked3) gain = gain.mul(player.o.burgers.add(1).pow(3).root(2))
 	if(hasUpgrade("o", 11)) gain = gain.mul(upgradeEffect("o", 11))
 	if(hasUpgrade("o", 12)) gain = gain.mul(Decimal.pow(1/9+1, player.o.fifthLevel.sub(1)))
-	if(player.o.unlocked4) gain = gain.mul(player.o.sushis.add(2).log(2).pow(0.8))
+	if(player.o.unlocked4) gain = gain.mul(player.o.sushis.add(2).log(2).pow(0.8).mul(tmp.o.buyables[101].effect))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
@@ -157,7 +168,7 @@ function infiniteChallenges(){
 			base = base.add(player.c.challenges[i*10+v])
 		}
 	}
-	return base
+	return base.add(player.c.challenges[51])
 }
 
 function smartAchievementEffect(layer, id, def = new Decimal(1)) {
@@ -202,7 +213,7 @@ function getPointGen() {
 	if(player.o.unlocked3) gain = gain.mul(player.o.burgers.add(1).pow(3).root(2))
 	if(hasUpgrade("o", 11)) gain = gain.mul(upgradeEffect("o", 11))
 	if(hasUpgrade("o", 12)) gain = gain.mul(Decimal.pow(1/9+1, player.o.fifthLevel.sub(1)))
-	if(player.o.unlocked4) gain = gain.mul(player.o.sushis.add(2).log(2).pow(0.8))
+	if(player.o.unlocked4) gain = gain.mul(player.o.sushis.add(2).log(2).pow(0.8).mul(tmp.o.buyables[101].effect))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
@@ -220,6 +231,18 @@ function getPointGen() {
 	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?1000:"1e10000"), iAmGod)).root(Decimal.add(1, Decimal.div(1, Decimal.tetrate(iAmGod, iAmGod)))))
 	}
 	if(player.ab.points.gte(5)) gain = gain.times(-1)
+	return gain
+}
+
+function canHeGeneratePlottho(){
+	let gain = new Decimal(player.realAB.points.gte(1)?1:0).add(tmp.realAB.buyables[13].effect).mul(tmp.realAB.buyables[12].effect)
+	if(hasUpgrade("realAB",11)) gain = gain.mul(upgradeEffect("realAB",11))
+	if(hasUpgrade("realAB",12)) gain = gain.mul(1.9001)
+	if(hasUpgrade("o",42)) gain = gain.mul(upgradeEffect("o",42))
+	if(hasAchievement("realAB",24)) gain = gain.mul(Decimal.pow(1.15, player.realAB.achievements.length+1))
+	if(hasAchievement("realAB",25)) gain = gain.mul(2)
+	if(player.realAB.points.gte(2)) gain = gain.div(player.o.plots.add(1).pow(player.realAB.points.gte(4)?3:1))
+	if(player.realAB.points.gte(3)) gain = gain.pow(gain.gte(1)?0.85:1.15)
 	return gain
 }
 
@@ -272,7 +295,7 @@ var backgroundStyle = {
 
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
-	return(3600) // Default is 1 hour which is just arbitrarily large
+	return(player.o.unlocked5?1:3600) // Default is 1 hour which is just arbitrarily large
 }
 
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,

@@ -19,6 +19,7 @@ function getStartOptions() {
 		meSmart: false,
 		why: false,
 		mobileButtons: true,
+		translateThis: false,
 	}
 }
 

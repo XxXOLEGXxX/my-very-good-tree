@@ -180,6 +180,7 @@ var systemComponents = {
 			</tr>
 			<tr>
 				<td><button class="opt" onclick="toggleOpt('mobileButtons')">BEE-GONE BUTTONS: {{ options.mobileButtons?"DO NOT.":"ON" }}</button></td>
+				<td><button class="opt" onclick="toggleOpt('translateThis')">{{ options.translateThis?"TRANSLATE PRESTIGE UPGRADES":"BLAH" }}: {{ options.translateThis?"ON":"BLAH" }}</button></td>
 			</tr>
         </table>`
     },

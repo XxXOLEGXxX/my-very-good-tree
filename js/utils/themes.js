@@ -23,14 +23,13 @@ var colors = {
 		background_tooltip: "rgba(0, 15, 31, 0.75)",
 	},
 	"Oleg's theme": {
-		1: "#ffffff",
-		2: "#bfbfbf",
-		3: "#7f7f7f",
+		1: "rgb(255,229,253)",
+		2: "rgb(181,155,179)",
+		3: "rgb(107,81,105)",
 		color: "#aa00b5",
 		points: "#A9C5CE",
 		locked: "cyan",
-		//background: "linear-gradient(#11070F, #2D1328)",
-		background: "linear-gradient(#11070F, #2D1328)",
+		background: "rgb(33,7,31)",
 		background_tooltip: "rgba(0, 15, 31, 0.75)",
 	},
 	"Antimatter Dimensions": {

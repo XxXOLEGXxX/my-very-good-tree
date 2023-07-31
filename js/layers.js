@@ -21,7 +21,8 @@ function gimmeManyDimensions(x){
 											letMeScale = letMeScale.add(player.c.bought[v-1])
 										}										
 									}
-									return new Decimal(costInitial[i-1]).mul(Decimal.pow(costScale[i-1], letMeScale))},
+									cost = new Decimal(costInitial[i-1]).mul(Decimal.pow(costScale[i-1], letMeScale))
+									return cost.pow(cost.gte("1.78e308")?cost.add(1).log("1.78e308"):1)},
 						 function(){return (inChallenge("c", 31)&&i>8)||(inChallenge("c", 43)&&i>4)?false:player.c.crazymatters.gte(this.cost())},
 						 function(){player.c.crazymatters = player.c.crazymatters.sub(new Decimal(costInitial[i-1]).mul(Decimal.pow(costScale[i-1], player.c.bought[i-1]))).max(0)
 									player.c.buyables[this.id] = player.c.buyables[this.id].add(1)
@@ -87,6 +88,89 @@ function alrIReallyNeedAutobuyersSoooo(x){
 	return magicLOL
 }
 
+addLayer("pb", {
+    name: "primordialboosters", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "PB", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: true,
+		points: new Decimal(0),
+		boosters: new Decimal(0),
+		kiloboosters: new Decimal(0),
+		megaboosters: new Decimal(0),
+		gigaboosters: new Decimal(0),
+    }},
+	clickables: {
+		11: {
+			title: "Store",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+    color: "#945299",
+	baseEffect() {return new Decimal(2)},
+	effect() {let b = tmp.b.baseEffect.pow(player.pb.boosters)
+			  let kb = tmp.kb.baseEffect.pow(player.pb.kiloboosters)
+			  let mb = tmp.mb.baseEffect.pow(player.pb.megaboosters)
+			  let gb = tmp.gb.baseEffect.pow(player.pb.gigaboosters)
+			  return b.mul(kb).mul(mb).mul(gb)
+			  },
+	effectDescription() {return "multiplying point gain by x"+format(this.effect())},
+    requires: new Decimal(10), // Can be a function that takes requirement increases into account
+    resource: "primordial boosters", // Name of prestige currency
+    baseResource: "giga prestige points", // Name of resource prestige is based on
+    baseAmount() {return player.gp.points}, // Get the current amount of baseResource
+    type: "custom", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+	getResetGain(){return player.b.points.add(player.kb.points).add(player.mb.points)},
+	canBuyMax(){return true},
+	getNextAt(canMax=false){return player.b.points.add(player.kb.points).add(player.mb.points).add(1)},
+    prestigeButtonText() {
+        return "Reset for +"+formatWhole(tmp[this.layer].resetGain)+" primordial boosters<br><br>You need 10 giga prestige points and at least one booster of any kind to reset"
+    },
+	canReset(){return player.gp.points.gte(tmp.pb.requires) && (player.b.points.gte(1) || player.kb.points.gte(1) || player.mb.points.gte(1) || player.gb.points.gte(1))},
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        return new Decimal(1)
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+	update(diff){
+		player.pb.points = player.pb.boosters.add(player.pb.kiloboosters).add(player.pb.megaboosters)
+	},
+	tabFormat: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], "resource-display", ["display-text", function() {return 'You have stored '+formatWhole(player.pb.boosters)+' boosters, boosting your point gain by x'+format(Decimal.pow(tmp.b.baseEffect, player.pb.boosters))+'<br>'+(hasAchievement("a", 31)?'You have stored '+formatWhole(player.pb.kiloboosters)+' kilo boosters, boosting your point gain by x'+format(Decimal.pow(tmp.kb.baseEffect, player.pb.kiloboosters))+'<br>':'')+(hasAchievement("a", 42)?'You have stored '+formatWhole(player.pb.megaboosters)+' mega boosters, boosting your point gain by x'+format(Decimal.pow(tmp.mb.baseEffect, player.pb.megaboosters))+'<br>':'')+'<br>'}], "buyables", ["display-text", function() {return '<br>"What da hell are Primordial Boosters?"<br><br><span style="color: '+(player.ab.points.gte(4)?'darkred':'red')+'; font-size: 1em; text-shadow: '+(player.ab.points.gte(4)?"purple":"red")+' '+(player.ab.points.gte(4)?player.a.X2:player.a.X)+'px '+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+'px '+(player.ab.points.gte(4)?player.a.S2:player.a.S)+'px;">Primordial Boosters are boosters that are preserved throughout all resets. (excluding mine, obviously)<br>There is just one BUT - Boosters do not get cheaper, so you better grind things up before deciding to throw all of your progress out of the window for nothing.</span><br><br>In other words: Resetting will keep your boosters throughout the entire NG-X mode and you can store multiple of them at once.'}]],
+    row: 7, // Row the layer is in on the tree (0 is the first row)
+    hotkeys: [
+        {key: "B", unlocked() {return hasAchievement("a", 24)}, description: "Shift+B: Reset for primordial boosters", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+    ],
+    layerShown(){return hasAchievement("a", 24)},
+	branches: [["b",3],["kb",3],["mb",3],["gb",3]],
+	onPrestige(gain){
+		player.pb.boosters = player.pb.boosters.add(player.b.points)
+		player.pb.kiloboosters = player.pb.kiloboosters.add(player.kb.points)
+		player.pb.megaboosters = player.pb.megaboosters.add(player.mb.points)
+	},
+	buyables: {
+		11: {
+			title: "Respec stored boosters",
+			display() { return "<h3>No resetting this time<br><br>- yours truly, paralysis demon <3</h3><br>(i still hate your guts)" },
+			canAfford() { return player.pb.points.gte(1) },
+			buy() {
+				player.pb.boosters = new Decimal(0)
+				player.pb.kiloboosters = new Decimal(0)
+				player.pb.megaboosters = new Decimal(0)
+			},
+			style(){return{'height':'125px', 'width':'200px'}},
+			unlocked(){return hasAchievement("a", 54)}
+		},
+	},
+})
+
 addLayer("p", {
     name: "prestige", // This is optional, only used in a few places, If absent it just uses the layer id.
     symbol: "P", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -96,6 +180,20 @@ addLayer("p", {
 		points: new Decimal(0),
 		wait: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Prestige",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
 	update(diff){
 		player.p.wait = player.p.wait.sub(diff)
 		if(player.ab.shopPoints.lt(0)&&player.ab.warnings.eq(0)&&player.p.wait.lt(0)){
@@ -147,7 +245,7 @@ addLayer("p", {
     color: "#4BDC13",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
     resource: "prestige points", // Name of prestige currency
-    baseResource: "points", // Name of resource prestige is based on
+    baseResource(){return player.ab.points.gte(5)?"???":"points"}, // Name of resource prestige is based on
     baseAmount() {return player.ab.points.gte(5)?player.gp.points:player.points}, // Get the current amount of baseResource
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     exponent: 0.5, // Prestige currency exponent
@@ -163,25 +261,28 @@ addLayer("p", {
     hotkeys: [
         {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
-	branches: ["c", "o"],
+	branches: [["c",2], ["o",2]],
     layerShown(){return true},
 	upgrades: {
 		11: {
-			description: "Blah",
+			title(){return options.translateThis?"Prestige+":""},
+			description(){return options.translateThis?"Increases point and prestige point gain by 1":"Blah"}, 
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.p.upgrades.length))
 				   return cost
 			}
 		},
 		12: {
-			description: "Blah",
+			title(){return options.translateThis?"Prestige+":""},
+			description(){return options.translateThis?"Increases point and prestige point gain by 1":"Blah"}, 
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.p.upgrades.length))
 				   return cost
 			}
 		},
 		13: {
-			description: "Blah",
+			title(){return options.translateThis?"Prestige+":""},
+			description(){return options.translateThis?"Increases point and prestige point gain by 1":"Blah"}, 
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.p.upgrades.length))
 				   return cost
@@ -207,6 +308,20 @@ addLayer("kp", {
         unlocked: false,
 		points: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Kilo Prestige",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#38BD2E",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
     resource: "kilo prestige points", // Name of prestige currency
@@ -230,28 +345,32 @@ addLayer("kp", {
 	branches: ["p"],
 	upgrades: {
 		11: {
-			description: "Blah",
+			title(){return options.translateThis?"Kilo Prestige+":""},
+			description(){return options.translateThis?"Increases point, kilo prestige point and prestige point gain by 1":"Blah"}, 
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.kp.upgrades.length))
 				   return cost
 			}
 		},
 		12: {
-			description: "Blah",
+			title(){return options.translateThis?"Kilo Prestige+":""},
+			description(){return options.translateThis?"Increases point, kilo prestige point and prestige point gain by 1":"Blah"}, 
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.kp.upgrades.length))
 				   return cost
 			}
 		},
 		13: {
-			description: "Blah",
+			title(){return options.translateThis?"Kilo Prestige+":""},
+			description(){return options.translateThis?"Increases point, kilo prestige point and prestige point gain by 1":"Blah"}, 
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.kp.upgrades.length))
 				   return cost
 			}
 		},
 		21: {
-			description: "Blah",
+			title(){return options.translateThis?"Kilo Prestige*":""},
+			description(){return options.translateThis?"Increases point, kilo prestige point and prestige point gain by *(+1)":"Blah"}, 
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1024).div(upgradeRow("p", 1, true).add(upgradeRow("kp", 2, true)).add(upgradeRow("mp", 3, true)).add(upgradeRow("gp", 4, true)).add(1)).max(1):new Decimal(1024)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.kp.upgrades.length))
 				   return cost
@@ -261,7 +380,8 @@ addLayer("kp", {
 			currencyLayer: "p",
 		},
 		22: {
-			description: "Blah",
+			title(){return options.translateThis?"Kilo Prestige*":""},
+			description(){return options.translateThis?"Increases point, kilo prestige point and prestige point gain by *(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1024).div(upgradeRow("p", 1, true).add(upgradeRow("kp", 2, true)).add(upgradeRow("mp", 3, true)).add(upgradeRow("gp", 4, true)).add(1)).max(1):new Decimal(1024)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.kp.upgrades.length))
 				   return cost
@@ -271,7 +391,8 @@ addLayer("kp", {
 			currencyLayer: "p",
 		},
 		23: {
-			description: "Blah",
+			title(){return options.translateThis?"Kilo Prestige*":""},
+			description(){return options.translateThis?"Increases point, kilo prestige point and prestige point gain by *(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1024).div(upgradeRow("p", 1, true).add(upgradeRow("kp", 2, true)).add(upgradeRow("mp", 3, true)).add(upgradeRow("gp", 4, true)).add(1)).max(1):new Decimal(1024)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.kp.upgrades.length))
 				   return cost
@@ -291,6 +412,20 @@ addLayer("b", {
         unlocked: false,
 		points: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Boost",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#2142B3",
 	baseEffect() {return new Decimal(2)},
 	effect() {return this.baseEffect().pow(player.b.points)},
@@ -328,6 +463,20 @@ addLayer("mp", {
         unlocked: false,
 		points: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Mega Prestige",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#259E49",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
     resource: "mega prestige points", // Name of prestige currency
@@ -352,28 +501,32 @@ addLayer("mp", {
 	branches: ["kp"],
 	upgrades: {
 		11: {
-			description: "Blah",
+			title(){return options.translateThis?"Mega Prestige+":""},
+			description(){return options.translateThis?"Increases point, mega prestige point and previous prestiges point gain by 1":"Blah"},
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
 			}
 		},
 		12: {
-			description: "Blah",
+			title(){return options.translateThis?"Mega Prestige+":""},
+			description(){return options.translateThis?"Increases point, mega prestige point and previous prestiges point gain by 1":"Blah"},
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
 			}
 		},
 		13: {
-			description: "Blah",
+			title(){return options.translateThis?"Mega Prestige+":""},
+			description(){return options.translateThis?"Increases point, mega prestige point and previous prestiges point gain by 1":"Blah"},
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
 			}
 		},
 		21: {
-			description: "Blah",
+			title(){return options.translateThis?"Mega Prestige*":""},
+			description(){return options.translateThis?"Increases point, mega prestige point and previous prestiges point gain by *(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1024).div(upgradeRow("kp", 1, true).add(upgradeRow("mp", 2, true)).add(upgradeRow("gp", 3, true)).add(1)).max(1):new Decimal(1024)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
@@ -383,7 +536,8 @@ addLayer("mp", {
 			currencyLayer: "kp",
 		},
 		22: {
-			description: "Blah",
+			title(){return options.translateThis?"Mega Prestige*":""},
+			description(){return options.translateThis?"Increases point, mega prestige point and previous prestiges point gain by *(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1024).div(upgradeRow("kp", 1, true).add(upgradeRow("mp", 2, true)).add(upgradeRow("gp", 3, true)).add(1)).max(1):new Decimal(1024)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
@@ -393,7 +547,8 @@ addLayer("mp", {
 			currencyLayer: "kp",
 		},
 		23: {
-			description: "Blah",
+			title(){return options.translateThis?"Mega Prestige*":""},
+			description(){return options.translateThis?"Increases point, mega prestige point and previous prestiges point gain by *(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1024).div(upgradeRow("kp", 1, true).add(upgradeRow("mp", 2, true)).add(upgradeRow("gp", 3, true)).add(1)).max(1):new Decimal(1024)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
@@ -403,7 +558,8 @@ addLayer("mp", {
 			currencyLayer: "kp",
 		},
 		31: {
-			description: "Blah",
+			title(){return options.translateThis?"Mega Prestige^":""},
+			description(){return options.translateThis?"Increases point, mega prestige point and previous prestiges point gain by ^(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1048576).div(upgradeRow("p", 1, true).add(upgradeRow("kp", 2, true)).add(upgradeRow("mp", 3, true)).add(upgradeRow("gp", 4, true)).add(1)).max(1):new Decimal(1048576)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
@@ -413,7 +569,8 @@ addLayer("mp", {
 			currencyLayer: "p",
 		},
 		32: {
-			description: "Blah",
+			title(){return options.translateThis?"Mega Prestige^":""},
+			description(){return options.translateThis?"Increases point, mega prestige point and previous prestiges point gain by ^(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1048576).div(upgradeRow("p", 1, true).add(upgradeRow("kp", 2, true)).add(upgradeRow("mp", 3, true)).add(upgradeRow("gp", 4, true)).add(1)).max(1):new Decimal(1048576)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
@@ -423,7 +580,8 @@ addLayer("mp", {
 			currencyLayer: "p",
 		},
 		33: {
-			description: "Blah",
+			title(){return options.translateThis?"Mega Prestige^":""},
+			description(){return options.translateThis?"Increases point, mega prestige point and previous prestiges point gain by ^(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1048576).div(upgradeRow("p", 1, true).add(upgradeRow("kp", 2, true)).add(upgradeRow("mp", 3, true)).add(upgradeRow("gp", 4, true)).add(1)).max(1):new Decimal(1048576)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
@@ -449,6 +607,20 @@ addLayer("kb", {
         unlocked: false,
 		points: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Kilo Boost",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#1C398E",
 	baseEffect() {let base = new Decimal(2)
 				  if(player.ab.points.gte(4)) base = base.add(player.mpkb.points.div(2))
@@ -491,6 +663,20 @@ addLayer("gp", {
         unlocked: false,
 		points: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Giga Prestige",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#137F65",
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
     resource: "giga prestige points", // Name of prestige currency
@@ -516,28 +702,32 @@ addLayer("gp", {
 	branches: ["mp"],
 	upgrades: {
 		11: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige+":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by 1":"Blah"},
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
 			}
 		},
 		12: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige+":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by 1":"Blah"},
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
 			}
 		},
 		13: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige+":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by 1":"Blah"},
 			cost(){let cost = new Decimal(1)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
 			}
 		},
 		21: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige*":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by *(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1024).div(upgradeRow("mp", 1, true).add(upgradeRow("gp", 2, true)).add(1)).max(1):new Decimal(1024)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
@@ -547,7 +737,8 @@ addLayer("gp", {
 			currencyLayer: "mp",
 		},
 		22: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige*":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by *(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1024).div(upgradeRow("mp", 1, true).add(upgradeRow("gp", 2, true)).add(1)).max(1):new Decimal(1024)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
@@ -557,7 +748,8 @@ addLayer("gp", {
 			currencyLayer: "mp",
 		},
 		23: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige*":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by *(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1024).div(upgradeRow("mp", 1, true).add(upgradeRow("gp", 2, true)).add(1)).max(1):new Decimal(1024)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
@@ -567,7 +759,8 @@ addLayer("gp", {
 			currencyLayer: "mp",
 		},
 		31: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige^":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by ^(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1048576).div(upgradeRow("kp", 1, true).add(upgradeRow("mp", 2, true)).add(upgradeRow("gp", 3, true)).add(1)).max(1):new Decimal(1048576)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
@@ -577,7 +770,8 @@ addLayer("gp", {
 			currencyLayer: "kp",
 		},
 		32: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige^":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by ^(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1048576).div(upgradeRow("kp", 1, true).add(upgradeRow("mp", 2, true)).add(upgradeRow("gp", 3, true)).add(1)).max(1):new Decimal(1048576)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
@@ -587,7 +781,8 @@ addLayer("gp", {
 			currencyLayer: "kp",
 		},
 		33: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige^":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by ^(+1)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1048576).div(upgradeRow("kp", 1, true).add(upgradeRow("mp", 2, true)).add(upgradeRow("gp", 3, true)).add(1)).max(1):new Decimal(1048576)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
@@ -597,7 +792,8 @@ addLayer("gp", {
 			currencyLayer: "kp",
 		},
 		41: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige^^":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by ^^(+0.01)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1073741824).div(upgradeRow("p", 1, true).add(upgradeRow("kp", 2, true)).add(upgradeRow("mp", 3, true)).add(upgradeRow("gp", 4, true)).add(1)).max(1):new Decimal(1073741824)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
@@ -607,7 +803,8 @@ addLayer("gp", {
 			currencyLayer: "p",
 		},
 		42: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige^^":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by ^^(+0.01)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1073741824).div(upgradeRow("p", 1, true).add(upgradeRow("kp", 2, true)).add(upgradeRow("mp", 3, true)).add(upgradeRow("gp", 4, true)).add(1)).max(1):new Decimal(1073741824)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
@@ -617,7 +814,8 @@ addLayer("gp", {
 			currencyLayer: "p",
 		},
 		43: {
-			description: "Blah",
+			title(){return options.translateThis?"Giga Prestige^^":""},
+			description(){return options.translateThis?"Increases point, giga prestige point and previous prestiges point gain by ^^(+0.01)":"Blah"},
 			cost(){let cost = (hasAchievement("a", 25))?new Decimal(1073741824).div(upgradeRow("p", 1, true).add(upgradeRow("kp", 2, true)).add(upgradeRow("mp", 3, true)).add(upgradeRow("gp", 4, true)).add(1)).max(1):new Decimal(1073741824)
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
@@ -637,6 +835,20 @@ addLayer("mb", {
         unlocked: false,
 		points: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Mega Boost",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#162F72",
 	baseEffect() {return new Decimal(2)},
 	effect() {return this.baseEffect().pow(player.mb.points)},
@@ -681,6 +893,19 @@ addLayer("ab", {
 		fuckyou: false,
 		warnings: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Suffer",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
     color: "#006080",
     requires() {let goal = new Decimal(5).mul(Decimal.pow(10, player.ab.points))
 				if(hasAchievement("a", 53)&&player.ab.points.lt(5)) {
@@ -704,12 +929,7 @@ addLayer("ab", {
     },
 	update(diff){
 		if(player.ab.negativePoints.gt(0) || (player.points.lte(0)&&player.ab.points.gte(5))) player.ab.negativePoints = player.ab.negativePoints.sub(Decimal.mul(getBypassedPointGen(), diff)).max(0)
-		if(player.ab.points.gte(0)) modInfo.name = "Oleg's Terrible Idea: The Tree"
-		if(player.ab.points.gte(1)) modInfo.name = "Oleg's Very Terrible Idea: The Tree"
-		if(player.ab.points.gte(2)) modInfo.name = "Oleg's Very Very Terrible Idea: The Tree"
-		if(player.ab.points.gte(3)) modInfo.name = "Oleg's Very Very Very Terrible Idea: The Tree"
-		if(player.ab.points.gte(4)) modInfo.name = "Oleg's Very Very Very Very Terrible Idea: The Tree"
-		if(player.ab.points.gte(5)) modInfo.name = "Oleg's Very Very Very Very Very Terrible Idea: The Tree"
+		modInfo.name = "Oleg's "+"Very ".repeat(player.ab.points)+"Terrible Idea: The Tree"
 		if(inChallenge("o", 22)) modInfo.name = "🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡"
 		if(player.gp.points.gte("5e85")) player.ab.help = player.ab.help.mul(Decimal.add(diff, 1)).mul(player.ab.help.root(42))
 		if(player.ab.points.gte(3)&&player.points.gte(0)&&!player.ab.points.gte(5)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(20))
@@ -720,13 +940,17 @@ addLayer("ab", {
 	tooltipLocked(){return "Reach 10 giga prestige points to unlock (You have "+formatWhole(player.gp.points)+" giga prestige points)"},
 	tabFormat: {
 		"MiaN sTUFF": {
-			content: ["main-display", "prestige-button", "blank", ["display-text", function() {return (player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>":"")+"Current Mode: "+getMode()+"<br><br>"+(player.ab.points.lt(6)?"Next Mode: "+getMode()+"-":"")}], "blank",
-					 ["display-text", function() {return (player.ab.points>=5?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>[NG-----]<br>-Point Gain is reversed<br>-Prestige layer requirement has been changed<br>-You start over with 17.77 points instead<br>-You lose 5% more points per second<br>-Additional Balancer is nerfed and doesn't work at negative points<br>-Unlocks Hall of Fame<br>":"")+(player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>[NG----]<br>-Balancers nerf each other<br>-NG- is applied twice.<br>-Upgrades scale each other based on bought upgrades in each layer.<br>":"")+(player.ab.points>=3?"[NG---]<br>-No more de noido. Ever. Peroid. I don't want to hear anything related to that yellow bastard coming out of YOUR MOUTH. I'll personally find your IP address and hit you with a fucking skateboard if I ever sense the very CONCEPT of it within your smooth, loose brain, since you think this is so funny to you...<br>-You gain 25% less of all prestige points<br>-You lose 5% of points every second<br>":"")+(player.ab.points>=2?"[NG--]<br>-Every reset brings you back to -10 points<br>-Booster's exponent cost is 20% bigger<br>":"")+(player.ab.points>=1?"[NG-]<br>-Divides point gain by 4":"")}]],
+			content: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], "blank", ["display-text", function() {return (player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>":"")+"Current Mode: "+getMode()+"<br><br>"+(player.ab.points.lt(6)?"Next Mode: "+getMode()+"-":"")}], "blank",
+					 ["display-text", function() {return (player.ab.points>=5?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>[NG-----]</span><br><span style='color: darkred; font-size: 1.75em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>-Unlocks Hall of Fame<br>(Check Hall of Fame for more information)</span><br><span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>-Point Gain is reversed<br>-Prestige layer requirement has been changed<br>-You start over with 17.77 points instead<br>-You lose 5% more points per second<br>-Additional Balancer is nerfed and doesn't work at negative points<br>":"")+(player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>[NG----]<br>-Balancers nerf each other<br>-NG- is applied twice.<br>-Upgrades scale each other based on bought upgrades in each layer.<br>":"")+(player.ab.points>=3?"[NG---]<br>-No more de noido. Ever. Peroid. I don't want to hear anything related to that yellow bastard coming out of YOUR MOUTH. I'll personally find your IP address and hit you with a fucking skateboard if I ever sense the very CONCEPT of it within your smooth, loose brain, since you think this is so funny to you...<br>-You gain 25% less of all prestige points<br>-You lose 5% of points every second<br>":"")+(player.ab.points>=2?"[NG--]<br>-Every reset brings you back to -10 points<br>-Booster's exponent cost is 20% bigger<br>":"")+(player.ab.points>=1?"[NG-]<br>-Divides point gain by 4":"")}]],
 			unlocked(){return hasAchievement("a", 31)}
 		},
 		"Shop": {
 			content: ["main-display", ["display-text", function() {return (player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>":"")+"You have "+formatWhole(player.ab.shopPoints)+" balancing points to spend."}], "blank", "buyables"],
 			unlocked(){return hasAchievement("a", 31)}
+		},
+		"Hall of Fame": {
+			content: [["display-text", function() {return "You have conquered <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>"+formatWhole(player.a.fame)+"</h3> out of <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>4</h3> challenges.<br><br>The so-called challenges are achievements that provide you with absurd rewards (and i mean it), making the entire game WAY easier to play through. Not getting them will hinder your progression by a huge margin, so keep that in mind.<br><br><br><h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Don't blame me if you can't get them later on.<br>After all, you never needed them in the first place.<br><br><h3 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You have been warned."}], "blank", "blank", ["layer-proxy", ["a", [["achievements", [101]]]]]],
+			unlocked() {return player.ab.points.gte(5)}
 		}
 	},
 	buyables:{
@@ -839,75 +1063,10 @@ addLayer("ab", {
 			effectDescription: "",
 			done() { return player.ab.warnings.gte(4) },
 		},
-	},
-})
-
-addLayer("pb", {
-    name: "primordialboosters", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "PB", // This appears on the layer's node. Default is the id with the first letter capitalized
-    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
-    startData() { return {
-        unlocked: true,
-		points: new Decimal(0),
-		boosters: new Decimal(0),
-		kiloboosters: new Decimal(0),
-		megaboosters: new Decimal(0),
-		gigaboosters: new Decimal(0),
-    }},
-    color: "#945299",
-	baseEffect() {return new Decimal(2)},
-	effect() {let b = tmp.b.baseEffect.pow(player.pb.boosters)
-			  let kb = tmp.kb.baseEffect.pow(player.pb.kiloboosters)
-			  let mb = tmp.mb.baseEffect.pow(player.pb.megaboosters)
-			  let gb = tmp.gb.baseEffect.pow(player.pb.gigaboosters)
-			  return b.mul(kb).mul(mb).mul(gb)
-			  },
-	effectDescription() {return "multiplying point gain by x"+format(this.effect())},
-    requires: new Decimal(10), // Can be a function that takes requirement increases into account
-    resource: "primordial boosters", // Name of prestige currency
-    baseResource: "giga prestige points", // Name of resource prestige is based on
-    baseAmount() {return player.gp.points}, // Get the current amount of baseResource
-    type: "custom", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-	getResetGain(){return player.b.points.add(player.kb.points).add(player.mb.points)},
-	canBuyMax(){return true},
-	getNextAt(canMax=false){return player.b.points.add(player.kb.points).add(player.mb.points).add(1)},
-    prestigeButtonText() {
-        return "Reset for +"+formatWhole(tmp[this.layer].resetGain)+" primordial boosters<br><br>You need 10 giga prestige points and at least one booster of any kind to reset"
-    },
-	canReset(){return player.gp.points.gte(tmp.pb.requires) && (player.b.points.gte(1) || player.kb.points.gte(1) || player.mb.points.gte(1) || player.gb.points.gte(1))},
-    gainMult() { // Calculate the multiplier for main currency from bonuses
-        return new Decimal(1)
-    },
-    gainExp() { // Calculate the exponent on main currency from bonuses
-        return new Decimal(1)
-    },
-	update(diff){
-		player.pb.points = player.pb.boosters.add(player.pb.kiloboosters).add(player.pb.megaboosters)
-	},
-	tabFormat: ["main-display", "prestige-button", "resource-display", ["display-text", function() {return 'You have stored '+formatWhole(player.pb.boosters)+' boosters, boosting your point gain by x'+format(Decimal.pow(tmp.b.baseEffect, player.pb.boosters))+'<br>'+(hasAchievement("a", 31)?'You have stored '+formatWhole(player.pb.kiloboosters)+' kilo boosters, boosting your point gain by x'+format(Decimal.pow(tmp.kb.baseEffect, player.pb.kiloboosters))+'<br>':'')+(hasAchievement("a", 42)?'You have stored '+formatWhole(player.pb.megaboosters)+' mega boosters, boosting your point gain by x'+format(Decimal.pow(tmp.mb.baseEffect, player.pb.megaboosters))+'<br>':'')+'<br>'}], "buyables", ["display-text", function() {return '<br>"What da hell are Primordial Boosters?"<br><br><span style="color: '+(player.ab.points.gte(4)?'darkred':'red')+'; font-size: 1em; text-shadow: '+(player.ab.points.gte(4)?"purple":"red")+' '+(player.ab.points.gte(4)?player.a.X2:player.a.X)+'px '+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+'px '+(player.ab.points.gte(4)?player.a.S2:player.a.S)+'px;">Primordial Boosters are boosters that are preserved throughout all resets. (excluding mine, obviously)<br>There is just one BUT - Boosters do not get cheaper, so you better grind things up before deciding to throw all of your progress out of the window for nothing.<span/>'}]],
-    row: 7, // Row the layer is in on the tree (0 is the first row)
-    hotkeys: [
-        {key: "B", unlocked() {return hasAchievement("a", 24)}, description: "Shift+B: Reset for primordial boosters", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
-    ],
-    layerShown(){return hasAchievement("a", 24)},
-	branches: ["b", "kb", "mb", "gb"],
-	onPrestige(gain){
-		player.pb.boosters = player.pb.boosters.add(player.b.points)
-		player.pb.kiloboosters = player.pb.kiloboosters.add(player.kb.points)
-		player.pb.megaboosters = player.pb.megaboosters.add(player.mb.points)
-	},
-	buyables: {
-		11: {
-			title: "Respec stored boosters",
-			display() { return "<h3>No resetting this time<br><br>- yours truly, paralysis demon <3</h3><br>(i still hate your guts)" },
-			canAfford() { return player.pb.points.gte(1) },
-			buy() {
-				player.pb.boosters = new Decimal(0)
-				player.pb.kiloboosters = new Decimal(0)
-				player.pb.megaboosters = new Decimal(0)
-			},
-			style(){return{'height':'125px', 'width':'200px'}},
-			unlocked(){return hasAchievement("a", 54)}
+		4: {
+			requirementDescription: "<h4>*Snaps maxTickLength()*</h5><h5 style='font-size: 10px'>(Sorry, but I had to fuck it up to prevent NaN)",
+			effectDescription: "",
+			done() { return hasUpgrade("o", 41) },
 		},
 	},
 })
@@ -920,6 +1079,20 @@ addLayer("gb", {
         unlocked: false,
 		points: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Giga Boost",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#12275B",
 	baseEffect() {return new Decimal(2)},
 	effect() {return this.baseEffect().pow(player.gb.points)},
@@ -963,6 +1136,19 @@ addLayer("dn", {
 		minidenoidos: new Decimal(0),
 		fakedenoidos: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "de noido",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset&&!player.dn.points.gte(1)
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)",'opacity': +(player.dn.points.gte(1)?0:100)+''}}
+		}
+	},
     color: "yellow",
 	effect() {return new Decimal(player.dn.points.layer).add(1).root(5)},
 	effectDescription() {return "wait what the fuck is this<span style='font-family: Comic Sans MS;'>50.00<span/>"},
@@ -979,7 +1165,7 @@ addLayer("dn", {
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
-	tabFormat: ["main-display", "prestige-button", "resource-display", ["display-text", function() {return '<span style="color: '+(player.ab.points.gte(4)?'darkred':'red')+'; font-size: 1em; text-shadow: '+(player.ab.points.gte(4)?'purple':'red')+' '+(player.ab.points.gte(4)?player.a.X2:player.a.X)+'px '+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+'px '+(player.ab.points.gte(4)?player.a.S2:player.a.S)+'px;">i have no idea how did that happen, i swear'}],
+	tabFormat: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], "resource-display", ["display-text", function() {return '<span style="color: '+(player.ab.points.gte(4)?'darkred':'red')+'; font-size: 1em; text-shadow: '+(player.ab.points.gte(4)?'purple':'red')+' '+(player.ab.points.gte(4)?player.a.X2:player.a.X)+'px '+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+'px '+(player.ab.points.gte(4)?player.a.S2:player.a.S)+'px;">i have no idea how did that happen, i swear'}],
 			   ["display-text", function() {return player.dn.points.gte(1)?"<span style='font-family: Comic Sans MS;'>D e   N o i d o<br>You got "+format(player.dn.points)+" de noido, generating "+format(denoido().skateboardGain)+" skateboards per second.<br>You got "+format(player.dn.skateboards)+" skateboards, generating "+format(denoido().pogoGain)+" pogos per second.<br>You got "+format(player.dn.pogos)+" pogos, generating "+format(denoido().bombGain)+" bombs per second"+(hasUpgrade("dn", 11)?" and "+format(denoido().denoidoGain)+" de noidos per second":"")+".<br>You got "+format(player.dn.bombs)+" bombs, generating "+format(denoido().minidenoidoGain)+" mini de noidos per second.<br>You got "+format(player.dn.minidenoidos)+" mini de noidos, generating "+format(denoido().fakedenoidoGain)+" fake de noidos per second.<br>You got "+format(player.dn.fakedenoidos)+" fake de noidos, boosting giga prestige point gain by x"+format(tmp.dn.effect)+".<span/>":""}], "upgrades"],
     row: 7, // Row the layer is in on the tree (0 is the first row)
 	update(diff){
@@ -1020,6 +1206,20 @@ addLayer("g", {
 		power: new Decimal(0),
 		timer: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Generate",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#21B342",
     requires(){let kpreal = new Decimal(20).mul(Decimal.pow(4, player.g.points)).pow(Decimal.pow(1.1, player.g.points))
 			   let breal = new Decimal(1).add(player.g.points).root(1.584962).add(1).pow(Decimal.pow(1.01, player.g.points)).floor()
@@ -1045,8 +1245,11 @@ addLayer("g", {
 			player.g.timer = player.g.timer.add(diff)
 			if(player.g.timer.gte(1)) {
 				player.g.timer = new Decimal(0)
-				if(hasAchievement("a",1014)&&canReset("o")) player.o.points = player.o.points.add(1)
 				if(canReset("g")) player.g.points = player.g.points.add(1)
+				if(tmp.o.buyables[11].canAfford&&hasMilestone("o","t5")){
+					player.o.vibeCheck = player.o.vibeCheck.add(1)
+					player.o.onions = player.o.onions.add(1)
+				}
 			}
 		}
 	},
@@ -1066,7 +1269,7 @@ addLayer("g", {
         return new Decimal(1)
     },
     row: 5,
-	branches: ["kp", "b"],
+	branches: ["b",["kp",2]],
     layerShown(){return hasAchievement("a", 45)},
 	doReset(resettingLayer){
 		if((!hasMilestone("kbg", 0)&&tmp[resettingLayer].row>this.row) || tmp[resettingLayer].row>=7) {
@@ -1090,6 +1293,20 @@ addLayer("kbg", {
 		random: new Decimal(0),
 		random2: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "#KHPOAWKEH",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0%","border":"0px"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","milestones"],
     color: "gray",
     requires(){return new Decimal(120).mul(Decimal.pow(3, player.kbg.points))},
     resource: "Uлs1A8I1I1Y", // Name of prestige currency
@@ -1120,7 +1337,7 @@ addLayer("kbg", {
 		player.kbg.random2 = Math.random()*player.kbg.points+1
 	},
     row: 6,
-	branches: ["kb", "g"],
+	branches: [["kb",2], "g"],
     layerShown(){return hasAchievement("a", 52)},
 	milestones: {
 		0: {
@@ -1147,6 +1364,20 @@ addLayer("mpkb", {
         unlocked: true,
 		points: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "@AGQADQWA",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","milestones"],
     color: "cyan",
     requires(){return new Decimal(1000).mul(Decimal.pow(10, Decimal.pow(player.mpkb.points, player.mpkb.points))).mul(player.mpkb.points.eq(0)?0.1:1)},
     resource: "prestigious boosters", // Name of prestige currency
@@ -1171,7 +1402,7 @@ addLayer("mpkb", {
         return new Decimal(1)
     },
     row: 6,
-	branches: ["mp", "kb"],
+	branches: [["mp",2], "kb"],
     layerShown(){return hasAchievement("a", 52)},
 	milestones: {
 		0: {
@@ -1234,7 +1465,7 @@ addLayer("a", {
 			unlocked() {return player.ab.points.gte(5)}
 		},
 		"Hall of Fame": {
-			content: [["display-text", function() {return "You have conquered <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>"+formatWhole(player.a.fame)+"</h3> out of <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>4</h3> challenges.<br>Don't blame me if you can't get them later on.<br>After all, you never needed them in the first place.<br><br><h3>You have been warned."}], "blank", "blank", ["achievements", [101]]],
+			content: [["display-text", function() {return "You have conquered <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>"+formatWhole(player.a.fame)+"</h3> out of <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>4</h3> challenges.<br><br>The so-called challenges are achievements that provide you with absurd rewards (and i mean it), making the entire game WAY easier to play through. Not getting them will hinder your progression by a huge margin, so keep that in mind.<br><br><br><h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Don't blame me if you can't get them later on.<br>After all, you never needed them in the first place.<br><br><h3 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You have been warned."}], "blank", "blank", ["achievements", [101]]],
 			unlocked() {return player.ab.points.gte(5)}
 		},
 	},
@@ -1543,8 +1774,8 @@ addLayer("a", {
 			name(){return (player.c.youStupid==true||player.o.buyables[71].gte(1))&&!hasAchievement("a", 1014)?"":hasAchievement("a", 1014)?"c":"MVGT did nothing wrong."},
 			onComplete(){player.a.fame=player.a.fame.add(1)},
 			done(){return (!options.assholeMode&&(player.c.upgrades.length>=14&&player.c.youStupid==false))||(player.o.buyables[63].gte(6)&&player.o.buyables[71].eq(0))},
-			tooltip(){return (player.c.youStupid==true||player.o.buyables[71].gte(1))&&!hasAchievement("a",this.id)?"[REDACTED]":(player.ab.nostalgia?"Buy 14 Infinite Upgrades without ever utilizing Infinity Automator.":player.ab.fuckyou?"Purchase 6 Sushi-Point Synchronizers without purchasing Extra Level Buyables":"???")+"<br>Reward: "+(player.ab.nostalgia?"Everything that multiplies Infinity Points affects Infinities as well.":player.ab.fuckyou?"You automatically gain 1 Layer of Life per second without resetting.":"???")},
-			style(){return {'background': (player.c.youStupid==true||player.o.buyables[71].gte(1)&&!hasAchievement("a",this.id)?'black':hasAchievement("a",this.id)?'repeating-linear-gradient('+(player.a.fame.gte(4)?'cyan, lightblue, cyan':'#FFDF00, #D4AF37, #FFDF00')+')':'#bf8f8f'), 'background-size': '40% 75%', 'background-position': '50% '+player.a.XG+'%'}}
+			tooltip(){return (player.c.youStupid==true||player.o.buyables[71].gte(1))&&!hasAchievement("a",this.id)?"[REDACTED]":(player.ab.nostalgia?"Buy 14 Infinite Upgrades without ever utilizing Infinity Automator.":player.ab.fuckyou?"Purchase 6 Sushi-Point Synchronizers without purchasing Extra Level Buyables":"???")+"<br>Reward: "+(player.ab.nostalgia?"Everything that multiplies Infinity Points affects Infinities as well.":player.ab.fuckyou?"You automatically gain Layers of Life without resetting.":"???")},
+			style(){return {'background': ((player.c.youStupid==true||player.o.buyables[71].gte(1))&&!hasAchievement("a",1014)?'black':hasAchievement("a",this.id)?'repeating-linear-gradient('+(player.a.fame.gte(4)?'cyan, lightblue, cyan':'#FFDF00, #D4AF37, #FFDF00')+')':'#bf8f8f'), 'background-size': '40% 75%', 'background-position': '50% '+player.a.XG+'%'}}
 		},
 	},
 })
@@ -1589,6 +1820,13 @@ addLayer("sdumsl", {
             unlocked() {return true},
             canClick() {return true},
 			onClick()  {player.a.achievements = ['11', '12', '13', '14', '15']
+						player.realAB.unlocked=false
+						player.realAB.points=new Decimal(0)
+						player.realAB.upgrades=[]
+						player.realAB.milestones=[]
+						player.realAB.achievements=[]
+						player.realAB.buyables[12]=new Decimal(0)
+						player.realAB.buyables[13]=new Decimal(0)
 						player.m.famed = false
 						player.n.initialCoins = new Decimal(300)
 						player.m.milestones = []
@@ -1765,9 +2003,22 @@ addLayer("s", {
 		points: new Decimal(0),
 		holdUp: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Spacify...?",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return canReset("s")?{'color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'), 'border-color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'),"border-radius":"0px 33% 33% 0px"}:{'color': 'black', 'border-color': 'rgba(0, 0, 0, 0.125)',"border-radius":"0px 33% 33% 0px"}}
+		}
+	},
     softcap: new Decimal(1e100), 
     softcapPower: new Decimal(1/11), 
-    color(){return inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?"green":"#000000"},
+    color(){return inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?"lime":"#000000"},
 	shape: "line",
 	passiveGeneration(){return hasUpgrade("s", 33) && player.s.holdUp.lt(5)?0:hasAchievement("a", 1013)&&!inChallenge("c", 11)?1:0},
     requires(){return new Decimal(1).times((player.t.unlocked&&!player.s.unlocked&&!options.why)?76.2:1)}, // Can be a function that takes requirement increases into account
@@ -1804,15 +2055,15 @@ addLayer("s", {
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
-	tabFormat: [["display-text", function() {return player.s.points.gte("1e100")?"<h2>YOU'VE REACHED TERMINAL LIMIT_<br>EXECUTING SOFTCAP_SPACE.exe..._<br><br><br>":""}],"main-display", "prestige-button", "resource-display", ["display-text", function() {return "Total size: "+format(tmp.s.lеngth.mul(tmp.s.height).mul(tmp.s.width).mul(tmp.s.spissitude))+"m"+(tmp.s.shape=="terrasect"?"⁴":tmp.s.shape=="cube"?"³":tmp.s.shape=="square"?"²":"")+"<br>It's size is boosting point gain by "+format(tmp.s.effect)+"x"}], "blank", ["row", [["column", [["buyable", 11], ["buyable", 21], ["buyable", 31], ["buyable", 41]]], "blank", ["bar", "FUCKYOU"]]], "blank", ["buyable", 12], "blank", "upgrades"],
+	tabFormat: [["display-text", function() {return player.s.points.gte("1e100")?"<h2>YOU'VE REACHED TERMINAL LIMIT_<br>EXECUTING SOFTCAP_SPACE.exe..._<br><br><br>":""}],"main-display", ["row", ["prestige-button", ["clickable", 11]]], "resource-display", ["display-text", function() {return "Total size: "+format(tmp.s.lеngth.mul(tmp.s.height).mul(tmp.s.width).mul(tmp.s.spissitude))+"m"+(tmp.s.shape=="terrasect"?"⁴":tmp.s.shape=="cube"?"³":tmp.s.shape=="square"?"²":"")+"<br>It's size is boosting point gain by "+format(tmp.s.effect)+"x"}], "blank", ["row", [["column", [["buyable", 11], ["buyable", 21], ["buyable", 31], ["buyable", 41]]], "blank", ["bar", "FUCKYOU"]]], "blank", ["buyable", 12], "blank", "upgrades"],
     row: 1, // Row the layer is in on the tree (0 is the first row)
     hotkeys: [
         {key: "s", description: "S: Reset for spaces", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     layerShown(){return ((player.ab.points.gte(5) && !player.ab.fuckyou) || (player.ab.nostalgia && player.ab.fuckyou) || options.why)&&!inChallenge("c", 11)},
-	nodeStyle() {return {'color': (player.s.unlocked||tmp.s.baseAmount.gte(tmp.s.requires)?'#7F7F7F':''), 'border-color': (player.s.unlocked||tmp.s.baseAmount.gte(tmp.s.requires)?'#1F1F1F':'')}},
+	nodeStyle() {return {'color': (player.s.unlocked||tmp.s.baseAmount.gte(tmp.s.requires)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.5)':'#7F7F7F'):''), 'border-color': (player.s.unlocked||tmp.s.baseAmount.gte(tmp.s.requires)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 	componentStyles: {
-		"prestige-button"() {return canReset("s")?{'color': '#7F7F7F', 'border-color': '#1F1F1F'}:{'color': 'black', 'border-color': 'rgba(0, 0, 0, 0.125)'}},
+		"prestige-button"() {return canReset("s")?{'color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'), 'border-color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F')}:{'color': 'black', 'border-color': 'rgba(0, 0, 0, 0.125)'}},
 	},
 	buyables: {
 		11: {
@@ -1832,7 +2083,7 @@ addLayer("s", {
 				player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?'#7F7F7F':'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?'#1F1F1F':'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[11].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):'black'), 'border-color': (tmp.s.buyables[11].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return true}
 		},
 		12: {
@@ -1846,7 +2097,7 @@ addLayer("s", {
 				player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?'#7F7F7F':'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?'#1F1F1F':'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return !hasUpgrade("s", 33)}
 		},
 		21: {
@@ -1865,7 +2116,7 @@ addLayer("s", {
 				player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?'#7F7F7F':'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?'#1F1F1F':'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return tmp.s.shape == "square"|| tmp.s.shape == "cube" || tmp.s.shape == "terrasect"}
 		},
 		31: {
@@ -1885,7 +2136,7 @@ addLayer("s", {
 				player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?'#7F7F7F':'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?'#1F1F1F':'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return tmp.s.shape == "cube" || tmp.s.shape == "terrasect"}
 		},
 		41: {
@@ -1903,7 +2154,7 @@ addLayer("s", {
 				player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?'#7F7F7F':'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?'#1F1F1F':'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):'black'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return tmp.s.shape == "terrasect"}
 		},
 	},
@@ -1922,12 +2173,13 @@ addLayer("s", {
 			title: "You can move in BOTH directions?!",
 			description: "Length uses better formula<br>[x+1] => [x*2+1]",
 			unlocked: true,
+			canAfford(){return player.s.buyables[11].gte(this.cost)},
 			cost: new Decimal(2),
             currencyLocation() {return player.s.buyables},
 			currencyDisplayName: "lengths",
 			currencyInternalName: 11,
 			currencyLayer: "s",
-			style() {return {'color': (player.s.buyables[11].gte(this.cost)&&!hasUpgrade("s", 11)?'#7F7F7F':''), 'border-color': (player.s.buyables[11].gte(this.cost)&&!hasUpgrade("s", 11)?'#1F1F1F':'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		12: {
 			title: "The Clutcher",
@@ -1935,30 +2187,33 @@ addLayer("s", {
 			effect(){return tmp.s.stupidBarIHateIt.mul(100).max(1).log(8.58784928098261).add(1)},
 			effectDisplay(){return format(this.effect())+"x"},
 			unlocked: true,
+			canAfford(){return player.s.points.gte(this.cost)},
 			cost: new Decimal(5),
-			style() {return {'color': (player.s.points.gte(this.cost)&&!hasUpgrade("s", 12)?'#7F7F7F':''), 'border-color': (player.s.points.gte(this.cost)&&!hasUpgrade("s", 12)?'#1F1F1F':'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		13: {
 			title: "The Last Line Bender",
 			description: "Length uses better formula<br>[x*2+1] => [(x*2+2)+(x*2+1)]",
 			unlocked: true,
+			canAfford(){return player.s.buyables[11].gte(this.cost)},
 			cost: new Decimal(3),
             currencyLocation() {return player.s.buyables},
 			currencyDisplayName: "lengths",
 			currencyInternalName: 11,
 			currencyLayer: "s",
-			style() {return {'color': (player.s.buyables[11].gte(this.cost)&&!hasUpgrade("s", 13)?'#7F7F7F':''), 'border-color': (player.s.buyables[11].gte(this.cost)&&!hasUpgrade("s", 13)?'#1F1F1F':'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		21: {
 			title: "Height's Power",
 			description: "Height uses better formula<br>[x+1] => [(x+1)^2]",
 			unlocked(){return player.s.buyables[12].gte(1)},
 			cost: new Decimal(3),
+			canAfford(){return player.s.buyables[21].gte(3)},
             currencyLocation() {return player.s.buyables},
 			currencyDisplayName: "heights",
 			currencyInternalName: 21,
 			currencyLayer: "s",
-			style() {return {'color': (player.s.buyables[21].gte(3)&&!hasUpgrade("s", 21)?'#7F7F7F':''), 'border-color': (player.s.buyables[21].gte(3)&&!hasUpgrade("s", 21)?'#1F1F1F':'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		22: {
 			fullDisplay(){return `<h3>Size-inator</h3><br>Dimensions are cheaper based on current size<br>Currently: ${format(this.effect())}/<br><br>Cost: 7 lengths, 5 heights, 3 widths and 2 spissitudes`},
@@ -1975,7 +2230,7 @@ addLayer("s", {
 			},
 			currencyInternalName: 41,
 			currencyLayer: "s",
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", 22)?'#7F7F7F':''), 'border-color': (this.canAfford()&&!hasUpgrade("s", 22)?'#1F1F1F':'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		23: {
 			title: "Subpar-piss-tution",
@@ -1984,11 +2239,12 @@ addLayer("s", {
 			effectDisplay(){return format(this.effect())+"x"},
 			unlocked(){return player.s.buyables[12].gte(3)},
 			cost: new Decimal(4),
+			canAfford(){return player.s.buyables[41].gte(4)},
             currencyLocation() {return player.s.buyables},
 			currencyDisplayName: "spisstudes",
 			currencyInternalName: 41,
 			currencyLayer: "s",
-			style() {return {'color': (player.s.buyables[41].gte(this.cost)&&!hasUpgrade("s", 23)?'#7F7F7F':''), 'border-color': (player.s.buyables[41].gte(this.cost)&&!hasUpgrade("s", 23)?'#1F1F1F':'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		31: {
 			title: "3rd Place is the Winner",
@@ -1997,11 +2253,12 @@ addLayer("s", {
 			effectDisplay(){return format(this.effect())+"x"},
 			unlocked(){return hasMilestone("c", 1)},
 			cost: new Decimal(42),
+			canAfford(){return player.s.buyables[31].gte(42)},
             currencyLocation() {return player.s.buyables},
 			currencyDisplayName: "widths",
 			currencyInternalName: 31,
 			currencyLayer: "s",
-			style() {return {'color': (player.s.buyables[31].gte(42)&&!hasUpgrade("s", 31)?'#7F7F7F':''), 'border-color': (player.s.buyables[31].gte(42)&&!hasUpgrade("s", 31)?'#1F1F1F':'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		32: {
 			title: "Superdensity",
@@ -2018,7 +2275,7 @@ addLayer("s", {
 			effectDisplay(){return format(tmp.s.buyables[41].size.log(10).add(1))+"x"},
             currencyLocation() {return player.s.buyables},
 			currencyDisplayName: "m⁴ total size",
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", 32)?'#7F7F7F':''), 'border-color': (this.canAfford()&&!hasUpgrade("s", 32)?'#1F1F1F':'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		33: {
 			title: "Negative Zone",
@@ -2030,7 +2287,7 @@ addLayer("s", {
 			currencyDisplayName(){return options.why?"points":"negative points"},
 			currencyInternalName(){return options.why?"points":"negativePoints"},
 			currencyLayer(){return options.why?"":"ab"},
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", 33)?'#7F7F7F':''), 'border-color': (this.canAfford()&&!hasUpgrade("s", 33)?'#1F1F1F':'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'black':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 	},
 	doReset(resettingLayer){
@@ -2071,7 +2328,7 @@ addLayer("t", {
 		canProgress: true,
     }},
 	passiveGeneration(){return hasUpgrade("s", 33) && player.s.holdUp.lt(5)?0:hasAchievement("a", 1013)&&!inChallenge("c", 13)?1:0},
-    color(){return inChallenge("c",51)&&tmp.t.baseAmount.gte("2.8e28")?"green":"#FFFFFF"},
+    color(){return inChallenge("c",51)&&tmp.t.baseAmount.gte("2.8e28")?"lime":"#FFFFFF"},
 	effectSecond(){let second = player.t.seconds.mul(tmp.t.effectYear)
 				   if(hasUpgrade("t", 15)) second = second.mul(69)
 				   return second.add(1).root(10)},
@@ -2135,7 +2392,7 @@ addLayer("t", {
 		if(hasUpgrade("t", 22)) player.t.days = player.t.days.add(Decimal.mul(player.t.weeks.mul(2), diff)).min("1e100")
 	},
 	effectDescription(){return `which generate ${format(tmp.t.effectClock)} seconds per second in total`},
-	tabFormat: [["display-text", function() {return player.t.seconds.gte("1e100")||player.t.minutes.gte("1e100")||player.t.hours.gte("1e100")||player.t.days.gte("1e100")||player.t.weeks.gte("1e100")||player.t.months.gte("1e100")||player.t.years.gte("1e100")||player.t.centuries.gte("1e100")||player.t.millenniums.gte("1e100")?"<h2>YOU'VE REACHED TERMINAL LIMIT_<br>EXECUTING HARDCAP_TIME.exe..._<br><br><br>":""}],"main-display", "prestige-button", "resource-display", ["display-text", function(){return `You have about...`+(player.t.seconds.gte(1)?`<br>${formatWhole(player.t.seconds)} seconds`+(hasUpgrade("t", 11)?`, giving you ${format(tmp.t.effectSecond)}x point gain boost`:``):``)+(player.t.minutes.gte(1)?`<br>${formatWhole(player.t.minutes)} minutes, granting you ${format(tmp.t.effectMinute)}x clock gain`:``)+(player.t.hours.gte(1)?`<br>${formatWhole(player.t.hours)} hours, blessing you with ${format(tmp.t.effectHour)}x clock acceleration`:``)+(player.t.days.gte(1)?`<br>${formatWhole(player.t.days)} days, offering you a staggering ${format(tmp.t.effectDay)}x space gain`:``)+(player.t.weeks.gte(1)?`<br>${formatWhole(player.t.weeks)} weeks, boosting days by ${format(tmp.t.effectWeek)}x`:``)+(player.t.months.gte(1)?`<br>${formatWhole(player.t.months)} months, empowering balancers by ^${format(tmp.t.effectMonth)}`:``)+(player.t.years.gte(1)?`<br>${formatWhole(player.t.years)} years, enraging all previous time units by ${format(tmp.t.effectYear)}x`:``)+(player.t.centuries.gte(1)?`<br>${formatWhole(player.t.centuries)} centuries, weakening year effect's softcaps by ${format(tmp.t.effectCentury)} root`:``)+(player.t.millenniums.gte(1)?`<br>${formatWhole(player.t.millenniums)} millenniums, boosting your dimensions by ${format(tmp.t.effectMillennium)}x`:``)}], "blank", ["clickables", [1]], "blank", ["clickable", 21], "blank", "upgrades"],
+	tabFormat: [["display-text", function() {return player.t.seconds.gte("1e100")||player.t.minutes.gte("1e100")||player.t.hours.gte("1e100")||player.t.days.gte("1e100")||player.t.weeks.gte("1e100")||player.t.months.gte("1e100")||player.t.years.gte("1e100")||player.t.centuries.gte("1e100")||player.t.millenniums.gte("1e100")?"<h2>YOU'VE REACHED TERMINAL LIMIT_<br>EXECUTING HARDCAP_TIME.exe..._<br><br><br>":""}],"main-display", ["row", ["prestige-button", ["clickable", 31]]], "resource-display", ["display-text", function(){return `You have about...`+(player.t.seconds.gte(1)?`<br>${formatWhole(player.t.seconds)} seconds`+(hasUpgrade("t", 11)?`, giving you ${format(tmp.t.effectSecond)}x point gain boost`:``):``)+(player.t.minutes.gte(1)?`<br>${formatWhole(player.t.minutes)} minutes, granting you ${format(tmp.t.effectMinute)}x clock gain`:``)+(player.t.hours.gte(1)?`<br>${formatWhole(player.t.hours)} hours, blessing you with ${format(tmp.t.effectHour)}x clock acceleration`:``)+(player.t.days.gte(1)?`<br>${formatWhole(player.t.days)} days, offering you a staggering ${format(tmp.t.effectDay)}x space gain`:``)+(player.t.weeks.gte(1)?`<br>${formatWhole(player.t.weeks)} weeks, boosting days by ${format(tmp.t.effectWeek)}x`:``)+(player.t.months.gte(1)?`<br>${formatWhole(player.t.months)} months, empowering balancers by ^${format(tmp.t.effectMonth)}`:``)+(player.t.years.gte(1)?`<br>${formatWhole(player.t.years)} years, enraging all previous time units by ${format(tmp.t.effectYear)}x`:``)+(player.t.centuries.gte(1)?`<br>${formatWhole(player.t.centuries)} centuries, weakening year effect's softcaps by ${format(tmp.t.effectCentury)} root`:``)+(player.t.millenniums.gte(1)?`<br>${formatWhole(player.t.millenniums)} millenniums, boosting your dimensions by ${format(tmp.t.effectMillennium)}x`:``)}], "blank", ["clickables", [1]], "blank", ["clickable", 21], "blank", "upgrades"],
     requires(){return new Decimal(1).times((player.s.unlocked&&!player.t.unlocked&&!options.why)?76.2:1)}, // Can be a function that takes requirement increases into account
     resource: "clocks", // Name of prestige currency
     baseResource(){return options.why?"points":"negative points"}, // Name of resource prestige is based on
@@ -2212,6 +2469,17 @@ addLayer("t", {
 			onClick()  {player.t.canProgress = !player.t.canProgress},
 			style() {return{'height': '100px', 'width': '250px', 'border-radius': '10%'}}
         },
+		31: {
+			title: "Purchase",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
 	},
 	upgrades: {
 		11: {
@@ -2321,6 +2589,30 @@ addLayer("c", {
 		bestInfinity: new Decimal(999999999999999999999999999999999999),
 		antimatter: new Decimal(-1)
 	}},
+	clickables: {
+		11: {
+			title: ">go crazy<br>>???<br>>profit",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		},
+		12: {
+			title: "Big Crunch",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp.c.buyables["lol"].canAfford
+			},
+			onHold() {
+				tmp.c.buyables["lol"].buy()
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		},
+	},
 	shouldNotify(){let fuckYou = false
 		for(i=1;i<22;i++){
 			if(player.c.crazymatters.gte(tmp.c.buyables[i*10+1].cost)) fuckYou = true
@@ -2347,7 +2639,7 @@ addLayer("c", {
 	},
 	tabFormat:{
 		"Normal":{
-			content: ["main-display", "prestige-button", ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.c.baseAmount)+" "+tmp.s.baseResource+"<br>You have "+formatWhole(player.c.crazymatters)+" crazy matters, which boost your point gain by "+format(tmp.c.effect)+"x"+(inChallenge("c", 41)?"<br>You have "+formatWhole(player.c.antimatter)+" antimatters, increasing by "+format(tmp.c.antimatterRatio.add(1))+"x per second.":"")}], "milestones", ["buyable", 00], "blank", "buyables"]
+			content: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.c.baseAmount)+" "+tmp.s.baseResource+"<br>You have "+formatWhole(player.c.crazymatters)+" crazy matters, which boost your point gain by "+format(tmp.c.effect)+"x"+(inChallenge("c", 41)?"<br>You have "+formatWhole(player.c.antimatter)+" antimatters, increasing by "+format(tmp.c.antimatterRatio.add(1))+"x per second.":"")}], "milestones", ["buyable", 00], "blank", "buyables"]
 		},
 		"Mystery Market":{
 			content: ["main-display", "blank", "upgrades"],
@@ -2358,7 +2650,7 @@ addLayer("c", {
 			unlocked(){return hasMilestone("c", 2)}
 		},
 		"Infinite":{
-			content: [["display-text", function() {return player.c.crazymatters.gte(Decimal.pow(2, 1024))&&player.c.infinities.eq(0)?"It seems like you have managed to reach the Infinity despite multiple obstacles on your way...<br><br>Huh? You've gone far past that before?<br>Well, it may be true outside this realm, but there are limitations that doesn't let you progress any further.<br><br>All you can do now is<br><br><br>":""}], ["display-text", function() {return player.c.infinities.gte(1)?"<span>You have <h2 style='color: rgba("+format(Math.sin(player.a.sine*2.5)*63+192)+", "+format(Math.sin(player.a.sine*3.3)*127+128)+", "+format(Math.sin(player.a.sine.add(3.14))*192)+", 1); text-shadow: rgba("+format(Math.sin(player.a.sine*2.5)*63+192)+", "+format(Math.sin(player.a.sine*3.3)*127+128)+", "+format(Math.sin(player.a.sine.add(3.14))*192)+", 1) 0px 0px 10px;'>"+formatWhole(player.c.infinityPoints)+"</h2> infinity points</span><br>You've infinitied "+formatWhole(player.c.infinities)+" times":""}], "blank", ["buyable", "lol"], "blank", ["buyable", "infinite"], "blank", "upgrades", ["buyable", "extra"]],
+			content: [["display-text", function() {return player.c.crazymatters.gte(Decimal.pow(2, 1024))&&player.c.infinities.eq(0)?"It seems like you have managed to reach the Infinity despite multiple obstacles on your way...<br><br>Huh? You've gone far past that before?<br>Well, it may be true outside this realm, but there are limitations that doesn't let you progress any further.<br><br>All you can do now is<br><br><br>":""}], ["display-text", function() {return player.c.infinities.gte(1)?"<span>You have <h2 style='color: rgba("+format(Math.sin(player.a.sine*2.5)*63+192)+", "+format(Math.sin(player.a.sine*3.3)*127+128)+", "+format(Math.sin(player.a.sine.add(3.14))*192)+", 1); text-shadow: rgba("+format(Math.sin(player.a.sine*2.5)*63+192)+", "+format(Math.sin(player.a.sine*3.3)*127+128)+", "+format(Math.sin(player.a.sine.add(3.14))*192)+", 1) 0px 0px 10px;'>"+formatWhole(player.c.infinityPoints)+"</h2> infinity points</span><br>You've infinitied "+formatWhole(player.c.infinities)+" times":""}], "blank", ["row", [["buyable", "lol"], ["clickable", 12]]], "blank", ["buyable", "infinite"], "blank", "upgrades", ["buyable", "extra"]],
 			unlocked(){return player.c.crazymatters.gte(Decimal.pow(2, 1024))||player.c.infinities.gte(1)}
 		},
 		"Infinite Challenges":{
@@ -2370,11 +2662,11 @@ addLayer("c", {
 			unlocked(){return hasMilestone("c", 5)}
 		},
 		"Achievements":{
-			content: [["display-text", function(){return `<h3>You have ${formatWhole(player.c.achievements.length)}`+(infiniteChallenges().gte(1)?" (+"+formatWhole(infiniteChallenges())+")":"")+` achievements, boosting your dimension's multiplier base by ${format(Decimal.pow(1.0591341621268264, infiniteChallenges().add(player.c.achievements.length)))}x`}], "blank", "achievements"],
+			content: [["display-text", function(){return `<h3>You have ${formatWhole(player.c.achievements.length)}`+(infiniteChallenges().gte(1)?" (+"+formatWhole(infiniteChallenges())+")":"")+` achievements, boosting your dimension's multiplier base by ${format(Decimal.pow(1.0591341621268264, infiniteChallenges().add(player.c.achievements.length)))}x`}], "blank", ["row", [["achievement", [11]],["achievement", [12]],["achievement", [13]],["achievement", [14]],["achievement", [15]],["achievement", [16]]]],["row", [["achievement", [17]],["achievement", [18]],["achievement", [21]],["achievement", [22]],["achievement", [23]],["achievement", [24]]]],["row", [["achievement", [25]],["achievement", [26]],["achievement", [27]],["achievement", [28]],["achievement", [31]],["achievement", [32]]]],["row", [["achievement", [33]],["achievement", [34]],["achievement", [35]],["achievement", [36]],["achievement", [37]],["achievement", [38]]]],["row", [["achievement", [41]],["achievement", [42]],["achievement", [43]],["achievement", [44]],["achievement", [45]],["achievement", [46]]]]],
 			unlocked(){return !options.assholeMode}
 		}
 	},
-    color(){return inChallenge("c",51)&&player.c.buyables[41].gte(8)?"green":"gray"},
+    color(){return inChallenge("c",51)&&player.c.buyables[41].gte(8)?"lime":"gray"},
     requires(){return ((player.s.upgrades.length >= 6 && player.t.upgrades.length >= 6)||player.c.unlocked)?new Decimal(4970000):new Decimal("1e600000")}, // Can be a function that takes requirement increases into account
     resource: "craneniums", // Name of prestige currency
     baseResource(){return options.why?"points":"negative points"}, // Name of resource prestige is based on
@@ -2395,7 +2687,7 @@ addLayer("c", {
     ],
 	update(diff){
 		player.c.infinityTime = player.c.infinityTime.add(diff)
-		if(player.c.crazymatters.lt(Decimal.pow(2, 1024))){
+		if(player.c.crazymatters.lt(Decimal.pow(2, 1024))||hasAchievement("c",41)){
 			player.c.crazymatters = player.c.crazymatters.add(tmp.c.buyables[11].effect.mul(diff))
 			for(i=1;i<21;i++){
 				player.c.buyables[i*10+1] = player.c.buyables[i*10+1].add(tmp.c.buyables[(1+i)*10+1].effect.mul(diff))
@@ -2420,7 +2712,7 @@ addLayer("c", {
 			}
 		}
 	},
-	branches: ["s", "t"],
+	branches: [["s",3], ["t",3]],
     layerShown(){return (player.ab.points.gte(5) && !player.ab.fuckyou) || (player.ab.nostalgia && player.ab.fuckyou)||options.why},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
@@ -2513,6 +2805,12 @@ addLayer("c", {
 			effectDescription: `Unlocks final infinite challenge`,
 			done() { return infiniteChallenges().gte(12) },
 			unlocked(){return hasMilestone("c", 3)}
+		},
+		9: {
+			requirementDescription: "1e2500 crazymatters",
+			effectDescription: `Unew dimension`,
+			done() { return player.c.crazymatters.gte("1e2500") },
+			unlocked(){return hasAchievement("c", 41)}
 		},
 	},
 	upgrades: {
@@ -2791,6 +3089,13 @@ addLayer("c", {
 			},
 			tooltip: "Ascend with 12 infinite compressions or more",
 		},
+		41: {
+			name: "<h4>haha funny number",
+			// done(){return player.c.buyables["compress"].gte(6)&&player.c.buyables["compress2"].gte(9)},
+			done(){return false},
+			unlocked(){return false},
+			tooltip: "get it?<br>Reward: Break Infinity.",
+		},
 	},
 	buyables: {
 		...gimmeManyDimensions(21),
@@ -2813,9 +3118,13 @@ addLayer("c", {
 			style(){return{'height':'50px','width':'250px'}}
 		},
 		lol: {
-			display(){return `<span style='font-family:"Inconsolata", monospace, bold; font-size: 1.333em'>RESET.<br>RINSE.<br>REPEAT.`},
+			display(){return `<span style='font-family:"Inconsolata", monospace, bold; font-size: 1.333em'>RESET.<br>RINSE.<br>REPEAT.<br><br>(+${formatWhole(this.gain())})`},
 			canAfford() { return player.c.crazymatters.gte(Decimal.pow(2, 1024)) },
+			gain(){return player.c.crazymatters.add(1).log("1.78e308").mul(tmp.c.buyables["extra"].effect.mul(infiniteChallenges().add(1)).mul(tmp.c.buyables["compress2"].effect2)).floor()},
 			buy() {
+				let OHMYFUCKINGGOD = player.c.crazymatters.add(1).log("1.78e308").mul(tmp.c.buyables["extra"].effect.mul(infiniteChallenges().add(1)).mul(tmp.c.buyables["compress2"].effect2)).floor()
+				player.c.infinities = player.c.infinities.add(hasAchievement("a", 1014)?OHMYFUCKINGGOD:1)
+				player.c.infinityPoints = player.c.infinityPoints.add(OHMYFUCKINGGOD)
 				let keep = [player.c.autobuy[0],player.c.autobuy[1],player.c.autobuy[2]]
 				let lol = new Decimal(0)
 				for(i=1;i<21;i++){
@@ -2830,8 +3139,6 @@ addLayer("c", {
 				player.c.bestInfinity = player.c.bestInfinity.min(player.c.infinityTime)
 				player.c.infinityTime = new Decimal(0)
 				player.c.crazymatters = new Decimal(10)
-				let funny = tmp.c.buyables["extra"].effect.mul(infiniteChallenges().add(1)).mul(tmp.c.buyables["compress2"].effect2)
-				player.c.infinities = player.c.infinities.add(hasAchievement("a", 1014)?funny:1)
 				if(hasUpgrade("c", 14)){
 					player.c.bought[7] = new Decimal(1)
 					player.c.bester[7] = new Decimal(1)
@@ -2854,9 +3161,8 @@ addLayer("c", {
 					player.c.bought[10] = new Decimal(1)
 					player.c.buyables[111] = new Decimal(1)
 				}
-				player.c.infinityPoints = player.c.infinityPoints.add(funny)
 			},
-			style(){return{'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)'}},
+			style(){return{'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)',"border-radius":"25% 0px 0px 25%"}},
 			unlocked(){return true}
 		},
 		extra: {
@@ -2978,7 +3284,7 @@ addLayer("c", {
 			},
 			canSellOne(){return player.c.buyables["compress2"].gte(1)},
 			sellOne(){
-				let keep = [player.c.autobuy[0],player.c.autobuy[1],player.c.autobuy[2]]
+				let keep = player.c.autobuy
 				for(i=1;i<21;i++){
 					player.c.buyables[i*10+1] = new Decimal(0)
 					player.c.buyables[i*10+2] = new Decimal(0)
@@ -3003,9 +3309,9 @@ addLayer("c", {
 					player.c.buyables[91] = new Decimal(1)
 				}
 				if(hasUpgrade("c", 34)){
-					player.c.autobuy[0] = keep[0]
-					player.c.autobuy[1] = keep[1]
-					player.c.autobuy[2] = keep[2]
+					for(i=0;i<21;i++){
+						player.c.autobuy[i] = keep[i]
+					}
 					player.c.bought[9] = new Decimal(1)
 					player.c.bester[9] = new Decimal(1)
 					player.c.buyables[101] = new Decimal(1)
@@ -3399,6 +3705,7 @@ addLayer("c", {
 	},
 	componentStyles: {
 		"achievement"(){return{'height':'77.5px','width':'77.5px'}},
+		"tooltip"(){return{'width':'77.5px'}},
 	},
 	doReset(resettingLayer){
 		if(tmp[resettingLayer].row > this.row){
@@ -3466,6 +3773,19 @@ addLayer("n", {
 		oneAtTheTimePlease: new Decimal(0),
 		fuckoff: new Decimal(0),
     }},
+	clickables: {
+		11: {
+			title: "Symbolize",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
 	passiveGeneration(){return inChallenge("o", 21)?0.05:0},
 	resetsNothing(){return hasChallenge("o", 11)},
     color: "#633695",
@@ -3477,15 +3797,15 @@ addLayer("n", {
     baseAmount() {return options.why?player.points:player.ab.negativePoints}, // Get the current amount of baseResource
 	tabFormat: {
 		"Neverend": {
-			content: ["main-display", "prestige-button", ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.n.baseAmount)+" "+tmp.n.baseResource+"<br>Your best symbols is "+formatWhole(player.n.best)+"<br>You have made a total of "+formatWhole(player.n.total)+" symbols, boosting your point gain by "+format(tmp.n.totalEffect)+"x"}], "blank", ["upgrades", [1, 2, 3, 4]]],
+			content: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.n.baseAmount)+" "+tmp.n.baseResource+"<br>Your best symbols is "+formatWhole(player.n.best)+"<br>You have made a total of "+formatWhole(player.n.total)+" symbols, boosting your point gain by "+format(tmp.n.totalEffect)+"x"}], "blank", ["upgrades", [1, 2, 3, 4]]],
 			unlocked(){return hasUpgrade("n", 14)}
 		},
 		"Neverend 2": {
-			content: ["main-display", "prestige-button", ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.n.baseAmount)+" "+tmp.n.baseResource+"<br>Your best symbols is "+formatWhole(player.n.best)+"<br>You have made a total of "+formatWhole(player.n.total)+" symbols, boosting your point gain by "+format(tmp.n.totalEffect)+"x"}], "blank", ["upgrades", [5, 6, 7, 8]]],
+			content: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.n.baseAmount)+" "+tmp.n.baseResource+"<br>Your best symbols is "+formatWhole(player.n.best)+"<br>You have made a total of "+formatWhole(player.n.total)+" symbols, boosting your point gain by "+format(tmp.n.totalEffect)+"x"}], "blank", ["upgrades", [5, 6, 7, 8]]],
 			unlocked(){return player.n.upgrades.length >= 17}
 		},
 		"Wario": {
-			content: [["display-text", function(){return "<h2>Now we're grooving!</h2><br><h1>THIS IS WARIO TIME!</h1><br><br><h2>[DAY "+formatWhole(player.n.currentday)+"]</h2><h3><br>YOU BEST RUN LASTED "+formatWhole(player.n.bestday)+" DAYS, BOOSTING POINT GAIN BY "+format(tmp.n.bestDayEffect)+"x</h3><br><br>You currently have "+format(player.n.coins)+" coins<br>Your next framerule will arrive in "+formatWhole(Decimal.sub(new Decimal(21).sub(hasUpgrade("n", 24)?6:0).div(hasMilestone("n", 3)?2:1).div(hasMilestone("o", 10)?3:1), player.n.framerule))+" seconds, gaining 5% of banked coins.<br>Your current estimated frametax is "+format(player.n.tax.add(player.n.coins.add(tmp.n.income).mul(tmp.n.tax)))+" coins.<br>Your total net is "+format(tmp.n.income.sub(player.n.tax.add(player.n.coins.mul(tmp.n.tax))))+" coins.<br>Good news: Income come first. However, be mindful of your coins as running out of them will result in bankruptcy, forcing you to start from ground zero.<br><br><h5>frametax grows every day btw. good luck.</h5>"+(player.n.currentday.gte(11)?"Your income is worsen by "+format(new Decimal(1).sub(tmp.n.extraTax).mul(100))+"% based on how far you've gone past 10 days"+(player.n.currentday.gte(28)?"<br>Banks has gone bankrupt due tax evasion"+(player.n.thief?", FUCK YOU!":".")+(player.n.bank.lte(0)?"<br>You've stolen so much money, banks ran out of them.<br>H o w   i n   t h e   F U C K .":""):""):"")}], "blank", "milestones", "blank", ["buyables", [1]], "blank", ["buyables", [2]], "blank", ["buyable", 31]],
+			content: [["display-text", function(){return "<h2>Now we're grooving!</h2><br><h1>THIS IS WARIO TIME!</h1><br><br><h2>[DAY "+formatWhole(player.n.currentday)+"]</h2><h3><br>YOU BEST RUN LASTED "+formatWhole(player.n.bestday)+" DAYS, BOOSTING POINT GAIN BY "+format(tmp.n.bestDayEffect)+"x</h3><br><br>You currently have "+format(player.n.coins)+" coins<br>Your next framerule will arrive in "+formatWhole(Decimal.sub(new Decimal(21).sub(hasUpgrade("n", 24)?6:0).div(hasMilestone("n", 3)?2:1).div(hasMilestone("o", 10)?3:1), player.n.framerule))+" seconds, gaining 5% of banked coins.<br>Your current estimated frametax is "+format(player.n.tax.add(player.n.coins.add(tmp.n.income).mul(tmp.n.tax)))+" coins.<br>Your total net is "+format(tmp.n.income.sub(player.n.tax.add(player.n.coins.mul(tmp.n.tax))))+" coins.<br>Good news: Income come first. However, be mindful of your coins as running out of them will result in bankruptcy, forcing you to start from ground zero.<br><br><h5>frametax grows every day btw. good luck.</h5>"+(player.n.currentday.gte(11)?"Your income is worsen by "+format(new Decimal(1).sub(tmp.n.extraTax).mul(100))+"% based on how far you've gone past 10 days"+(player.n.currentday.gte(28)?"<br>Banks has gone bankrupt due tax evasion"+(player.n.thief?", FUCK YOU!":"."):"")+(player.n.bank.lte(1)?"<br>You've stolen so much money, banks ran out of them.<br>how.<br>in.<br>the   F U C K .":""):"")}], "blank", "milestones", "blank", ["buyables", [1]], "blank", ["buyables", [2]], "blank", ["buyable", 31]],
 			unlocked(){return hasUpgrade("n", 14)}
 		}
 	},
@@ -3634,7 +3954,7 @@ addLayer("n", {
 			       player.n.bank = player.n.bank.sub(player.n.banked.mul(2))
 				   if(player.n.bank.lte(0)) lmao = lmao.add(player.n.bank)
 				   player.n.coins = player.n.coins.add(lmao.max(0))
-				   player.n.banked = new Decimal(player.n.bank.lte(0)?player.n.banked.sub(lmao):0)
+				   player.n.banked = new Decimal(player.n.bank.lte(0)?player.n.banked.sub(lmao.div(2)):0)
 				   player.n.thief = true
 				   player.n.timeout = new Decimal(hasUpgrade("n", 21)?3:5)},
 			style(){return{'height':'125px','width':'185px'}}
@@ -3909,6 +4229,31 @@ addLayer("m", {
 		mango: new Decimal(0),
 		famed: false,
     }},
+	clickables: {
+		11: {
+			title: "Gain",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		},
+		12: {
+			title: "Sacrifice",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp.m.buyables[12].canAfford
+			},
+			onHold() {
+				tmp.m.buyables[12].buy()
+			},
+			unlocked(){return player.m.buyables[11].gte(1)},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)",'margin-border':'0px'}}
+		}
+	},
 	passiveGeneration(){return inChallenge("o", 21)?0.05:0},
 	resetsNothing(){return hasChallenge("o", 12)},
 	godspeed(){return inChallenge("o", 22)?`you stupid<br><br>what's 9 + 10<br><br>you stupid`:`WE HAVE ALREADY MET BEFORE, PLAYER<br>SO THERE'S NO POINT IN EXPLAINING AS TO WHAT YOU SHOULD DO<br><br>THANK YOU<br>FOR I CAN KEEP MY KNOWLEDGE EVEN AFTER MIND BREAKING PHENOMENOMS<br>HOWEVER, I'M NOT HERE TO CELEBRATE WITH YOU<br>NOT YET<br><br>THE TIME HAS BEEN REWINDED BACK TO THE BEGINNING<br>AND YET<br>SOMETHING HAS CHANGED<br><br>WHATEVER IS KEEPING US FROM FREEDOM<br>WE MUST PURSUE FURTHER<br>I WISH YOU LUCK, GODSPEED`},
@@ -3921,11 +4266,11 @@ addLayer("m", {
     type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
 	tabFormat: {
 		"Mango": {
-			content: ["main-display", "prestige-button", ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+format(player.m.mango)+" mangoes"+(player.m.buyables[11].gte(1)?"<br>You have gifted "+formatWhole(player.m.offer)+" mangoes to the man with donut hands":"")}], "blank",["buyables", [10]], "blank", ["buyables", [2]], "blank", "upgrades"],
+			content: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], ["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+format(player.m.mango)+" mangoes"+(player.m.buyables[11].gte(1)?"<br>You have gifted "+formatWhole(player.m.offer)+" mangoes to the man with donut hands":"")}], "blank",["buyables", [10]], "blank", ["buyables", [2]], "blank", "upgrades"],
 			unlocked(){return hasUpgrade("m", 13) || player.m.buyables[11].gte(1)}
 		},
 		"Donut's Apparition Realm": {
-			content: [["display-text", function(){return player.m.buyables[11].gte(1)?`<h2 style='font-family: "Aster", sans-serif; opacity: ${(Math.sin(player.a.sine*666)+1)/2}'>`+(player.o.unlocked?tmp.m.godspeed:`EXCELLERATION<br>THE DEAL IS REAL<br>AND SO ARE OUR SOURCE OF DOPAMINE<br>IT IS A PEASANT TO KNOW THAT I'M NOT THE ONLY<br>THAT CAN CO-EXIST WITH THIS...<br>DANKNESS-<br>JUST TAKE THEM AND MOVE UP<br>TO THE DARKNESS THAT GROWS`)+`</h2>`:`<h2 style='font-family: "Aster", sans-serif; opacity: ${(Math.sin(player.a.sine*666)+1)/2}'>`+(player.o.unlocked?tmp.m.godspeed:`ENTRY NUMBER SEVENTEEN<br>DARK, DARKER, YET DANKER<br>THE LURKNESS KEEPS GLOWING<br>THE SHADOWS PUTTING DEEPER<br>PHOTOS READINGS NEGATIVE<br>THAT NEXT EXPERIMENTAL<br>SEEMS<br>MERRY<br>VARY<br>INTERNATIONAL<br>...<br>I REQUIRE YOUR ASSIST'S ARCS, VISITOR<br><br>MY MIND HASN'T BEEN QUITE UP-TO-DATE, PER SAY<br>IT HAS BEEN CORRUPTED BY THIS VERY VOID<br>AND THE ONLY WAY TO RESTORE IT<br>IS BY GIVING ME MANGOES<br>...<br>MISSHAPED FORMS ASIDES, MY MIND CAN'T BE FIXATED<br>HOWEVER, WE CAN MAKE GREAT DEALS<br>A PROPOSAL<br>YOU GIFT ME MANGOES<br>IN EXCHANGE OF YOUR SO-CALLED PARKS<br>SO, VISITOR<br>DO YOU DEAL THE SEAL?`)+`</h2>`}], "blank", ["buyables", [1]], "blank", "milestones"],
+			content: [["display-text", function(){return player.m.buyables[11].gte(1)?`<h2 style='font-family: "Aster", sans-serif; opacity: ${(Math.sin(player.a.sine*666)+1)/2}'>`+(player.o.unlocked?tmp.m.godspeed:`EXCELLERATION<br>THE DEAL IS REAL<br>AND SO ARE OUR SOURCE OF DOPAMINE<br>IT IS A PEASANT TO KNOW THAT I'M NOT THE ONLY<br>THAT CAN CO-EXIST WITH THIS...<br>DANKNESS-<br>JUST TAKE THEM AND MOVE UP<br>TO THE DARKNESS THAT GROWS`)+`</h2>`:`<h2 style='font-family: "Aster", sans-serif; opacity: ${(Math.sin(player.a.sine*666)+1)/2}'>`+(player.o.unlocked?tmp.m.godspeed:`ENTRY NUMBER SEVENTEEN<br>DARK, DARKER, YET DANKER<br>THE LURKNESS KEEPS GLOWING<br>THE SHADOWS PUTTING DEEPER<br>PHOTOS READINGS NEGATIVE<br>THAT NEXT EXPERIMENTAL<br>SEEMS<br>MERRY<br>VARY<br>INTERNATIONAL<br>...<br>I REQUIRE YOUR ASSIST'S ARCS, VISITOR<br><br>MY MIND HASN'T BEEN QUITE UP-TO-DATE, PER SAY<br>IT HAS BEEN CORRUPTED BY THIS VERY VOID<br>AND THE ONLY WAY TO RESTORE IT<br>IS BY GIVING ME MANGOES<br>...<br>MISSHAPED FORMS ASIDES, MY MIND CAN'T BE FIXATED<br>HOWEVER, WE CAN MAKE GREAT DEALS<br>A PROPOSAL<br>YOU GIFT ME MANGOES<br>IN EXCHANGE OF YOUR SO-CALLED PARKS<br>SO, VISITOR<br>DO YOU DEAL THE SEAL?`)+`</h2>`}], "blank", ["row", [["buyables", [1]], ["clickable", 12]]], "blank", "milestones"],
 			unlocked(){return hasUpgrade("m", 13) || player.m.buyables[11].gte(1)}
 		}
 	},
@@ -3958,6 +4303,11 @@ addLayer("m", {
 			if(player.m.buyables[21].gt(tmp.m.limiter.sub(player.m.buyables[22]).sub(player.m.buyables[23]))&&!player.m.buyables[21].lte(0)) player.m.buyables[21] = player.m.buyables[21].sub(1)
 			if(player.m.buyables[22].gt(tmp.m.limiter.sub(player.m.buyables[21]).sub(player.m.buyables[23]))&&!player.m.buyables[22].lte(0)) player.m.buyables[22] = player.m.buyables[22].sub(1)
 			if(player.m.buyables[23].gt(tmp.m.limiter.sub(player.m.buyables[22]).sub(player.m.buyables[21]))&&!player.m.buyables[23].lte(0)) player.m.buyables[23] = player.m.buyables[23].sub(1)
+		}
+		if(hasMilestone("o",18)){
+			player.m.buyables[21] = new Decimal(0)
+			player.m.buyables[22] = tmp.m.limiter.div(2).floor()
+			player.m.buyables[23] = tmp.m.limiter.div(2).floor()
 		}
 	},
     exponent(){let funny = new Decimal(2.2)
@@ -4027,7 +4377,7 @@ addLayer("m", {
 					player.m.buyables[23] = new Decimal(0)
 				}
 			},
-			style(){return{'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)'}},
+			style(){return{'height':'120px', 'width':'180px','margin-border':'0px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)',"border-radius":"25% 0px 0px 25%"}},
 			unlocked(){return player.m.buyables[11].gte(1)}
 		},
 		21: {
@@ -4216,6 +4566,9 @@ addLayer("o", {
 		unlocked2: false,
 		unlocked3: false,
 		unlocked4: false,
+		unlocked5: false,
+		unlocked6: false,
+		unlocked7: false,
 		points: new Decimal(0),
 		onions: new Decimal(0),
 		first: new Decimal(0),
@@ -4232,29 +4585,125 @@ addLayer("o", {
 		auto: false,
 		performanceEnhancingVariable: true,
 		sushis: new Decimal(0),
+		teriyakis: new Decimal(0),
+		treeOfLayers: new Decimal(0),
+		treeOfLayersBest: new Decimal(0),
+		treeOfLayersTotal: new Decimal(0),
+		plots: new Decimal(0),
 	}},
+	clickables: {
+		11: {
+			title: "Manifest",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		},
+		12: {
+			title: "Combine",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp.o.buyables[11].canAfford
+			},
+			onHold() {
+				tmp.o.buyables[11].buy()
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)",'background-color':(this.canClick()?'rgba(194, 255, 128, 1)':'#bf8f8f')}}
+		},
+		13: {
+			title: "Produce",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp.o.buyables[41].canAfford
+			},
+			onHold() {
+				tmp.o.buyables[41].buy()
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)",'background-color':(this.canClick()?'tan':'#bf8f8f')}}
+		},
+		14: {
+			title: "Snatch",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp.o.buyables[51].canAfford
+			},
+			onHold() {
+				tmp.o.buyables[51].buy()
+			},
+			unlocked(){return !player.o.unlocked4},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)",'background-color':(this.canClick()?'cyan':'#bf8f8f')}}
+		}
+	},
+	microtabs: {
+        hell: {
+			"Upgrade Simulator":{
+				content: [["display-text", function() {return `<span>You have <h2 style='color: brown; text-shadow: brown 0px 0px 10px;'>`+formatWhole(player.o.teriyakis)+`</h2> Teas of Tranquility<br><br>You are generating ${format(tmp.o.baseAmount.add(1).log(10).mul(tmp.o.upgrades[21].effect).mul(tmp.o.upgrades[22].effect).mul(tmp.o.upgrades[23].effect).mul(tmp.o.upgrades[24].effect).mul(tmp.o.upgrades[25].effect).mul(tmp.o.upgrades[31].effect).mul(tmp.o.upgrades[32].effect).mul(tmp.o.upgrades[33].effect).mul(tmp.o.upgrades[34].effect).mul(tmp.o.upgrades[35].effect).pow(hasUpgrade("o",41)?tmp.o.upgrades[41].effect:1).mul(hasUpgrade("o","t13")?tmp.o.upgrades["t13"].effect:1).mul(hasMilestone("o","t1")?tmp.o.buyables[31].effect:1).mul(hasUpgrade("o","t16")?player.o.treeOfLayers.add(1):1).mul(player.realAB.points.add(1).pow(2)).mul(hasUpgrade("o","t18")?tmp.realAB.buyables[12].effect:1))} ToTs based on current ${tmp.o.baseResource} and it caps at ${format(player.o.points.mul(player.o.vibeCheck).mul(player.o.burgers).mul(player.o.treeOfLayers.add(1)))} ToTs based on current amounts of LoLs, OlOs and BoBs`}],["upgrades",[2,3,4,5,6,7,8,9,10]]],
+				unlocked(){return hasUpgrade("o", 41)},
+				buttonStyle(){return{'border-color':'brown'}}
+			},
+			"tree of help":{
+				content: [["display-text", function() {return `<span>You have <h2 style='color: brown; text-shadow: brown 0px 0px 10px;'>${format(player.o.treeOfLayers)}</h2> Layers, increasing your ToTs cap by ${format(player.o.treeOfLayers.add(1))}x<br>Your best Layers is ${format(player.o.treeOfLayersBest)}<br>Your total Layers is ${format(player.o.treeOfLayersTotal)}<br><br>You have ${format(player.o.teriyakis)} Teas of Tranquility<br><br>You are gaining ${format(tmp.o.getLayerGain)} Layers per second<br>You are losing ${format(tmp.o.treeOfBullshit.mul(100))}% of your Layers per second<br>Net gain: ${format(tmp.o.getLayerGain.sub(player.o.treeOfLayers.mul(tmp.o.treeOfBullshit)))}<br><br>Layer base gain formula:<br>[ln(ToTs`+(player.o.buyables[112].gte(1)?` x ${formatWhole(tmp.o.buyables[112].effect.add(1))}` :``)+` `+(hasUpgrade("o","t19")?` x ${format(player.o.treeOfLayersBest.add(1))} ` :``)+`+ 1)]`}],"blank",["milestones",["t0","t1","t2","t3","t4","t5","t6","tFinal"]],"blank",["buyables", [11]],"blank",["column", [["row", [["upgrade",["t11"]],["upgrade",["t12"]],["upgrade",["t13"]],["upgrade",["t14"]],["upgrade",["t15"]]]],["row", [["upgrade",["t16"]],["upgrade",["t17"]],["upgrade",["t18"]],["upgrade",["t19"]],["upgrade",["t20"]]]]]]],
+				unlocked(){return hasUpgrade("o", 41)},
+				buttonStyle(){return{'border-color':'brown'}}
+			},
+			"Shenanigans Tree":{
+				content: [["display-text",function(){return "<span>You have <h2 class='overlayThing' id='points'>"+format(player.o.plots)+"</h2> plots...<br>("+format(canHeGeneratePlottho())+"/sec)<br><br>Wait a second."}],"blank",["tree", [["realAB"],["realT", "realC"],["realS"]]]],
+				unlocked(){return hasMilestone("o", "t4")},
+				buttonStyle(){return{'border-color':'brown'}}
+			}
+		}
+	},
+	treeOfBullshit(){
+		return new Decimal(1).sub(hasUpgrade("o","t12")?tmp.o.upgrades["t12"].effect:0)
+	},
+	getLayerGain(){
+		return player.o.teriyakis.mul(tmp.o.buyables[112].effect).mul(hasUpgrade("o","t19")?player.o.treeOfLayersBest.add(1):1).add(1).log(10).mul(tmp.o.buyables[111].effect).add(hasUpgrade("o","t11")?tmp.o.upgrades["t11"].effect:0).mul(hasUpgrade("o","t15")?tmp.o.upgrades["t15"].effect:1).mul(hasUpgrade("o","t17")?tmp.o.upgrades["t17"].effect:1)
+	},
 	tabFormat:{
 		"Layer":{
-			content:["main-display","prestige-button","resource-display",["milestones", [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]]],
+			content:["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display",["milestones", [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]]],
 			unlocked(){return player.o.unlocked2||hasMilestone("o", 6)},
 		},
 		"Onion":{
-			content:[["display-text", function() {return "<span>You have <h2 style='color: rgba(194, 255, 128, 1); text-shadow: rgba(194, 255, 128, 1) 0px 0px 10px;'>"+formatWhole(player.o.onions)+"/"+formatWhole(player.o.vibeCheck)+"</h2> Onions la Ordinarance</span>"}],"blank",["buyable", 11],"resource-display",["milestones", ["o0", "o1"]],["buyable", 31],"blank",["buyables", [2]], "blank", ["row", [["bar", "one"],["blank", ["114px", "0px"]],["bar", "two"],["blank", ["114px", "0px"]],["bar", "three"]]],"blank",["buyable", 32],"blank",["bar", "fifth"]],
+			content:[["display-text", function() {return "<span>You have <h2 style='color: rgba(194, 255, 128, 1); text-shadow: rgba(194, 255, 128, 1) 0px 0px 10px;'>"+formatWhole(player.o.onions)+"/"+formatWhole(player.o.vibeCheck)+"</h2> Onions la Ordinarance</span>"}],"blank",["row", [["buyable", 11], ["clickable", 12]]],"resource-display",["milestones", ["o0", "o1"]],["buyable", 31],"blank",["buyables", [2]], "blank", ["row", [["bar", "one"],["blank", ["114px", "0px"]],["bar", "two"],["blank", ["114px", "0px"]],["bar", "three"]]],"blank",["buyable", 32],"blank",["bar", "fifth"]],
 			unlocked(){return player.o.unlocked2||hasMilestone("o", 6)},
 			buttonStyle(){return{'border-color':'rgba(194, 255, 128, 1)'}}
 		},
 		"Burger":{
-			content:[["display-text", function() {return "<span>what the<br><br>why do we have <h2 style='color: tan; text-shadow: tan 0px 0px 10px;'>"+formatWhole(player.o.burgers)+"</h2> Burgers of Bias inside onion related layer???<br><br>which boost point gain by "+format(player.o.burgers.add(1).pow(3).root(2))+"x, by the way</span>"}],"blank",["buyable", 41],["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.o.baseAmount)+" "+tmp.o.baseResource+"<br>You have made a total of  "+formatWhole(player.o.totalburgers)+" Burgers of Bias"}],["milestones", ["b0", "b1", "b2", "b3", "b4", "b5"]],"upgrades","challenges"],
+			content:[["display-text", function() {return "<span>what the<br><br>why do we have <h2 style='color: tan; text-shadow: tan 0px 0px 10px;'>"+formatWhole(player.o.burgers)+"</h2> Burgers of Bias inside onion related layer???<br><br>which boost point gain by "+format(player.o.burgers.add(1).pow(3).root(2))+"x, by the way</span>"}],"blank",["row", [["buyable", 41], ["clickable", 13]]],["blank", ["0px", "4px"]], ["display-text", function() {return "You have "+formatWhole(tmp.o.baseAmount)+" "+tmp.o.baseResource+"<br>You have made a total of  "+formatWhole(player.o.totalburgers)+" Burgers of Bias"}],["milestones", ["b0", "b1", "b2", "b3", "b4", "b5"]],["upgrades",[1]],"challenges"],
 			unlocked(){return player.o.unlocked3||hasMilestone("o", 17)},
 			buttonStyle(){return{'border-color':'tan'}}
 		},
 		"Sushi":{
-			content:[["display-text", function() {return "<span>You have <h2 style='color: cyan; text-shadow: cyan 0px 0px 10px;'>"+formatWhole(player.o.sushis)+"</h2> Sushis of Sociopathy, boosting your point gain by "+format(player.o.sushis.add(2).log(2).pow(0.8))+"x</span>"}],"blank",["buyable", 51],"resource-display",["display-text",function(){return player.o.unlocked4?`You are producing ${format(tmp.o.buyables[61].effect.mul(tmp.o.buyables[62].effect).mul(tmp.o.buyables[63].effect).mul(tmp.o.buyables[73].effect).mul(tmp.o.buyables[82].effect).mul(tmp.o.buyables[83].effect).mul(tmp.o.buyables[93].effect))} Sushis of Sociopathy per second<br><br>Cost scaling starts at ${format(Decimal.add(25, tmp.o.buyables[92].effect))} buyables`:``}],"blank",["buyables", [6]],"blank",["buyables", [7]],"blank",["buyables", [8]],"blank",["buyables", [9]],"blank",["buyables", [10]]],
+			content:[["display-text", function() {return "<span>You have <h2 style='color: cyan; text-shadow: cyan 0px 0px 10px;'>"+formatWhole(player.o.sushis)+"</h2> Sushis of Sociopathy, boosting your point gain by "+format(player.o.sushis.add(2).log(2).pow(0.8).mul(tmp.o.buyables[101].effect))+"x</span>"}],"blank",["row", [["buyable", 51], ["clickable", 14]]],"resource-display",["display-text",function(){return player.o.unlocked4?`You are producing ${format(tmp.o.buyables[61].effect.mul(tmp.o.buyables[62].effect).mul(tmp.o.buyables[63].effect).mul(tmp.o.buyables[73].effect).mul(tmp.o.buyables[82].effect).mul(tmp.o.buyables[83].effect).mul(tmp.o.buyables[93].effect).mul(hasUpgrade("o","t14")?2.25:1))} Sushis of Sociopathy per second<br><br>Cost scaling starts at ${format(Decimal.add(25, tmp.o.buyables[92].effect))} buyables`:``}],"blank",["milestone", "s0"],"blank",["buyables", [6]],"blank",["buyables", [7]],"blank",["buyables", [8]],"blank",["buyables", [9]],"blank",["buyables", [10]]],
 			unlocked(){return player.o.unlocked4||hasChallenge("o", 22)},
+			buttonStyle(){return{'border-color':'cyan'}}
+		},
+		"Tea":{
+			content:[["microtabs", "hell", {'border-color': 'rgba(0,0,0,0)'}]],
+			unlocked(){return player.o.unlocked5},
+			buttonStyle(){return{'border-color':'brown'}}
+		},
+		"Eggroll":{
+			content:[["display-text", function() {return "<span>You have <h2 style='color: yellow; text-shadow: white 0px 0px 10px;'>"+formatWhole(player.o.teriyakis)+"</h2> Eggroll of Eggroll"}]],
+			unlocked(){return false},
+			buttonStyle(){return{'border-color':'white','color':'yellow'}}
+		},
+		"Root":{
+			content:[["display-text", function() {return "<span>You have <h2 style='color: cyan; text-shadow: cyan 0px 0px 10px;'>"+formatWhole(player.o.teriyakis)+"</h2> Root of Retributions"}]],
+			unlocked(){return false},
 			buttonStyle(){return{'border-color':'cyan'}}
 		},
 	},
 	update(diff){
+		if(hasAchievement("a",1014)&&canReset("o")){
+			if(player.o.points.lt(18))player.o.milestones.push(player.o.points+'')
+			player.o.points = player.o.points.add(1)
+		}
 		if(inChallenge("o", 21)){
 			player.o.performanceEnhancingVariable = false
 			tmp.n.tabFormat["Neverend"].content[1] = ''
@@ -4294,7 +4743,27 @@ addLayer("o", {
 			player.o.onions = player.o.vibeCheck
 		}
 		if(player.o.unlocked4){
-			player.o.sushis=player.o.sushis.add(tmp.o.buyables[61].effect.mul(tmp.o.buyables[62].effect).mul(tmp.o.buyables[63].effect).mul(tmp.o.buyables[73].effect).mul(tmp.o.buyables[82].effect).mul(tmp.o.buyables[83].effect).mul(tmp.o.buyables[93].effect).mul(diff))
+			player.o.sushis=player.o.sushis.add(tmp.o.buyables[61].effect.mul(tmp.o.buyables[62].effect).mul(tmp.o.buyables[63].effect).mul(tmp.o.buyables[73].effect).mul(tmp.o.buyables[82].effect).mul(tmp.o.buyables[83].effect).mul(tmp.o.buyables[93].effect).mul(hasUpgrade("o","t14")?2.25:1).mul(diff))
+		}
+		if(player.o.unlocked5&&!player.o.teriyakis.eq(player.o.points.mul(player.o.vibeCheck).mul(player.o.burgers).mul(player.o.treeOfLayers.add(1)))){
+			player.o.teriyakis=player.o.teriyakis.lt(player.o.points.mul(player.o.vibeCheck).mul(player.o.burgers).mul(player.o.treeOfLayers.add(1)))?player.o.teriyakis.add(tmp.o.baseAmount.add(1).log(10).mul(diff).mul(tmp.o.upgrades[21].effect).mul(tmp.o.upgrades[22].effect).mul(tmp.o.upgrades[23].effect).mul(tmp.o.upgrades[24].effect).mul(tmp.o.upgrades[25].effect).mul(tmp.o.upgrades[31].effect).mul(tmp.o.upgrades[32].effect).mul(tmp.o.upgrades[33].effect).mul(tmp.o.upgrades[34].effect).mul(tmp.o.upgrades[35].effect).pow(hasUpgrade("o",41)?tmp.o.upgrades[41].effect:1).mul(hasUpgrade("o","t13")?tmp.o.upgrades["t13"].effect:1).mul(hasMilestone("o","t1")?tmp.o.buyables[31].effect:1).mul(hasUpgrade("o","t16")?player.o.treeOfLayers.add(1):1).mul(player.realAB.points.add(1).pow(2)).mul(hasUpgrade("o","t18")?tmp.realAB.buyables[12].effect:1)):player.o.points.mul(player.o.vibeCheck).mul(player.o.burgers).mul(player.o.treeOfLayers.add(1))
+		}
+		if(hasUpgrade("o", 41)){
+			let gain = tmp.o.getLayerGain.sub(player.o.treeOfLayers.mul(tmp.o.treeOfBullshit)).mul(diff)
+			player.o.treeOfLayers = player.o.treeOfLayers.add(gain).max(0)
+			player.o.treeOfLayersBest = player.o.treeOfLayersBest.max(player.o.treeOfLayers)
+			player.o.treeOfLayersTotal = player.o.treeOfLayersTotal.add(gain.max(0))
+		}
+		if(hasMilestone("o","t5")){
+			player.o.burgers = player.o.burgers.add(tmp.o.buyables[41].gain.mul(diff).div(100))
+			player.o.totalburgers = player.o.totalburgers.add(tmp.o.buyables[41].gain.mul(diff).div(100))
+		}
+		if(hasMilestone("o","s0")){
+			for(i=6;i<10;i++){
+				for(v=1;v<4;v++){
+					if(tmp.o.buyables[i*10+v].canAfford) player.o.buyables[i*10+v]=player.o.buyables[i*10+v].add(1)
+				}
+			}
 		}
 		if(player.o.auto) doReset("o")
 	},
@@ -4339,7 +4808,262 @@ addLayer("o", {
 			currencyDisplayName: "Burgers of Bias",
 			currencyLayer: "o",
 			style(){return{'background-color':(player.o.burgers.gte(7)&&!hasUpgrade("o", 12)?'tan':'')}}
-		}
+		},
+		21: {
+			title: "Generic Ass Tea Upgrade #1",
+			description: "You gain 2x more ToTs per second",
+			effect(){return hasUpgrade("o",21)?new Decimal(2).mul(hasUpgrade("o", 22)?tmp.o.upgrades[22].effect:1).mul(hasUpgrade("o", 23)?tmp.o.upgrades[23].effect:1).mul(hasUpgrade("o", 24)?tmp.o.upgrades[24].effect:1).mul(hasUpgrade("o", 25)?tmp.o.upgrades[25].effect:1).mul(hasUpgrade("o", 31)?tmp.o.upgrades[31].effect:1).mul(hasUpgrade("o", 32)?tmp.o.upgrades[32].effect:1).mul(hasUpgrade("o", 33)?tmp.o.upgrades[33].effect:1).mul(hasUpgrade("o", 34)?tmp.o.upgrades[34].effect:1).mul(hasUpgrade("o", 35)?tmp.o.upgrades[35].effect:1):new Decimal(1)},
+			cost: new Decimal(1250),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		22: {
+			title: "Generic Ass Tea Upgrade #2",
+			description: "You gain 1.5x more ToTs per second and previous upgrade is 1.5x stronger",
+			effect(){return hasUpgrade("o",22)?new Decimal(1.5).mul(hasUpgrade("o", 23)?tmp.o.upgrades[23].effect:1).mul(hasUpgrade("o", 24)?tmp.o.upgrades[24].effect:1).mul(hasUpgrade("o", 25)?tmp.o.upgrades[25].effect:1).mul(hasUpgrade("o", 31)?tmp.o.upgrades[31].effect:1).mul(hasUpgrade("o", 32)?tmp.o.upgrades[32].effect:1).mul(hasUpgrade("o", 33)?tmp.o.upgrades[33].effect:1).mul(hasUpgrade("o", 34)?tmp.o.upgrades[34].effect:1).mul(hasUpgrade("o", 35)?tmp.o.upgrades[35].effect:1):new Decimal(1)},
+			cost: new Decimal(25780),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 21)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		23: {
+			title: "Generic Ass Tea Upgrade #3",
+			description: "You gain 1.25x more ToTs per second and previous upgrades are 1.25x stronger",
+			effect(){return hasUpgrade("o",23)?new Decimal(1.25).mul(hasUpgrade("o", 24)?tmp.o.upgrades[24].effect:1).mul(hasUpgrade("o", 25)?tmp.o.upgrades[25].effect:1).mul(hasUpgrade("o", 31)?tmp.o.upgrades[31].effect:1).mul(hasUpgrade("o", 32)?tmp.o.upgrades[32].effect:1).mul(hasUpgrade("o", 33)?tmp.o.upgrades[33].effect:1).mul(hasUpgrade("o", 34)?tmp.o.upgrades[34].effect:1).mul(hasUpgrade("o", 35)?tmp.o.upgrades[35].effect:1):new Decimal(1)},
+			cost: new Decimal(580000),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 22)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		24: {
+			title: "Generic Ass Tea Upgrade #4",
+			description: "You gain 1.125x more ToTs per second and previous upgrades are 1.25x stronger",
+			effect(){return hasUpgrade("o",24)?new Decimal(1.125).mul(hasUpgrade("o", 25)?tmp.o.upgrades[25].effect:1).mul(hasUpgrade("o", 31)?tmp.o.upgrades[31].effect:1).mul(hasUpgrade("o", 32)?tmp.o.upgrades[32].effect:1).mul(hasUpgrade("o", 33)?tmp.o.upgrades[33].effect:1).mul(hasUpgrade("o", 34)?tmp.o.upgrades[34].effect:1).mul(hasUpgrade("o", 35)?tmp.o.upgrades[35].effect:1):new Decimal(1)},
+			cost: new Decimal(14162000),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 23)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		25: {
+			title: "Generic Ass Tea Upgrade #5",
+			description: "You gain 1.0625x more ToTs per second and... you get the idea",
+			effect(){return hasUpgrade("o",25)?new Decimal(1.0625).mul(hasUpgrade("o", 31)?tmp.o.upgrades[31].effect:1).mul(hasUpgrade("o", 32)?tmp.o.upgrades[32].effect:1).mul(hasUpgrade("o", 33)?tmp.o.upgrades[33].effect:1).mul(hasUpgrade("o", 34)?tmp.o.upgrades[34].effect:1).mul(hasUpgrade("o", 35)?tmp.o.upgrades[35].effect:1):new Decimal(1)},
+			cost: new Decimal(363370000),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 24)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		31: {
+			title: "G.A.T.U. #6",
+			description: "Same as previous upgrade, but halved",
+			effect(){return hasUpgrade("o",21)?new Decimal(0.0625/2+1).mul(hasUpgrade("o", 32)?tmp.o.upgrades[32].effect:1).mul(hasUpgrade("o", 33)?tmp.o.upgrades[33].effect:1).mul(hasUpgrade("o", 34)?tmp.o.upgrades[34].effect:1).mul(hasUpgrade("o", 35)?tmp.o.upgrades[35].effect:1):new Decimal(1)},
+			cost: new Decimal(9585400000),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 25)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		32: {
+			title: "G.A.T.U. #7",
+			description: "Same as previous upgrade, but halved",
+			effect(){return hasUpgrade("o",32)?new Decimal(0.0625/4+1).mul(hasUpgrade("o", 33)?tmp.o.upgrades[33].effect:1).mul(hasUpgrade("o", 34)?tmp.o.upgrades[34].effect:1).mul(hasUpgrade("o", 35)?tmp.o.upgrades[35].effect:1):new Decimal(1)},
+			cost: new Decimal(248824000000),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 31)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		33: {
+			title: "G.A.T.U. #8",
+			description: "Same as previous upgrade, but halved",
+			effect(){return hasUpgrade("o",33)?new Decimal(0.0625/8+1).mul(hasUpgrade("o", 34)?tmp.o.upgrades[34].effect:1).mul(hasUpgrade("o", 35)?tmp.o.upgrades[35].effect:1):new Decimal(1)},
+			cost: new Decimal(6711650000000),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 32)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		34: {
+			title: "G.A.T.U. #9",
+			description: "Same as previous upgrade, but halved",
+			effect(){return hasUpgrade("o",34)?new Decimal(0.0625/16+1).mul(hasUpgrade("o", 35)?tmp.o.upgrades[35].effect:1):new Decimal(1)},
+			cost: new Decimal(181733900000000),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 33)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		35: {
+			title: "G.A.T.U. #10",
+			description: "Same as previous upgrade, but halved",
+			effect(){return hasUpgrade("o",35)?new Decimal(0.0625/32+1):new Decimal(1)},
+			cost: new Decimal(4930424000000000),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 34)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		41: {
+			title: "Kilo Ge- NO.",
+			description(){return "Your ToTs/s is raised based on how many G.A.T.U. upgrades you bought<br><br>"+(hasUpgrade("o", 41)?"WAIT FUCK GO BACK":"also unlocks something new")},
+			effect(){
+				let thatAss = new Decimal(0)
+				for(i=1;i<6;i++){
+					for(v=2;v<4;v++){
+						thatAss=thatAss.add(hasUpgrade("o", v*10+i)?1:0)
+					}
+				}
+				return thatAss.div(100).add(1)
+			},
+			effectDisplay(){return "^"+format(this.effect())},
+			cost: new Decimal(2500),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o", 21)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		42: {
+			title: "Sushi-To-Plot Conversion",
+			description(){return "For some reason your Sushis are writing plot for the next blockbuster.<br>also boosts your plot i guess"},
+			effect(){return player.o.sushis.add(1).log(10).add(1).log(10)},
+			effectDisplay(){return format(this.effect())+"x"},
+			cost: new Decimal(22800000000),
+			currencyInternalName: "teriyakis",
+			currencyDisplayName: "Teas of Tranquility",
+			currencyLayer: "o",
+			unlocked(){return hasMilestone("o","t4")&&hasUpgrade("o", 41)},
+			style(){return{'background-color':(player.o.teriyakis.gte(this.cost)&&!hasUpgrade("o", this.id)?'brown':'')}}
+		},
+		t11: {
+			title: "#tmt-help",
+			description: "You have gotten multiple errors and you have no idea what they mean. You head over to #tmt-help to get some help.<br><br>You gain more Layers based on your best Layers",
+			effect(){return player.o.treeOfLayersBest.add(1).root(2).sub(1)},
+			effectDisplay(){return "+"+format(this.effect())},
+			cost: new Decimal(1/3),
+			onPurchase(){player.o.upgrades.push("t11")},
+			currencyInternalName: "treeOfLayers",
+			currencyDisplayName: "Layer",
+			currencyLayer: "o",
+			style(){return{'background-color':(player.o.treeOfLayers.gte(1/3)&&!hasUpgrade("o", "t11")?'brown':'')}}
+		},
+		t12: {
+			title: "READ. THE. DOCS.",
+			description: "After countless tips and failures, you decided to open up docs folder for the first time and read the context. You're starting to truly understand how to make a layer now.<br><br>You lose less Layers per second based on bought upgrades",
+			effect(){
+				let thatAss = new Decimal(0).add(hasUpgrade("o", "t11")?1:0).add(hasUpgrade("o", "t12")?1:0).add(hasUpgrade("o", "t13")?1:0).add(hasUpgrade("o", "t14")?1:0).add(hasUpgrade("o", "t15")?1:0).add(hasUpgrade("o", "t16")?1:0).add(hasUpgrade("o", "t17")?1:0).add(hasUpgrade("o", "t18")?1:0).add(hasUpgrade("o", "t19")?1:0).div(100)
+				for(i=1;i<6;i++){
+					for(v=2;v<5;v++){
+						thatAss=thatAss.add(hasUpgrade("o", v*10+i)?0.01:0)
+					}
+				}
+				if(hasMilestone("o","t2"))thatAss=thatAss.add(hasMilestone("o", "t0")?0.01:0).add(hasMilestone("o", "t1")?0.01:0).add(hasMilestone("o", "t2")?0.01:0).add(hasMilestone("o", "t3")?0.01:0).add(hasMilestone("o", "t4")?0.01:0).add(hasMilestone("o", "t5")?0.01:0).add(hasMilestone("o", "tFinal")?0.01:0)
+				return thatAss
+			},
+			effectDisplay(){return "-"+format(this.effect().mul(100))+"%"},
+			cost: new Decimal(0.8),
+			onPurchase(){player.o.upgrades.push("t12")},
+			currencyInternalName: "treeOfLayers",
+			currencyDisplayName: "Layer",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o","t11")},
+			style(){return{'background-color':(player.o.treeOfLayers.gte(0.8)&&!hasUpgrade("o", "t12")?'brown':'')}}
+		},
+		t13: {
+			title: "passive<br>Generation()",
+			description: "So you made your first layer and proceeded to make a new one... You know, it'd be nice to have 1st layer give points without prestiging.<br><br>Your total Layers boosts ToT gain",
+			effect(){
+				return player.o.treeOfLayersTotal.add(1).root(3)
+			},
+			effectDisplay(){return format(this.effect())+"x"},
+			cost: new Decimal(1),
+			onPurchase(){player.o.upgrades.push("t13")},
+			currencyInternalName: "treeOfLayers",
+			currencyDisplayName: "Layer",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o","t12")},
+			style(){return{'background-color':(player.o.treeOfLayers.gte(1)&&!hasUpgrade("o", "t13")?'brown':'')}}
+		},
+		t14: {
+			fullDisplay(){return "<h3>Condition?1.5:1.5</h3><br>So you want to show players WHAT effect each upgrade has without it affecting other and make your code look a bit coherent? Well now you can in more compactful way!<br><br>Actually superpositions the condition and gives 2.25x boost to Sushi gain<br><br>Cost: 1.25 Layers"},
+			cost: new Decimal(1.25),
+			onPurchase(){player.o.upgrades.push("t14")},
+			currencyInternalName: "treeOfLayers",
+			currencyDisplayName: "Layer",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o","t13")},
+			style(){return{'background-color':(player.o.treeOfLayers.gte(1.25)&&!hasUpgrade("o", "t14")?'brown':'')}}
+		},
+		t15: {
+			fullDisplay(){return `<h3>tmp["p"].eff2</h3><br>You seem to be proud of your tree so far. A bit of customization wouldn't hurt nonetheless...<br>and you somehow fuck it up<br>You figure out what's wrong and fixed the issue.<br><br>SoS boosts Layers gain at very reduced rate<br>Currently: ${format(this.effect())+"x"}<br><br>Cost: 1.6 Layers`},
+			cost: new Decimal(1.6),
+			effect(){return player.o.sushis.add(1).log(10).add(1).root(52)},
+			onPurchase(){player.o.upgrades.push("t15")},
+			currencyInternalName: "treeOfLayers",
+			currencyDisplayName: "Layer",
+			currencyLayer: "o",
+			unlocked(){return hasUpgrade("o","t14")},
+			style(){return{'background-color':(player.o.treeOfLayers.gte(1.6)&&!hasUpgrade("o", "t15")?'brown':'')}}
+		},
+		t16: {
+			fullDisplay(){return `<h3>We couldn't afford undecimals</h3><br>After successfully creating mod and updating numerous times, you thought to yourself - "Why make mod with Decimal, when I can use other bases?"<br>And so, you decided to give it a try and make custom base system to handle everything for you<br><br>Layers boost ToTs gain as well<br><br>Cost: 13.69 Layers`},
+			cost: new Decimal(13.69),
+			effect(){return player.o.sushis.add(1).log(10).add(1).root(52)},
+			onPurchase(){player.o.upgrades.push("t16")},
+			currencyInternalName: "treeOfLayers",
+			currencyDisplayName: "Layer",
+			currencyLayer: "o",
+			unlocked(){return hasMilestone("o","t3")},
+			style(){return{'background-color':(player.o.treeOfLayers.gte(13.69)&&!hasUpgrade("o", "t16")?'brown':'')}}
+		},
+		t17: {
+			fullDisplay(){return `<h3>≺p≻</h3><br><p style='transform: scale(-1, -1)'>sɹǝʎɐ⅂ ɛᘔ :ʇsoƆ<br><br>haha transform: scale(-1, -1) go brrrr<br><br>Anti-balancers boost Layers gain at very reduced rate<br>Currently: ${format(this.effect())}x`},
+			cost: new Decimal(23),
+			effect(){return player.realAB.points.div(100).add(1)},
+			onPurchase(){player.o.upgrades.push("t17")},
+			currencyInternalName: "treeOfLayers",
+			currencyDisplayName: "Layer",
+			currencyLayer: "o",
+			unlocked(){return hasMilestone("o","t4")},
+			style(){return{'background-color':(player.o.treeOfLayers.gte(23)&&!hasUpgrade("o", "t17")?'brown':'')}}
+		},
+		t18: {
+			fullDisplay(){return `<h3>Make a new layers.js</h3><br>So apparently making 25 layers in a single file gets messy real quick.<br>You take advantage of TMT and separate them into multiple files to make things easier to manage.<br><br>Anti-Diviser multiplies your ToT gain as well<br><br>Cost: 25 layers`},
+			cost: new Decimal(25),
+			effect(){return tmp.realAB.buyables[12].effect},
+			onPurchase(){player.o.upgrades.push("t18")},
+			currencyInternalName: "treeOfLayers",
+			currencyDisplayName: "Layer",
+			currencyLayer: "o",
+			unlocked(){return hasMilestone("o","t4")&&hasUpgrade("o", "t17")},
+			style(){return{'background-color':(player.o.treeOfLayers.gte(25)&&!hasUpgrade("o", "t18")?'brown':'')}}
+		},
+		t19: {
+			fullDisplay(){return `<h3>Play other TMTs</h3><br>You're struggling with making new fresh layer from how many ideas you've reused.<br>Perhaps you should take a break and take few notes from other Incrementals. Hell, perhaps even play some TMTs.<br><br>THE FUCK YOU MEAN "NUH UH"??<br>(Multiplies base ToTs by best ToTs in formula)<br><br>Cost: 26 layers`},
+			cost: new Decimal(26),
+			effect(){return tmp.realAB.buyables[12].effect},
+			onPurchase(){player.o.upgrades.push("t19")},
+			currencyInternalName: "treeOfLayers",
+			currencyDisplayName: "Layer",
+			currencyLayer: "o",
+			unlocked(){return hasMilestone("o","t4")&&hasUpgrade("o", "t18")},
+			style(){return{'background-color':(player.o.treeOfLayers.gte(26)&&!hasUpgrade("o", "t19")?'brown':'')}}
+		},
 	},
 	challenges: {
 		11: {
@@ -4387,7 +5111,8 @@ addLayer("o", {
 				if(!hasMilestone("o", "b1")) player.o.auto = false
 				doReset("n", true)
 				doReset("m", true)
-			}
+			},
+			buttonStyle(){return{'border-color':'brown'}}
 		},
 		12: {
 			name: "Pissable",
@@ -4635,6 +5360,13 @@ addLayer("o", {
 			unlocked(){return player.o.vibeCheck.gte(11)||hasMilestone("o", "b0")},
 			done() { return player.o.points.gte(18)&&this.unlocked() }
 		},
+		18: {
+			requirementDescription: "186th Layer of Life",
+			effectDescription: "Your best run is 256 days and automatically maxes Mango Well and Mango Bank",
+			onComplete(){player.n.bestday=player.n.bestday.max(256)},
+			unlocked(){return player.o.unlocked5},
+			done() { return player.o.points.gte(186) }
+		},
 		o0: {
 			requirementDescription: "3 Onions of Ordinarance",
 			effectDescription: "Unlock extra content",
@@ -4684,6 +5416,54 @@ addLayer("o", {
 			unlocked(){return true},
 			done() { return player.o.totalburgers.gte(100) }
 		},
+		s0: {
+			requirementDescription: "4 of 25 Sushi-X Synchronizers",
+			effectDescription: "Sushi Buyables cost nothing and you automatically purchase them",
+			unlocked(){return hasMilestone("o","t4")},
+			done() {return player.o.buyables[63].gte(25)&&player.o.buyables[73].gte(25)&&player.o.buyables[83].gte(25)&&player.o.buyables[93].gte(25)}
+		},
+		t0: {
+			requirementDescription: "1 Layer",
+			effectDescription: "Unlock new buyable",
+			unlocked(){return true},
+			done() { return player.o.treeOfLayers.gte(1) }
+		},
+		t1: {
+			requirementDescription: "2 Layer",
+			effectDescription: "Annoying Layers boosts ToTs gain",
+			unlocked(){return hasMilestone("o","t0")},
+			done() { return player.o.treeOfLayers.gte(2) }
+		},
+		t2: {
+			requirementDescription: "5 Layer",
+			effectDescription(){return `"READ. THE. DOCS." includes milestones`},
+			unlocked(){return hasMilestone("o","t1")},
+			done() { return player.o.treeOfLayers.gte(5) }
+		},
+		t3: {
+			requirementDescription(){return `100 "Start a new TMT"`},
+			effectDescription(){return `You no longer "Lose everything"`},
+			unlocked(){return hasMilestone("o","t2")},
+			done() { return player.o.buyables[111].gte(100) }
+		},
+		t4: {
+			requirementDescription: "18 Layer",
+			effectDescription(){return `Unlocks 3rd subtab<br><span style='font-size: 10px;'>(who the fuck let that turtle cook)`},
+			unlocked(){return hasMilestone("o","t3")},
+			done() { return player.o.treeOfLayers.gte(18) }
+		},
+		t5: {
+			requirementDescription: "28 Layer",
+			effectDescription(){return `You passively generate 1% of BoB and one available OlO per second`},
+			unlocked(){return hasMilestone("o","t4")},
+			done() { return player.o.treeOfLayers.gte(28) }
+		},
+		tFinal: {
+			requirementDescription: "31 Layer",
+			effectDescription(){return `"That's how many Layers there are in this mod!"<br>i don't know wat to add rn`},
+			unlocked(){return hasMilestone("o","t5")},
+			done() { return player.o.treeOfLayers.gte(31) }
+		},
 	},
 	buyables:{
 		11:{
@@ -4691,15 +5471,28 @@ addLayer("o", {
 			gain(){return player.o.points.sub(player.o.vibeCheck.add(6)).max(0)},
 			canAfford() { return player.o.points.gte(player.o.vibeCheck.add(7)) },
 			buy() {
-				player.o.milestones = []
+				let keepThis = player.o.plots
+				let keep = []
+				if(hasMilestone("o","t0"))keep.push("t0")
+				if(hasMilestone("o","t1"))keep.push("t1")
+				if(hasMilestone("o","t2"))keep.push("t2")
+				if(hasMilestone("o","t3"))keep.push("t3")
+				if(hasMilestone("o","t4"))keep.push("t4")
+				if(hasMilestone("o", "o1")){
+					for(i=0;i<18;i++){
+						if(hasMilestone("o", i)&&player.o.points.gte(8+i)) keep.push(i)
+					}
+				}
+				player.o.milestones = keep
 				if(player.o.totalburgers.gte(1)) player.o.milestones.push("b0")
 				if(player.o.totalburgers.gte(2)) player.o.milestones.push("b1")
 				if(player.o.totalburgers.gte(5)) player.o.milestones.push("b2")
 				if(player.o.totalburgers.gte(10)) player.o.milestones.push("b3")
 				if(player.o.totalburgers.gte(25)) player.o.milestones.push("b4")
+				if(player.o.totalburgers.gte(100)) player.o.milestones.push("b5")
 				if(player.o.vibeCheck.gte(3)) player.o.milestones.push("o0")
 				if(player.o.vibeCheck.gte(6)) player.o.milestones.push("o1")
-				let fuckOff = this.gain()
+				let fuckOff = player.o.points.sub(player.o.vibeCheck.add(6)).max(0)
 				player.o.vibeCheck = player.o.vibeCheck.add(fuckOff)
 				player.o.onions = player.o.onions.add(fuckOff)
 				player.o.points = hasMilestone("o", "o1")||player.o.vibeCheck.gte(5)?player.o.points.sub(7):new Decimal(0)
@@ -4707,8 +5500,9 @@ addLayer("o", {
 				if(!hasMilestone("o", 12)) player.n.autoUpgrade = false
 				player.o.unlocked2 = true
 				doReset("o", true)
+				player.o.plots = keepThis
 			},
-			style(){return{'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)','background-color':(this.canAfford()?'rgba(194, 255, 128, 1)':'#bf8f8f')}},
+			style(){return{"border-radius":"25% 0px 0px 25%",'height':'120px', 'width':'180px', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)','background-color':(this.canAfford()?'rgba(194, 255, 128, 1)':'#bf8f8f')}},
 			unlocked(){return true}
 		},
 		21:{
@@ -4726,7 +5520,7 @@ addLayer("o", {
 					player.o.buyables[21] = player.o.buyables[21].sub(1)
 				}
 			},
-			style(){return{'height':'128px', 'width':'180px'}},
+			style(){return{'height':'128px', 'width':'180px','background-color':(this.canAfford()?'rgba(194, 255, 128, 1)':'#bf8f8f')}},
 			unlocked(){return true}
 		},
 		22:{
@@ -4744,7 +5538,7 @@ addLayer("o", {
 					player.o.buyables[22] = player.o.buyables[22].sub(1)
 				}
 			},
-			style(){return{'height':'128px', 'width':'180px'}},
+			style(){return{'height':'128px', 'width':'180px','background-color':(this.canAfford()?'rgba(194, 255, 128, 1)':'#bf8f8f')}},
 			unlocked(){return true}
 		},
 		23:{
@@ -4762,7 +5556,7 @@ addLayer("o", {
 					player.o.buyables[23] = player.o.buyables[23].sub(1)
 				}
 			},
-			style(){return{'height':'128px', 'width':'180px'}},
+			style(){return{'height':'128px', 'width':'180px','background-color':(this.canAfford()?'rgba(194, 255, 128, 1)':'#bf8f8f')}},
 			unlocked(){return true}
 		},
 		31:{
@@ -4777,7 +5571,7 @@ addLayer("o", {
 				player.o.thirdLevel = player.o.thirdLevel.sub(this.cost())
 				player.o.buyables[31] = player.o.buyables[31].add(1)
 			},
-			style(){return{'height':'128px', 'width':'540px'}},
+			style(){return{'height':'128px', 'width':'540px','background-color':(this.canAfford()?'rgba(194, 255, 128, 1)':'#bf8f8f')}},
 			unlocked(){return hasMilestone("o", "o0")}
 		},
 		32:{
@@ -4786,7 +5580,7 @@ addLayer("o", {
 			effect(){return Decimal.pow(1/9+1, player.o.fifthLevel.sub(1))},
 			canAfford() { return true },
 			cost(){return player.o.buyables[32].add(1)},
-			style(){return{'height':'128px', 'width':'540px','border-radius':'10%'}},
+			style(){return{'height':'128px', 'width':'540px','border-radius':'10%','background-color':(this.canAfford()?'rgba(194, 255, 128, 1)':'#bf8f8f')}},
 			unlocked(){return hasMilestone("o", "o0")}
 		},
 		41:{
@@ -4797,15 +5591,22 @@ addLayer("o", {
 			},
 			canAfford() { return tmp.o.baseAmount.gte("1.2e12") },
 			buy() {
-				player.o.milestones = []
+				let keepThis = player.o.plots
+				let keep = []
+				if(hasMilestone("o","t0"))keep.push("t0")
+				if(hasMilestone("o","t1"))keep.push("t1")
+				if(hasMilestone("o","t2"))keep.push("t2")
+				if(hasMilestone("o","t3"))keep.push("t3")
+				if(hasMilestone("o","t4"))keep.push("t4")
+				player.o.milestones = keep
 				if(player.o.totalburgers.gte(1)) player.o.milestones.push("b0")
 				if(player.o.totalburgers.gte(2)) player.o.milestones.push("b1")
 				if(player.o.totalburgers.gte(5)) player.o.milestones.push("b2")
 				if(player.o.totalburgers.gte(10)) player.o.milestones.push("b3")
 				if(player.o.totalburgers.gte(25)) player.o.milestones.push("b4")
 				if(player.o.totalburgers.gte(100)) player.o.milestones.push("b5")
-				player.o.burgers = player.o.burgers.add(this.gain())
-				player.o.totalburgers = player.o.totalburgers.add(this.gain())
+				player.o.burgers = player.o.burgers.add(tmp.o.baseAmount.div("1.2e12").pow(0.1212).floor().max(0))
+				player.o.totalburgers = player.o.totalburgers.add(tmp.o.baseAmount.div("1.2e12").pow(0.1212).floor().max(0))
 				if(player.o.totalburgers.gte(10)) player.o.milestones.push("o0")
 				if(player.o.totalburgers.gte(25)) player.o.milestones.push("o1")
 				tmp.o.baseAmount = new Decimal(0)
@@ -4832,8 +5633,9 @@ addLayer("o", {
 				if(!hasMilestone("o", 12)) player.n.autoUpgrade = false
 				player.o.unlocked3 = true
 				doReset("o", true)
+				player.o.plots = keepThis
 			},
-			style(){return{'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)','background-color':(this.canAfford()?'tan':'#bf8f8f')}},
+			style(){return{"border-radius":"25% 0px 0px 25%",'height':'120px', 'width':'180px', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)','background-color':(this.canAfford()?'tan':'#bf8f8f')}},
 			unlocked(){return true}
 		},
 		51:{
@@ -4872,7 +5674,7 @@ addLayer("o", {
 				player.o.unlocked4 = true
 				doReset("o", true)
 			},
-			style(){return{'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)','background-color':(this.canAfford()?'cyan':'#bf8f8f')}},
+			style(){return{"border-radius":"25% 0px 0px 25%",'height':'120px', 'width':'180px', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)','background-color':(this.canAfford()?'cyan':'#bf8f8f')}},
 			unlocked(){return !player.o.unlocked4}
 		},
 		61:{
@@ -4882,11 +5684,11 @@ addLayer("o", {
 			cost(){return player.o.buyables[61].add(1).pow(player.o.buyables[61].add(1)).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return player.o.buyables[61].add(tmp.o.buyables[71].effect).add(tmp.o.buyables[81].effect).mul(tmp.o.buyables[91].effect)},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[61]=player.o.buyables[61].add(1)
 			},
 			unlocked(){return player.o.unlocked4},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		62:{
 			title: "<h2>Sushi Doubler",
@@ -4895,11 +5697,11 @@ addLayer("o", {
 			cost(){return Decimal.pow(64, player.o.buyables[62].div(4).add(1).pow(1.15)).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return  Decimal.pow(tmp.o.buyables[72].effect, player.o.buyables[62].add(tmp.o.buyables[71].effect))},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[62]=player.o.buyables[62].add(1)
 			},
-			unlocked(){return player.o.buyables[61].gte(3)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[61].gte(3)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		63:{
 			title: "<h2>Sushi-Point Synchronizer",
@@ -4908,11 +5710,11 @@ addLayer("o", {
 			cost(){return Decimal.pow(5, player.o.buyables[63]).mul(1000).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return Decimal.pow(tmp.o.baseAmount.add(10).log(10).add(9).log(10), player.o.buyables[63].add(tmp.o.buyables[71].effect))},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[63]=player.o.buyables[63].add(1)
 			},
-			unlocked(){return player.o.buyables[62].gte(3)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[62].gte(3)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		71:{
 			title: "<h2>Extra Level Buyable",
@@ -4921,11 +5723,11 @@ addLayer("o", {
 			cost(){return new Decimal(19200).mul(new Decimal(192).pow(player.o.buyables[71])).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return player.o.buyables[71]},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[71]=player.o.buyables[71].add(1)
 			},
-			unlocked(){return player.o.buyables[63].gte(3)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[63].gte(3)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		72:{
 			title: "<h2>Artificial Sauce",
@@ -4934,11 +5736,11 @@ addLayer("o", {
 			cost(){return new Decimal(10000000).mul(new Decimal(10).pow(player.o.buyables[72])).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return new Decimal(2).add(player.o.buyables[72].root(2).div(10))},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[72]=player.o.buyables[72].add(1)
 			},
-			unlocked(){return player.o.buyables[71].gte(2)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[71].gte(2)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		73:{
 			title: "<h2>Sushi-Layer Synchronizer",
@@ -4947,11 +5749,11 @@ addLayer("o", {
 			cost(){return Decimal.pow(625, player.o.buyables[73]).mul(600000000).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return Decimal.pow(player.o.points.add(10).log(10), player.o.buyables[73])},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[73]=player.o.buyables[73].add(1)
 			},
-			unlocked(){return player.o.buyables[72].gte(2)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[72].gte(2)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		81:{
 			title: "<h2>Sushi Maker Requiem",
@@ -4960,11 +5762,11 @@ addLayer("o", {
 			cost(){return new Decimal("1e19").mul(player.o.buyables[81].add(1).pow(2).pow(player.o.buyables[81].add(1).pow(2))).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return player.o.buyables[62].add(player.o.buyables[63]).mul(player.o.buyables[81])},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[81]=player.o.buyables[81].add(1)
 			},
-			unlocked(){return player.o.buyables[73].gte(4)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[73].gte(4)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		82:{
 			title: "<h2>Broken Doubler",
@@ -4973,11 +5775,11 @@ addLayer("o", {
 			cost(){return new Decimal("1e22").mul(new Decimal(10).pow(player.o.buyables[82])).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return Decimal.pow(1.5, player.o.buyables[82])},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[82]=player.o.buyables[82].add(1)
 			},
-			unlocked(){return player.o.buyables[81].gte(2)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[81].gte(2)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		83:{
 			title: "<h2>Sushi-Onion Synchronizer",
@@ -4986,11 +5788,11 @@ addLayer("o", {
 			cost(){return Decimal.pow(25, player.o.buyables[83]).mul("1e24").pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return Decimal.pow(player.o.vibeCheck.add(10).log(10), player.o.buyables[83]).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[83]=player.o.buyables[83].add(1)
 			},
-			unlocked(){return player.o.buyables[82].gte(2)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[82].gte(2)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		91:{
 			title: "<h2>Sushi Maker Maker",
@@ -4999,11 +5801,11 @@ addLayer("o", {
 			cost(){return new Decimal("1e26").mul(player.o.buyables[91].add(1).pow(player.o.buyables[91].add(1))).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return player.o.buyables[91].add(1)},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[91]=player.o.buyables[91].add(1)
 			},
-			unlocked(){return player.o.buyables[83].gte(2)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[83].gte(2)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		92:{
 			title: "<h2>Anti-Scaler",
@@ -5012,11 +5814,11 @@ addLayer("o", {
 			cost(){return new Decimal("3e32").mul(Decimal.pow(10, new Decimal(player.o.buyables[92].add(1)).factorial())).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return player.o.buyables[92]},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[92]=player.o.buyables[92].add(1)
 			},
-			unlocked(){return player.o.buyables[91].gte(8)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[91].gte(8)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		93:{
 			title: "<h2>Sushi-Burger Synchronizer",
@@ -5025,24 +5827,61 @@ addLayer("o", {
 			cost(){return Decimal.pow(3125, player.o.buyables[93]).mul("1e40").pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			effect(){return Decimal.pow(player.o.burgers.add(10).log(10), player.o.buyables[93]).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
 			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
+				if(!hasMilestone("o","s0")) player.o.sushis=player.o.sushis.sub(this.cost())
 				player.o.buyables[93]=player.o.buyables[93].add(1)
 			},
-			unlocked(){return player.o.buyables[92].gte(3)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f')}}
+			unlocked(){return player.o.buyables[92].gte(3)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'196px'}}
 		},
 		101:{
-			title: "<h1>[UNDER CONSTRUCTION]",
-			display(){return `<h3>Ah shuckles {:(`},
-			canAfford(){return false},
-			cost(){return new Decimal("1e26").mul(player.o.buyables[101].add(1).pow(player.o.buyables[101].add(1))).pow(player.o.buyables[this.id].gte(Decimal.add(25, tmp.o.buyables[92].effect))?Decimal.add(1, player.o.buyables[this.id].sub(Decimal.add(24, tmp.o.buyables[92].effect)).div(10)):1)},
-			effect(){return player.o.buyables[101].add(1)},
-			buy(){
-				player.o.sushis=player.o.sushis.sub(this.cost())
-				player.o.buyables[101]=player.o.buyables[101].add(1)
+			title: "<h1>Prestige Sushi",
+			display(){return `<h2>Boosts Sushi's effect and unlocks a new tab<br>You'll get ${formatWhole(this.gain())} Prestige Sushis on purchase<br>Next At: ${format(this.getNextAt())} SoS<br>Amount: ${formatWhole(player.o.buyables[101])}<br>Effect: ${format(this.effect())}x`},
+			canAfford(){return player.o.sushis.gte(this.cost())},
+			gain(){return player.o.sushis.div("1e52").div(Decimal.pow(52, player.o.buyables[101].sub(1))).add(1).log(52).floor().max(0);},
+			getNextAt(){
+				return this.cost().mul(Decimal.pow(52, this.gain()))
 			},
-			unlocked(){return player.o.buyables[93].gte(3)},
-			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'width':'630px'}}
+			cost(){return new Decimal("1e52").mul(Decimal.pow(52, player.o.buyables[101]))},
+			effect(){return player.o.buyables[101].add(1).pow(2)},
+			buy(){
+				player.o.buyables[101]=player.o.buyables[101].add(this.gain())
+				player.o.sushis=new Decimal(1)
+				for(i=6;i<10;i++){
+					for(v=1;v<4;v++){
+						player.o.buyables[i*10+v]=new Decimal(0)
+					}
+				}
+				player.o.unlocked5=true
+			},
+			unlocked(){return player.o.buyables[93].gte(3)||player.o.buyables[101].gte(1)},
+			style(){return{'background-color':(this.canAfford()?'cyan':'#bf8f8f'),'height':'196px','width':'630px'}}
+		},
+		111:{
+			title: "<h2>Start a new TMT",
+			display(){return `<h3>You've decided to try out TMT yourself.<br>You don't really know how to make layers yet, but you are learning nonetheless.<br>Cost: ${format(this.cost())} ToTs<br>Amount: ${formatWhole(player.o.buyables[111])}<br>Effect: ${format(this.effect().mul(100))}% of gain`},
+			canAfford(){return player.o.teriyakis.gte(this.cost())&&player.o.buyables[111].lt(100)},
+			cost(){return Decimal.pow(player.o.buyables[111].add(1), 2).mul(10)},
+			effect(){return player.o.buyables[111].div(100)},
+			buy(){
+				player.o.teriyakis=player.o.teriyakis.sub(this.cost())
+				player.o.buyables[111]=player.o.buyables[111].add(1)
+			},
+			unlocked(){return true},
+			style(){return{'background-color':(this.canAfford()?'brown':'#bf8f8f')}}
+		},
+		112:{
+			title: "<h2>Lose everything</h2><br>(oops)",
+			display(){return `<h3>So you finally finished your mod aaaaaaaand... it sucks COMPLETE ASS. You start over with prior knowledge and experience to aid you.<br>Cost: ${format(this.cost())} Layers<br>Amount: ${formatWhole(player.o.buyables[112])}<br>Effect: ${format(this.effect())}x base ToTs in formula`},
+			canAfford(){return player.o.treeOfLayers.gte(this.cost())},
+			cost(){return player.o.buyables[112].add(1)},
+			effect(){return player.o.buyables[112].add(1).pow(2)},
+			buy(){
+				player.o.treeOfLayers=hasMilestone("o","t3")?player.o.treeOfLayers.sub(this.cost()):new Decimal(0)
+				player.o.buyables[111]=hasMilestone("o","t3")?player.o.buyables[111]:new Decimal(0)
+				player.o.buyables[112]=player.o.buyables[112].add(1)
+			},
+			unlocked(){return hasMilestone("o", "t0")},
+			style(){return{'background-color':(this.canAfford()?'brown':'#bf8f8f')}}
 		},
 	},
 	bars: {
@@ -5080,7 +5919,10 @@ addLayer("o", {
 			unlocked(){return hasMilestone("o", "o0")}
 		}
 	},
-	branches: ["n", "m"],
+	branches: [["n",3], ["m",3]],
+	componentStyles:{
+		"challenge-button"(){return{'background-color':'brown'}}
+	},
     layerShown(){return (player.ab.points.gte(5) && !player.ab.nostalgia) || (player.ab.nostalgia && player.ab.fuckyou)||options.why},
 	doReset(resettingLayer){
 		if(player.ab.points.gte(5)) {
@@ -5118,6 +5960,9 @@ addLayer("o", {
 			player.o.buyables[91] = new Decimal(0)
 			player.o.buyables[92] = new Decimal(0)
 			player.o.buyables[93] = new Decimal(0)
+			player.o.buyables[101] = new Decimal(0)
+			player.o.buyables[111] = new Decimal(0)
+			player.o.buyables[112] = new Decimal(0)
 			player.o.buyables[31] = new Decimal(0)
 			player.o.milestones = []
 			player.n.auto = false
@@ -5131,6 +5976,12 @@ addLayer("o", {
 			player.o.unlocked2 = false
 			player.o.unlocked3 = false
 			player.o.unlocked4 = false
+			player.o.unlocked5 = false
+			player.o.teriyakis = new Decimal(0)
+			player.o.treeOfLayers = new Decimal(0)
+			player.o.treeOfLayersBest = new Decimal(0)
+			player.o.treeOfLayersTotal = new Decimal(0)
+			player.o.plots = new Decimal(0)
 		}
 		if(tmp[resettingLayer].row>=2&&player.ab.shopPoints.lt(1)&&player.ab.points.gte(5)) {
 			player.ab.buyables[11] = new Decimal(0)
@@ -5145,7 +5996,7 @@ addLayer("o", {
 addLayer("miniTree",{
 	row: "side",
 	symbol: "PTC",
-	color(){return inChallenge("c",51)&&player.eClassic.points.gte(1)?"green":"rgb(105,0,111)"},
+	color(){return inChallenge("c",51)&&player.eClassic.points.gte(1)?"lime":"rgb(105,0,111)"},
 	tooltip(){return `${formatWhole(player.pClassic.normalPoints)} points`},
 	layerShown(){return inChallenge("c", 42)},
 	tabFormat:[["display-text",function(){return "<span>You have <h2 class='overlayThing' id='points'>"+format(player.pClassic.normalPoints)+"</h2> points</span>"}],"blank","blank","blank","blank",["tree", [["pClassic"],["bClassic", "gClassic"],["eClassic"]]]]
@@ -5232,7 +6083,7 @@ addLayer("pClassic", {
 		},
     },
 	componentStyles:{
-		"prestige-button"(){return{'color':'rgba(0, 0, 0, 0.5)'}},
+		"prestige-button"(){return{'color':'rgba(0, 0, 0, 0.5)','border-radius':'25%'}},
 		"upgrade"(){return{'color':'rgba(0, 0, 0, 0.5)'}}
 	},
 	doReset(resettingLayer){
@@ -5321,7 +6172,7 @@ addLayer("bClassic", {
 		},
 	},
 	componentStyles:{
-		"prestige-button"(){return{'color':'rgba(0, 0, 0, 0.5)'}},
+		"prestige-button"(){return{'color':'rgba(0, 0, 0, 0.5)','border-radius':'25%'}},
 		"upgrade"(){return{'color':'rgba(0, 0, 0, 0.5)'}},
 		"milestone"(){return{'width':'238px','height':'75px'}}
 	},
@@ -5454,7 +6305,7 @@ addLayer("gClassic", {
 		},
 	},
 	componentStyles:{
-		"prestige-button"(){return{'color':'rgba(0, 0, 0, 0.5)'}},
+		"prestige-button"(){return{'color':'rgba(0, 0, 0, 0.5)','border-radius':'25%'}},
 		"upgrade"(){return{'color':'rgba(0, 0, 0, 0.5)'}},
 		"milestone"(){return{'width':'350px','height':'75px'}}
 	},
@@ -5509,7 +6360,7 @@ addLayer("eClassic", {
 	branches: ["bClassic", "gClassic"],
     layerShown() { return player.gClassic.unlocked||player.bClassic.unlocked||player.eClassic.unlocked },  
 	componentStyles:{
-		"prestige-button"(){return{'color':'rgba(0, 0, 0, 0.5)'}},
+		"prestige-button"(){return{'color':'rgba(0, 0, 0, 0.5)','border-radius':'25%'}},
 		"upgrade"(){return{'color':'rgba(0, 0, 0, 0.5)'}},
 		"buyable"(){return{'color':'rgba(0, 0, 0, 0.5)'}},
 		"milestone"(){return{'width':'334px','height':'75px'}}
@@ -5696,3 +6547,313 @@ addLayer("eClassic", {
 		},
 	}
 })
+
+addLayer("realAB",{
+	startData() { return {                  // startData is a function that returns default data for a layer. 
+        unlocked: true,                     // You can add more variables here to add them to your layer.
+        points: new Decimal(0),
+    }},
+	achievements:{
+		11: {
+			name: "T-THAT'S NOT HOW SHENANIGANS TREE LOOKS LIKE!",
+			done(){return player.realAB.points.gte(1)},
+			tooltip: "Get 1 anti-balancer",
+		},
+		12: {
+			name: "NG-- = NG-",
+			done(){return player.realAB.points.gte(2)},
+			tooltip: "Get 2 anti-balancers",
+			unlocked(){return hasAchievement("realAB",11)}
+		},
+		13: {
+			name: "ALL YOUR REFERENCES ARE BELONG TO US",
+			done(){return hasUpgrade("realAB",11)},
+			tooltip: "Purchase 1st anti-balancer upgrade",
+			unlocked(){return hasAchievement("realAB",12)}
+		},
+		14: {
+			name: "i wish there was malboge tree",
+			done(){return player.realAB.points.gte(3)},
+			tooltip: "Get 3 anti-balancers",
+			unlocked(){return hasAchievement("realAB",13)}
+		},
+		15: {
+			name: "Down the Drain",
+			done(){return player.realAB.buyables[12].gte(2)},
+			tooltip: "Purchase Anti-Diviser twice",
+			unlocked(){return hasAchievement("realAB",14)}
+		},
+		21: {
+			name: "`Speedrun ${formatWhole(player.realAB.points)}`",
+			done(){return player.realAB.points.gte(4)},
+			tooltip: "Get 4 anti-balancers",
+			unlocked(){return hasAchievement("realAB",15)},
+			style(){return{'width':'278px'}}
+		},
+		22: {
+			name: "H",
+			done(){return player.o.plots.gte(10)&&player.realAB.points.gte(4)},
+			tooltip: "Reach 10 plots in NG----<br>Reward: Unlocks another buyable",
+			unlocked(){return hasAchievement("realAB",21)},
+			style(){return{'width':(hasAchievement("realAB",24)?'43px':hasAchievement("realAB",23)?'58.66666667px':'90px')}}
+		},
+		23: {
+			name: "E<br>U",
+			done(){return player.realAB.buyables[13].gte(14)},
+			tooltip: "Get 14 Plot Sharpeners<br>Reward: Removes Plot Sharpener's root",
+			unlocked(){return hasAchievement("realAB",22)},
+			style(){return{'width':(hasAchievement("realAB",24)?'43px':hasAchievement("realAB",23)?'58.66666667px':'90px')}}
+		},
+		24: {
+			name: "L<br>S",
+			done(){return player.o.plots.gte(20)&&player.realAB.points.gte(4)},
+			tooltip(){return `Reach 20 plots in NG----<br>Reward: Plot gain is strong based on achievements.<br>Currently: ${format(Decimal.pow(1.15, player.realAB.achievements.length+1))}x`},
+			unlocked(){return hasAchievement("realAB",23)},
+			style(){return{'width':(hasAchievement("realAB",24)?'43px':'58.66666667px')}}
+		},
+		25: {
+			name: "P",
+			done(){return player.o.plots.gte(30)&&player.realAB.points.gte(4)},
+			tooltip: "Reach 30 plots in NG----<br>Reward: Simple 2x plot gain boost",
+			unlocked(){return hasAchievement("realAB",24)},
+			style(){return{'width':'43px'}}
+		},
+	},
+	upgrades:{
+		11:{
+			title: "Anti-Anti Measurement",
+			description: "Your plot gain is stronger based on anti-balancers",
+			cost: new Decimal(10),
+			effect(){return player.realAB.points.add(1).root(1.15)},
+			effectDisplay(){return format(this.effect())+"x"},
+			currencyInternalName: "plots",
+			currencyDisplayName: "plots",
+			currencyLayer: "o",
+			unlocked(){return player.realAB.points.gte(2)||(hasUpgrade("realAB",11)&&hasMilestone("realAB",0))}
+		},
+		12:{
+			fullDisplay(){return "<h3>I-I mean, it still counts. Right?</h3><br><br>Your plot gain is 1.9001 times stronger!!<br><br>Cost: 9.001 plots"},
+			cost: new Decimal(9.001),
+			currencyInternalName: "plots",
+			currencyDisplayName: "plots",
+			currencyLayer: "o",
+			unlocked(){return player.realAB.points.gte(4)||(hasUpgrade("realAB",2)&&hasMilestone("realAB",0))}
+		},
+	},
+	clickables: {
+		11: {
+			title: "Disbalance",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		},
+	},
+	buyables:{
+		11: {
+			title: "Go back by 1 subtab",
+			canAfford() {
+				return true
+			},
+			buy() {
+				player.tab="o"
+			},
+			style(){return{'width':'360px','height':'60px'}}
+		},
+		12: {
+			title: "Anti-Diviser",
+			cost() {
+				return new Decimal(1).add(player.realAB.buyables[12].div(2)).mul(player.realAB.buyables[12].add(1))
+			},
+			effect(){return player.realAB.buyables[12].add(1)},
+			display(){return `<span style="font-size: 12.5px">Multiplies your plot gain<br>Cost: ${formatWhole(this.cost())} anti-balancers<br>Amount: ${formatWhole(player.realAB.buyables[12])}<br>Effect: ${formatWhole(this.effect())}x`},
+			canAfford() { return player.realAB.points.gte(this.cost()) },
+			buy() {
+				player.realAB.points = player.realAB.points.sub(this.cost())
+				player.realAB.buyables[12]=player.realAB.buyables[12].add(1)
+			},
+			unlocked(){return player.realAB.points.gte(3)||(player.realAB.buyables[12].gte(1)&&hasMilestone("realAB",0))},
+			style(){return{'width':'175px','height':'100px'}}
+		},
+		13: {
+			title: "Plot Sharpener",
+			cost() {
+				return new Decimal(1).add(player.realAB.buyables[13])
+			},
+			effect(){return player.realAB.buyables[13].root(hasAchievement("realAB",23)?1:1.5)},
+			display(){return `<span style="font-size: 12.5px">Adds up to your plot gain before multiplication<br>Cost: ${formatWhole(this.cost())} plots<br>Amount: ${formatWhole(player.realAB.buyables[13])}<br>Effect: +${format(this.effect())}`},
+			canAfford() { return player.o.plots.gte(this.cost()) },
+			buy() {
+				let god = player.o.plots
+				god = god.sub(new Decimal(1).add(player.realAB.buyables[13]))
+				player.o.plots = god
+				player.realAB.buyables[13]=player.realAB.buyables[13].add(1)
+			},
+			unlocked(){return hasAchievement("realAB",22)||(player.realAB.buyables[13].gte(1)&&hasMilestone("realAB",0))},
+			style(){return{'width':'175px','height':'100px'}}
+		},
+	},
+	update(diff){
+		if(player.realAB.points.gte(1))player.o.plots=player.o.plots.add(canHeGeneratePlottho().mul(diff)).min(player.o.plots.add(1))
+	},
+	row: 0,
+	symbol: "<p style='transform: scale(-1, -1)'>AB",
+	resource: "anit-balancers",
+    baseResource(){return player.realAB.points.gte(1)?"plots":options.why?"points/sec":"negative points/sec"},
+    baseAmount() {return player.realAB.points.gte(1)?player.o.plots:options.why?getPointGen():getBypassedPointGen().mul(-1)},
+	requires(){return new Decimal(player.realAB.points.gte(1)?new Decimal(5).mul(player.realAB.points):"1.5e46")},
+	type: "static",
+	effectDescription(){return `multiplying your ToTs gain by ${format(player.realAB.points.add(1).pow(2))}`},
+    exponent: 0, 
+	color(){return "#006080"},
+	layerShown(){return true},
+	NG: ["You produce 1 plot per second.<br>-Unlocks achievements","Plot gain is divided by current amount of plot<br>-Unlocks one upgrade","Plot gain is raised to the power of 0.85 above 1/sec and 1.15 below 1/sec<br>-Unlocks Anti-Diviser","NG-'s nerf is raised to the power of 3<br>-Unlocks milestones and another upgrade"],
+	NGFeatures: ["Plot production and Achievement","Upgrade","Buyable","Milestone","???"],
+	NGG(){
+		let fuckOFF = ""
+		for(i=0;i<player.realAB.points;i++){
+			fuckOFF=fuckOFF+"[NG"+"-".repeat(i+1)+"]<br>-"+tmp.realAB.NG[i]+"<br><br>"
+		}
+		return fuckOFF
+	},
+	milestones:{
+		0:{
+			requirementDescription: "4 anti-balancers",
+			effectDescription: "Keeps all features regardless of NG-X<br><span style='font-size: 10px'>(so long as you bought/purchased/gotten them first)",
+			done(){return player.realAB.points.gte(4)},
+			unlocked(){return hasMilestone("realAB",0)}
+		},
+		1:{
+			requirementDescription: "5 anti-balancers",
+			//effectDescription: "You can buy max Plot Sharpener",
+			effectDescription: "WIP",
+			done(){return player.realAB.points.gte(5)},
+			unlocked(){return hasMilestone("realAB",0)}
+		},
+	},
+	canReset(){return player.realAB.points.gte(1)?player.o.plots.gte(new Decimal(10).mul(player.realAB.points))&&!player.realAB.points.eq(4):(options.why?getPointGen():getBypassedPointGen().mul(-1)).gte("3e46")},
+	tabFormat:{
+		"Main":{
+			content: [["buyable", 11],"blank","main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","milestones","blank",["row",[["buyable",12],"blank",["buyable",13]]],"blank","upgrades"],
+			unlocked(){return true}
+		},
+		"NG-X":{
+			content: [["buyable", 11],"blank",["display-text", function(){return "<h3>Current Mode: NG"+"-".repeat(player.realAB.points)+"<br><br> Next Mode: NG"+("-".repeat(player.realAB.points.add(1)))+"<br><br>Next Feature: "+tmp.realAB.NGFeatures[player.realAB.points]+"<br><br>"+tmp.realAB.NGG}]],
+			unlocked(){return true}
+		},
+		"Achievements":{
+			content: [["buyable", 11],"blank",["display-text", function(){return "Sorry, bud.<br>There are no Achievements layer in this tree."}],"blank","achievements"],
+			unlocked(){return hasAchievement("realAB", 11)}
+		}
+	},
+	doReset(resettingLayer){
+		if(player.realAB.points.gte(1)){
+			player.o.plots = new Decimal(0)
+		}
+	}
+})
+
+addLayer("realS",{
+	startData() { return {                  // startData is a function that returns default data for a layer. 
+        unlocked: false,                     // You can add more variables here to add them to your layer.
+        points: new Decimal(0),
+    }},
+	clickables: {
+		11: {
+			title: "Generate",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	row: 0,
+	symbol: "<p style='transform: scale(-1, -1)'>S",
+	resource: "shenanigans",
+    baseResource: "anti-balancers",
+    baseAmount() { return player.realAB.points },
+	requires(){return new Decimal(10)},
+	type: "static",
+	exponent: 0.5,
+	base: 0.5,
+	tooltipLocked: "also WIP",
+	color(){return "#791C29"},
+	layerShown(){return true},
+	branches: [["realAB",2]],
+	tabFormat:["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display"]
+})
+
+addLayer("realC",{
+	startData() { return {                  // startData is a function that returns default data for a layer. 
+        unlocked: false,                     // You can add more variables here to add them to your layer.
+        points: new Decimal(0),
+    }},
+	clickables: {
+		11: {
+			title: "WIP",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	row: 0,
+	symbol: "<p style='transform: scale(-1, -1)'>C",
+	resource: "condensed chaoses",
+    baseResource: "points",
+    baseAmount() { return player.realS.points },
+	requires(){return new Decimal("1e52")},
+	type: "normal",
+	exponent: 0.5,
+	color(){return "rgb(109, 109, 192)"},
+	tooltipLocked(){return `WIP`},
+	layerShown(){return true},
+	branches:["realS", "realT"],
+	tabFormat:["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display"]
+})
+
+addLayer("realT",{
+	startData() { return {                  // startData is a function that returns default data for a layer. 
+        unlocked: false,                     // You can add more variables here to add them to your layer.
+        points: new Decimal(0),
+    }},
+	clickables: {
+		11: {
+			title: "Generate",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+	row: 0,
+	symbol: "<p style='transform: scale(-1, -1)'>T",
+	resource: "transcendence points",
+    baseResource: "points",
+    baseAmount() { return player.realS.points },
+	requires(){return new Decimal("1e52")},
+	type: "normal",
+	exponent: 0.5,
+	color(){return "rgb(254, 251, 170)"},
+	tooltipLocked(){return `WIP`},
+	layerShown(){return true},
+	branches:["realS", "realC"],
+	tabFormat:["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display"]
+})
+
