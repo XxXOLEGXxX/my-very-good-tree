@@ -76,7 +76,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
             }},
         },
         21: {
-            title(){return `Booster reset<br>(+${formatWhole(canReset("kb")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.b.points)} giga boosters`},
+            title(){return `Booster reset<br>(+${formatWhole(canReset("kb")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.b.points)} boosters`},
             unlocked() {return player.b.unlocked && tmp.b.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("b")) doReset("b")},
@@ -86,7 +86,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
             }},
         },
         22: {
-            title(){return `Kilo Booster reset<br>(+${formatWhole(canReset("kb")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.kb.points)} giga boosters`},
+            title(){return `Kilo Booster reset<br>(+${formatWhole(canReset("kb")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.kb.points)} kilo boosters`},
             unlocked() {return player.kb.unlocked && tmp.kb.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("kb")) doReset("kb")},
@@ -96,7 +96,7 @@ tabFormat: [["display-text", function(){return player.ab.points.gte(5) && !(play
             }},
         },
         23: {
-            title(){return `Mega Booster reset<br>(+${formatWhole(canReset("kb")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.mb.points)} giga boosters`},
+            title(){return `Mega Booster reset<br>(+${formatWhole(canReset("kb")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.mb.points)} mega boosters`},
             unlocked() {return player.mb.unlocked && tmp.mb.layerShown&&options.mobileButtons},
             canClick() {return true},
 			onClick()  {if (canReset("mb")) doReset("mb")},
