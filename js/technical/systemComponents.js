@@ -181,6 +181,7 @@ var systemComponents = {
 			<tr>
 				<td><button class="opt" onclick="toggleOpt('mobileButtons')">BEE-GONE BUTTONS: {{ options.mobileButtons?"DO NOT.":"ON" }}</button></td>
 				<td><button class="opt" onclick="toggleOpt('translateThis')">{{ options.translateThis?"TRANSLATE PRESTIGE UPGRADES":"BLAH" }}: {{ options.translateThis?"ON":"BLAH" }}</button></td>
+				<td><button class="opt" onclick="newGamePlus()">NEW GAME+: {{ ["Base","NG+1","NG+2","NG+3","NG+4","NG+5"][options.ngplus] }}</button></td>
 			</tr>
         </table>`
     },

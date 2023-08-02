@@ -20,6 +20,7 @@ function getStartOptions() {
 		why: false,
 		mobileButtons: true,
 		translateThis: false,
+		ngplus: new Decimal(0),
 	}
 }
 
@@ -37,6 +38,17 @@ function swtichMusic() {
 			document.getElementById("idAudio"+options.musicToggle).play()
 		}
 	}
+}
+
+function newGamePlus(){
+	if(options.ngplus>=5&&player.ab.shopPoints.lte(hasUpgrade("t",14)?player.ab.points.add(1):player.ab.points)){
+		player.ab.buyables[11] = new Decimal(0)
+		player.ab.buyables[12] = new Decimal(0)
+		player.ab.buyables[13] = new Decimal(0)
+		player.ab.buyables[14] = new Decimal(0)
+		player.ab.spentPoints = new Decimal(0)
+	}
+	options.ngplus=options.ngplus>=5?new Decimal(0):options.ngplus.add(1)
 }
 
 function toggleOpt(name) {

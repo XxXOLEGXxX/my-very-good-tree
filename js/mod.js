@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.11",
-	name: "Take a load of this!",
+	num: "5.12",
+	name: "New Game+... in a NG-X themed TMT?",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,17 +23,21 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v5.12: New Game+... in a NG- themed TMT? (v0.10.1)</h4>
+		- Very slightly pushed Onion endgame<br>
+		- Added NG+ modes all the way up to NG+5 (NG+ ideas by thenonymous)<br>
+		- Fixed Onion milestones still acting goofy (FFS)<br>
 	<h4>v5.11: Take a load of this! (v0.10)</h4>
-		-Added much shorter explanation in Primordial Booster layer<br>
-		-Tooltip has been resized and Crazy achievements were rearranged<br>
-		-There's no way you can miss Hall of Fame now IT'S LITERALLY IN ANTI BALANCER PLEASE<br>
-		-Added even more QoL for mobile players (perhaps a bit too much)<br>
-		-Final Crazy Challenge got it's proper treatment it deserves<br>
-		-Each of Onion's tab's content has their respectful color... except for challenge buttons<br>
-		-Optimized Onion milestones<br>
-		-Added option to translate prestige upgrades (and ruin fun >:[)<br>
-		-Added new Onion tab! (Trust me, it has lots of content)<br>
-		-Improved Oleg's theme (did nothing for AD theme tho)<br>
+		- Added much shorter explanation in Primordial Booster layer<br>
+		- Tooltip has been resized and Crazy achievements were rearranged<br>
+		- There's no way you can miss Hall of Fame now IT'S LITERALLY IN ANTI BALANCER PLEASE<br>
+		- Added even more QoL for mobile players (perhaps a bit too much)<br>
+		- Final Crazy Challenge got it's proper treatment it deserves<br>
+		- Each of Onion's tab's content has their respectful color... except for challenge buttons<br>
+		- Optimized Onion milestones<br>
+		- Added option to translate prestige upgrades (and ruin fun >:[)<br>
+		- Added new Onion tab! (Trust me, it has lots of content)<br>
+		- Improved Oleg's theme (did nothing for AD theme tho)<br>
 	<h4>v5.10: oopsie, i made a mistake :3 (v0.9.1)</h4>
 		- LoL's effect functions properly with Mango bulk<br>
 		- Did something and hope Early NG---- (and ACTs) work the way they're supposed to<br>
@@ -120,7 +124,7 @@ function getBypassedPointGen() {
 	if(!canGenPoints()||doesItWorkTho)
 		return new Decimal(0)
 
-	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true))
+	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true)).mul(options.ngplus>=3?player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1:1)
 	let mult = new Decimal(1).add(upgradeRow("kp", "2", true)).add(upgradeRow("mp", "2", true)).add(upgradeRow("gp", "2", true))
 	let exp = new Decimal(1).add(upgradeRow("mp", "3", true)).add(upgradeRow("gp", "3", true))
 	let tetra = new Decimal(upgradeRow("gp", "4", true)).div(100).add(1)
@@ -193,7 +197,7 @@ function getPointGen() {
 	if(!canGenPoints()||player.ab.negativePoints.gt(0)||doesItWorkTho)
 		return new Decimal(0)
 
-	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true))
+	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true)).mul(options.ngplus>=3?player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1:1)
 	let mult = new Decimal(1).add(upgradeRow("kp", "2", true)).add(upgradeRow("mp", "2", true)).add(upgradeRow("gp", "2", true))
 	let exp = new Decimal(1).add(upgradeRow("mp", "3", true)).add(upgradeRow("gp", "3", true))
 	let tetra = new Decimal(upgradeRow("gp", "4", true)).div(100).add(1)
@@ -241,7 +245,9 @@ function canHeGeneratePlottho(){
 	if(hasUpgrade("o",42)) gain = gain.mul(upgradeEffect("o",42))
 	if(hasAchievement("realAB",24)) gain = gain.mul(Decimal.pow(1.15, player.realAB.achievements.length+1))
 	if(hasAchievement("realAB",25)) gain = gain.mul(2)
-	if(player.realAB.points.gte(2)) gain = gain.div(player.o.plots.add(1).pow(player.realAB.points.gte(4)?3:1))
+	if(player.realAB.points.gte(5)) gain = gain.mul(Decimal.add(player.realAB.achievements.length,1).root(1.69))
+	if(player.realAB.points.gte(6)) gain = gain.div(Decimal.pow(2, player.realAB.points))
+	if(player.realAB.points.gte(2)) gain = gain.div(player.o.plots.add(1).pow(player.realAB.points.gte(4)?player.realAB.points.gte(5)?player.realAB.points:3:1))
 	if(player.realAB.points.gte(3)) gain = gain.pow(gain.gte(1)?0.85:1.15)
 	return gain
 }
