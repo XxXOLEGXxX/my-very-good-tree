@@ -498,7 +498,7 @@ addLayer("b", {
     layerShown(){return hasAchievement("a", 22)},
 	branches: ["p"],
 	doReset(resettingLayer){
-		player.b.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="kiloboosters"&&tmp[resettingLayer].name!=="megaboosters"&&tmp[resettingLayer].name!=="gigaboosters"?player.b.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.b.points
+		player.b.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="kiloboosters"&&tmp[resettingLayer].name!=="megaboosters"&&tmp[resettingLayer].name!=="gigaboosters"&&tmp[resettingLayer].name!=="primordialboosters"&&tmp[resettingLayer].name!=="kbg"&&tmp[resettingLayer].name!=="mpkb"&&tmp[resettingLayer].name!=="generate"?player.b.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.b.points
 	}
 })
 
@@ -734,7 +734,7 @@ addLayer("kb", {
     layerShown(){return hasAchievement("a", 31)},
 	branches: ["kp"],
 	doReset(resettingLayer){
-		player.b.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="megaboosters"&&tmp[resettingLayer].name!=="gigaboosters"?player.kb.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.kb.points
+		player.kb.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="megaboosters"&&tmp[resettingLayer].name!=="gigaboosters"&&tmp[resettingLayer].name!=="primordialboosters"&&tmp[resettingLayer].name!=="kbg"&&tmp[resettingLayer].name!=="mpkb"?player.kb.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.kb.points
 	}
 })
 
@@ -1005,7 +1005,7 @@ addLayer("mb", {
     layerShown(){return hasAchievement("a", 41)},
 	branches: ["mp"],
 	doReset(resettingLayer){
-		player.b.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="gigaboosters"?player.mb.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.mb.points
+		player.mb.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="gigaboosters"&&tmp[resettingLayer].name!=="primordialboosters"?player.mb.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.mb.points
 	}
 })
 
