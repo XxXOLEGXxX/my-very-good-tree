@@ -41,14 +41,14 @@ function swtichMusic() {
 }
 
 function newGamePlus(){
-	if(options.ngplus>=5&&player.ab.shopPoints.lte(hasUpgrade("t",14)?player.ab.points.add(1):player.ab.points)){
+	if(new Decimal(options.ngplus).gte(5)&&player.ab.shopPoints.lte(hasUpgrade("t",14)?player.ab.points.add(1):player.ab.points)){
 		player.ab.buyables[11] = new Decimal(0)
 		player.ab.buyables[12] = new Decimal(0)
 		player.ab.buyables[13] = new Decimal(0)
 		player.ab.buyables[14] = new Decimal(0)
 		player.ab.spentPoints = new Decimal(0)
 	}
-	options.ngplus=options.ngplus>=5?new Decimal(0):options.ngplus.add(1)
+	options.ngplus=options.ngplus>=5?new Decimal(0):new Decimal(options.ngplus).add(1)
 }
 
 function toggleOpt(name) {

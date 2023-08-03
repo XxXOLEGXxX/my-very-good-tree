@@ -142,7 +142,7 @@ addLayer("pb", {
     },
 	update(diff){
 		player.pb.points = player.pb.boosters.add(player.pb.kiloboosters).add(player.pb.megaboosters)
-		if(options.ngplus>=4){
+		if(new Decimal(options.ngplus).gte(4)){
 			if(player.b.points.gte(1)){
 				player.b.points=player.b.points.sub(1)
 				player.pb.boosters=player.pb.boosters.add(1)
@@ -309,7 +309,7 @@ addLayer("p", {
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.p.upgrades.length))
 				   return cost
 			},
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 	},
 	doReset(resettingLayer){
@@ -398,7 +398,7 @@ addLayer("kp", {
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.kp.upgrades.length))
 				   return cost
 			},
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 		21: {
 			title(){return options.translateThis?"Kilo Prestige*":""},
@@ -443,7 +443,7 @@ addLayer("kp", {
 			currencyInternalName: "points",
 			currencyDisplayName: "prestige points",
 			currencyLayer: "p",
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 	}
 })
@@ -498,7 +498,7 @@ addLayer("b", {
     layerShown(){return hasAchievement("a", 22)},
 	branches: ["p"],
 	doReset(resettingLayer){
-		player.b.points=options.ngplus>=2&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="kiloboosters"&&tmp[resettingLayer].name!=="megaboosters"&&tmp[resettingLayer].name!=="gigaboosters"?player.b.points:new Decimal(0)
+		player.b.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="kiloboosters"&&tmp[resettingLayer].name!=="megaboosters"&&tmp[resettingLayer].name!=="gigaboosters"?player.b.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.b.points
 	}
 })
 
@@ -578,7 +578,7 @@ addLayer("mp", {
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.mp.upgrades.length))
 				   return cost
 			},
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 		21: {
 			title(){return options.translateThis?"Mega Prestige*":""},
@@ -623,7 +623,7 @@ addLayer("mp", {
 			currencyInternalName: "points",
 			currencyDisplayName: "kilo prestige points",
 			currencyLayer: "kp",
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 		31: {
 			title(){return options.translateThis?"Mega Prestige^":""},
@@ -668,7 +668,7 @@ addLayer("mp", {
 			currencyInternalName: "points",
 			currencyDisplayName: "prestige points",
 			currencyLayer: "p",
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 	},
 	doReset(resettingLayer){
@@ -734,7 +734,7 @@ addLayer("kb", {
     layerShown(){return hasAchievement("a", 31)},
 	branches: ["kp"],
 	doReset(resettingLayer){
-		player.b.points=options.ngplus>=2&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="megaboosters"&&tmp[resettingLayer].name!=="gigaboosters"?player.kb.points:new Decimal(0)
+		player.b.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="megaboosters"&&tmp[resettingLayer].name!=="gigaboosters"?player.kb.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.kb.points
 	}
 })
 
@@ -815,7 +815,7 @@ addLayer("gp", {
 				   if(player.ab.points.gte(4)) cost = cost.times(new Decimal(1.666).pow(player.gp.upgrades.length))
 				   return cost
 			},
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 		21: {
 			title(){return options.translateThis?"Giga Prestige*":""},
@@ -860,7 +860,7 @@ addLayer("gp", {
 			currencyInternalName: "points",
 			currencyDisplayName: "mega prestige points",
 			currencyLayer: "mp",
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 		31: {
 			title(){return options.translateThis?"Giga Prestige^":""},
@@ -905,7 +905,7 @@ addLayer("gp", {
 			currencyInternalName: "points",
 			currencyDisplayName: "kilo prestige points",
 			currencyLayer: "kp",
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 		41: {
 			title(){return options.translateThis?"Giga Prestige^^":""},
@@ -950,7 +950,7 @@ addLayer("gp", {
 			currencyInternalName: "points",
 			currencyDisplayName: "prestige points",
 			currencyLayer: "p",
-			unlocked(){return options.ngplus>=1}
+			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
 	}
 })
@@ -1005,7 +1005,7 @@ addLayer("mb", {
     layerShown(){return hasAchievement("a", 41)},
 	branches: ["mp"],
 	doReset(resettingLayer){
-		player.b.points=options.ngplus>=2&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="gigaboosters"?player.mb.points:new Decimal(0)
+		player.b.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="gigaboosters"?player.mb.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.mb.points
 	}
 })
 
@@ -1065,7 +1065,7 @@ addLayer("ab", {
 		if(player.gp.points.gte("5e85")) player.ab.help = player.ab.help.mul(Decimal.add(diff, 1)).mul(player.ab.help.root(42))
 		if(player.ab.points.gte(3)&&player.points.gte(0)&&!player.ab.points.gte(5)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(20))
 		if(player.ab.points.gte(5)&&player.points.gte(0)&&getPointGen().gt(0)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(10))
-		player.ab.shopPoints = new Decimal(player.ab.points).add(hasUpgrade("t", 14)?1:0).mul(options.ngplus>=5?2:1).sub(player.ab.spentPoints)
+		player.ab.shopPoints = new Decimal(player.ab.points).add(hasUpgrade("t", 14)?1:0).mul(new Decimal(options.ngplus).gte(5)?2:1).sub(player.ab.spentPoints)
 		if(player.ab.points.gte(4)) tmp.ab.color = (new Decimal(Math.random()).gte(0.25))?"darkred":"purple"
 	},
 	tooltipLocked(){return "Reach 10 giga prestige points to unlock (You have "+formatWhole(player.gp.points)+" giga prestige points)"},
@@ -4852,15 +4852,21 @@ addLayer("o", {
 		}
 		if(inChallenge("o", 21)){
 			player.o.performanceEnhancingVariable = false
-			tmp.n.tabFormat["Neverend"].content[1] = ''
-			tmp.n.tabFormat["Neverend 2"].content[1] = ''
-			tmp.m.tabFormat["Mango"].content[1] = ''	
+			tmp.n.tabFormat["Neverend"].content[1][1][0] = ''
+			tmp.n.tabFormat["Neverend"].content[1][1][1] = ''
+			tmp.n.tabFormat["Neverend 2"].content[1][1][0] = ''
+			tmp.n.tabFormat["Neverend 2"].content[1][1][1] = ''
+			tmp.m.tabFormat["Mango"].content[1][1][0] = ''	
+			tmp.m.tabFormat["Mango"].content[1][1][1] = ''	
 		}
 		if(!inChallenge("o", 21)&&player.o.performanceEnhancingVariable == false){
 			player.o.performanceEnhancingVariable = true
-			tmp.n.tabFormat["Neverend"].content[1] = 'prestige-button'
-			tmp.n.tabFormat["Neverend 2"].content[1] = 'prestige-button'
-			tmp.m.tabFormat["Mango"].content[1] = 'prestige-button'	
+			tmp.n.tabFormat["Neverend"].content[1][1][0] = 'prestige-button'
+			tmp.n.tabFormat["Neverend"].content[1][1][1] = ["clickable",11]
+			tmp.n.tabFormat["Neverend 2"].content[1][1][0] = 'prestige-button'
+			tmp.n.tabFormat["Neverend 2"].content[1][1][1] = ["clickable",11]
+			tmp.m.tabFormat["Mango"].content[1][1][0] = 'prestige-button'
+			tmp.m.tabFormat["Mango"].content[1][1][1] = ["clickable",11]
 		}
 		player.o.first = player.o.first.add(player.o.buyables[21].mul(diff).mul(player.o.buyables[21].gte(1)&&player.o.buyables[22].gte(1)&&player.o.buyables[23].gte(1)?2/3:1).mul(tmp.o.buyables[32].effect))
 		if(player.o.first.gte(new Decimal(10).mul(player.o.firstLevel.pow(2)))){
@@ -5241,9 +5247,22 @@ addLayer("o", {
 			unlocked(){return hasMilestone("o", "b2")},
 			onEnter() {
 				player.o.milestones = []
-				if(player.o.totalburgers.gte(1)) player.o.milestones.push("b0")
-				if(player.o.totalburgers.gte(2)) player.o.milestones.push("b1")
-				if(player.o.totalburgers.gte(5)) player.o.milestones.push("b2")
+				let keep = []
+				if(hasMilestone("o","t0"))keep.push("t0")
+				if(hasMilestone("o","t1"))keep.push("t1")
+				if(hasMilestone("o","t2"))keep.push("t2")
+				if(hasMilestone("o","t3"))keep.push("t3")
+				if(hasMilestone("o","t4"))keep.push("t4")
+				if(hasMilestone("o","t5"))keep.push("t5")
+				if(hasMilestone("o","tFinal"))keep.push("tFinal")
+				if(hasMilestone("o","s0"))keep.push("s0")
+				if(player.o.totalburgers.gte(1)) keep.push("b0")
+				if(player.o.totalburgers.gte(2)) keep.push("b1")
+				if(player.o.totalburgers.gte(5)) keep.push("b2")
+				if(player.o.totalburgers.gte(10)) keep.push("b3")
+				if(player.o.totalburgers.gte(25)) keep.push("b4")
+				if(player.o.totalburgers.gte(100)) keep.push("b5")
+				player.o.milestones = keep
 				if(player.o.totalburgers.gte(10)){
 					player.o.milestones.push("b3")
 					player.o.milestones.push("o0")
@@ -5288,10 +5307,22 @@ addLayer("o", {
 			rewardDescription: "Mango resets nothing",
 			unlocked(){return hasMilestone("o", "b2")},
 			onEnter() {
-				player.o.milestones = []
-				if(player.o.totalburgers.gte(1)) player.o.milestones.push("b0")
-				if(player.o.totalburgers.gte(2)) player.o.milestones.push("b1")
-				if(player.o.totalburgers.gte(5)) player.o.milestones.push("b2")
+				let keep = []
+				if(hasMilestone("o","t0"))keep.push("t0")
+				if(hasMilestone("o","t1"))keep.push("t1")
+				if(hasMilestone("o","t2"))keep.push("t2")
+				if(hasMilestone("o","t3"))keep.push("t3")
+				if(hasMilestone("o","t4"))keep.push("t4")
+				if(hasMilestone("o","t5"))keep.push("t5")
+				if(hasMilestone("o","tFinal"))keep.push("tFinal")
+				if(hasMilestone("o","s0"))keep.push("s0")
+				if(player.o.totalburgers.gte(1)) keep.push("b0")
+				if(player.o.totalburgers.gte(2)) keep.push("b1")
+				if(player.o.totalburgers.gte(5)) keep.push("b2")
+				if(player.o.totalburgers.gte(10)) keep.push("b3")
+				if(player.o.totalburgers.gte(25)) keep.push("b4")
+				if(player.o.totalburgers.gte(100)) keep.push("b5")
+				player.o.milestones = keep
 				if(player.o.totalburgers.gte(10)){
 					player.o.milestones.push("b3")
 					player.o.milestones.push("o0")
@@ -5335,10 +5366,22 @@ addLayer("o", {
 			rewardDescription: "Unlock new tab... already??",
 			unlocked(){return hasChallenge("o", 11)&&hasChallenge("o", 12)},
 			onEnter() {
-				player.o.milestones = []
-				if(player.o.totalburgers.gte(1)) player.o.milestones.push("b0")
-				if(player.o.totalburgers.gte(2)) player.o.milestones.push("b1")
-				if(player.o.totalburgers.gte(5)) player.o.milestones.push("b2")
+				let keep = []
+				if(hasMilestone("o","t0"))keep.push("t0")
+				if(hasMilestone("o","t1"))keep.push("t1")
+				if(hasMilestone("o","t2"))keep.push("t2")
+				if(hasMilestone("o","t3"))keep.push("t3")
+				if(hasMilestone("o","t4"))keep.push("t4")
+				if(hasMilestone("o","t5"))keep.push("t5")
+				if(hasMilestone("o","tFinal"))keep.push("tFinal")
+				if(hasMilestone("o","s0"))keep.push("s0")
+				if(player.o.totalburgers.gte(1)) keep.push("b0")
+				if(player.o.totalburgers.gte(2)) keep.push("b1")
+				if(player.o.totalburgers.gte(5)) keep.push("b2")
+				if(player.o.totalburgers.gte(10)) keep.push("b3")
+				if(player.o.totalburgers.gte(25)) keep.push("b4")
+				if(player.o.totalburgers.gte(100)) keep.push("b5")
+				player.o.milestones = keep
 				if(player.o.totalburgers.gte(10)){
 					player.o.milestones.push("b3")
 					player.o.milestones.push("o0")
@@ -5382,10 +5425,22 @@ addLayer("o", {
 			rewardDescription: "New tab, for real this time.",
 			unlocked(){return hasChallenge("o", 21)},
 			onEnter() {
-				player.o.milestones = []
-				if(player.o.totalburgers.gte(1)) player.o.milestones.push("b0")
-				if(player.o.totalburgers.gte(2)) player.o.milestones.push("b1")
-				if(player.o.totalburgers.gte(5)) player.o.milestones.push("b2")
+				let keep = []
+				if(hasMilestone("o","t0"))keep.push("t0")
+				if(hasMilestone("o","t1"))keep.push("t1")
+				if(hasMilestone("o","t2"))keep.push("t2")
+				if(hasMilestone("o","t3"))keep.push("t3")
+				if(hasMilestone("o","t4"))keep.push("t4")
+				if(hasMilestone("o","t5"))keep.push("t5")
+				if(hasMilestone("o","tFinal"))keep.push("tFinal")
+				if(hasMilestone("o","s0"))keep.push("s0")
+				if(player.o.totalburgers.gte(1)) keep.push("b0")
+				if(player.o.totalburgers.gte(2)) keep.push("b1")
+				if(player.o.totalburgers.gte(5)) keep.push("b2")
+				if(player.o.totalburgers.gte(10)) keep.push("b3")
+				if(player.o.totalburgers.gte(25)) keep.push("b4")
+				if(player.o.totalburgers.gte(100)) keep.push("b5")
+				player.o.milestones = keep
 				if(player.o.totalburgers.gte(10)){
 					player.o.milestones.push("b3")
 					player.o.milestones.push("o0")
@@ -5770,13 +5825,13 @@ addLayer("o", {
 				if(hasMilestone("o","t5"))keep.push("t5")
 				if(hasMilestone("o","tFinal"))keep.push("tFinal")
 				if(hasMilestone("o","s0"))keep.push("s0")
+				if(player.o.totalburgers.gte(1)) keep.push("b0")
+				if(player.o.totalburgers.gte(2)) keep.push("b1")
+				if(player.o.totalburgers.gte(5)) keep.push("b2")
+				if(player.o.totalburgers.gte(10)) keep.push("b3")
+				if(player.o.totalburgers.gte(25)) keep.push("b4")
+				if(player.o.totalburgers.gte(100)) keep.push("b5")
 				player.o.milestones = keep
-				if(player.o.totalburgers.gte(1)) player.o.milestones.push("b0")
-				if(player.o.totalburgers.gte(2)) player.o.milestones.push("b1")
-				if(player.o.totalburgers.gte(5)) player.o.milestones.push("b2")
-				if(player.o.totalburgers.gte(10)) player.o.milestones.push("b3")
-				if(player.o.totalburgers.gte(25)) player.o.milestones.push("b4")
-				if(player.o.totalburgers.gte(100)) player.o.milestones.push("b5")
 				player.o.burgers = player.o.burgers.add(tmp.o.baseAmount.div("1.2e12").pow(0.1212).floor().max(0))
 				player.o.totalburgers = player.o.totalburgers.add(tmp.o.baseAmount.div("1.2e12").pow(0.1212).floor().max(0))
 				if(player.o.totalburgers.gte(10)) player.o.milestones.push("o0")
@@ -7117,9 +7172,9 @@ addLayer("ng+", {
     startData() { return {
         unlocked: true,
     }},
-	tabFormat:[["display-text", function(){return (options.ngplus>=1?"<h1 style='color: lightcyan'>[NG+]<br><h3 style='color: lightcyan'>-Adds 4th upgrade column in all prestige layers":"")+(options.ngplus>=2?"<br><br><br><br><h1 style='color: lightcyan'>[NG++]<br><h3 style='color: lightcyan'>-You keep booster on higher prestige resets":"")+(options.ngplus>=3?`<br><br><br><br><h1 style='color: lightcyan'>[NG+++]<br><h3 style='color: lightcyan'>-Total achievements multiply your point gain by ${formatWhole(player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1)}x`:"")+(options.ngplus>=4?"<br><br><br><br><h1 style='color: lightcyan'>[NG++++]<br><h3 style='color: lightcyan'>-Automatically converts all types of boosters into primordial boosters":"")+(options.ngplus>=5?"<br><br><br><br><h1 style='color: lightcyan'>[NG+++++]<br><h3 style='color: lightcyan'>-You have 2x more balancing points":"")}]],
+	tabFormat:[["display-text", function(){return (new Decimal(options.ngplus).gte(1)?"<h1 style='color: lightcyan'>[NG+]<br><h3 style='color: lightcyan'>-Adds 4th upgrade column in all prestige layers":"")+(new Decimal(options.ngplus).gte(2)?"<br><br><br><br><h1 style='color: lightcyan'>[NG++]<br><h3 style='color: lightcyan'>-You keep booster on higher prestige resets":"")+(new Decimal(options.ngplus).gte(3)?`<br><br><br><br><h1 style='color: lightcyan'>[NG+++]<br><h3 style='color: lightcyan'>-Total achievements multiply your point gain by ${formatWhole(player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1)}x`:"")+(new Decimal(options.ngplus).gte(4)?"<br><br><br><br><h1 style='color: lightcyan'>[NG++++]<br><h3 style='color: lightcyan'>-Automatically converts all types of boosters into primordial boosters":"")+(new Decimal(options.ngplus).gte(5)?"<br><br><br><br><h1 style='color: lightcyan'>[NG+++++]<br><h3 style='color: lightcyan'>-You have 2x more balancing points":"")}]],
 	tooltip: "",
     color: "lightblue",
     row: "side",
-	layerShown(){return options.ngplus>=1}
+	layerShown(){return new Decimal(options.ngplus).gte(1)}
 })

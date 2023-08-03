@@ -124,7 +124,7 @@ function getBypassedPointGen() {
 	if(!canGenPoints()||doesItWorkTho)
 		return new Decimal(0)
 
-	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true)).mul(options.ngplus>=3?player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1:1)
+	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true)).mul(new Decimal(options.ngplus).gte(3)?player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1:1)
 	let mult = new Decimal(1).add(upgradeRow("kp", "2", true)).add(upgradeRow("mp", "2", true)).add(upgradeRow("gp", "2", true))
 	let exp = new Decimal(1).add(upgradeRow("mp", "3", true)).add(upgradeRow("gp", "3", true))
 	let tetra = new Decimal(upgradeRow("gp", "4", true)).div(100).add(1)
@@ -197,7 +197,7 @@ function getPointGen() {
 	if(!canGenPoints()||player.ab.negativePoints.gt(0)||doesItWorkTho)
 		return new Decimal(0)
 
-	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true)).mul(options.ngplus>=3?player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1:1)
+	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true)).mul(new Decimal(options.ngplus).gte(3)?player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1:1)
 	let mult = new Decimal(1).add(upgradeRow("kp", "2", true)).add(upgradeRow("mp", "2", true)).add(upgradeRow("gp", "2", true))
 	let exp = new Decimal(1).add(upgradeRow("mp", "3", true)).add(upgradeRow("gp", "3", true))
 	let tetra = new Decimal(upgradeRow("gp", "4", true)).div(100).add(1)
