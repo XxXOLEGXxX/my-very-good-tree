@@ -1,5 +1,5 @@
 // ************ Themes ************
-var themes = ["default", "aqua", "Oleg's theme", "Antimatter Dimensions"]
+var themes = ["default", "aqua", "Oleg's theme", "adapt"]
 
 var colors = {
 	default: {
@@ -32,16 +32,15 @@ var colors = {
 		background: "rgb(33,7,31)",
 		background_tooltip: "rgba(0, 15, 31, 0.75)",
 	},
-	"Antimatter Dimensions": {
-		1: "#ffffff",
-		2: "#bfbfbf",
-		3: "#7f7f7f",
-		color: "#E0E0E0",
-		points: "black",
-		locked: "cyan",
-		fontFamily: "lol",
-		background: "#FFFFFF",
-		background_tooltip: "rgba(0, 15, 31, 0.75)",
+	"adapt": {
+		1: "#ffffff",//Branch color 1
+		2: "#bfbfbf",//Branch color 2
+		3: "#7f7f7f",//Branch color 3
+		color: "#dfdfdf",
+		points: "#ffffff",
+		locked: "#bf8f8f",
+		background: "#0f0f0f",
+		background_tooltip: "rgba(0, 0, 0, 0.75)",
 	},
 }
 function changeTheme() {
