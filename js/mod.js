@@ -1,6 +1,6 @@
 let modInfo = {
 	name: "You get the idea",
-	id: "howdidifuckthisoneupohmygod",
+	id: "testdeeznuts",
 	author: "Oleg (fuckyousegabutdeezcord in Discord)",
 	pointsName: "points",
 	modFiles: ["layers.js", "tree.js"],
@@ -14,7 +14,7 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.12",
+	num: "5.12 - Crescent Test",
 	name: "New Game+... in a NG-X themed TMT?",
 }
 
