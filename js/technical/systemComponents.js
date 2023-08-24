@@ -143,8 +143,10 @@ var systemComponents = {
         <a class="link" href="http://discord.gg/wwQfgPa" target="_blank" v-bind:style="{'font-size': '16px'}">Main Prestige Tree server</a><br>
 		<br><br>
         Time Played: {{ formatTime(player.timePlayed) }}<br>
-		<span v-if="player.c.infinities.gte(1)"> You've spent {{ formatTime(player.c.infinityTime) }} in this infinity.<br>
-		Your best infinity time: {{ formatTime(player.c.bestInfinity) }}<br></span><br>
+		<span v-if="player.c.infinities.gte(1)||player.c.crescentmoonsTotal.gte(1)"> You've spent {{ formatTime(player.c.infinityTime) }} in this infinity.<br>
+		Your best infinity time: {{ formatTime(player.c.bestInfinity) }}</span><br>
+		<span v-if="player.c.crescentmoonsTotal.gte(1)"> You've spent {{ formatTime(player.c.crescentTime) }} in this crescent realm.<br>
+		Your best crescent time: {{ formatTime(player.c.bestCrescent) }}<br></span><br>
         <h3>Hotkeys</h3><br>
         <span v-for="key in hotkeys" v-if="player[key.layer].unlocked && tmp[key.layer].hotkeys[key.id].unlocked"><br>{{key.description}}</span></div>
     `

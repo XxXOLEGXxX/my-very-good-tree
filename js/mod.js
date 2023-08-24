@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.12",
-	name: "New Game+... in a NG-X themed TMT?",
+	num: "5.13",
+	name: "Croissant Edition",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,6 +23,14 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h4>v5.13: Croissant Edition (v0.11)</h4>
+		- Added Crescent prestige for Crazy layer<br>
+		- Pushed Onion layer's endgame a bit<br>
+		- Replaced AD theme with "Adapt" theme (background depends on current layer's color)<br>
+		- Fixed potential bugs and shticks around<br>
+		- Fixed bug where you can reset despite not being able to gain anything<br>
+		- Made few tweaks in Nostalgia to make things less tedious<br>
+		- Secret layer reveals itself once you reach NG-5<br>
 	<h4>v5.12: New Game+... in a NG- themed TMT? (v0.10.1)</h4>
 		- Very slightly pushed Onion endgame<br>
 		- Added NG+ modes all the way up to NG+5 (NG+ ideas by thenonymous)<br>
@@ -146,6 +154,8 @@ function getBypassedPointGen() {
 	if(hasUpgrade("o", 12)) gain = gain.mul(Decimal.pow(1/9+1, player.o.fifthLevel.sub(1)))
 	if(player.o.unlocked4) gain = gain.mul(player.o.sushis.add(2).log(2).pow(0.8).mul(tmp.o.buyables[101].effect))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
+	if(hasAchievement("c",42)) gain = gain.mul(tmp.c.buyables["CB3"].effect2)
+	if(tmp.c.gimmeEpicGamerCombo==3) gain = gain.mul(3)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
 	if(player.ab.points.gte(4)) gain = gain.div(4)
@@ -219,6 +229,8 @@ function getPointGen() {
 	if(hasUpgrade("o", 12)) gain = gain.mul(Decimal.pow(1/9+1, player.o.fifthLevel.sub(1)))
 	if(player.o.unlocked4) gain = gain.mul(player.o.sushis.add(2).log(2).pow(0.8).mul(tmp.o.buyables[101].effect))
 	if(hasAchievement("a", 1012)) gain = gain.mul(4)
+	if(hasAchievement("c",42)) gain = gain.mul(tmp.c.buyables["CB3"].effect2)
+	if(tmp.c.gimmeEpicGamerCombo==3) gain = gain.mul(3)
 	gain = gain.mul(tmp.g.effectPower)
 	if(player.ab.points.gte(1)) gain = gain.div(4)
 	if(player.ab.points.gte(4)) gain = gain.div(4)
@@ -239,16 +251,25 @@ function getPointGen() {
 }
 
 function canHeGeneratePlottho(){
-	let gain = new Decimal(player.realAB.points.gte(1)?1:0).add(tmp.realAB.buyables[13].effect).mul(tmp.realAB.buyables[12].effect)
-	if(hasUpgrade("realAB",11)) gain = gain.mul(upgradeEffect("realAB",11))
-	if(hasUpgrade("realAB",12)) gain = gain.mul(1.9001)
+	let gain = new Decimal(player.realAB.points.gte(1)?1:0).add(inChallenge("realAB",12)?0:tmp.realAB.buyables[13].effect).mul(inChallenge("realAB",12)?1:tmp.realAB.buyables[12].effect)
+	if(hasUpgrade("realAB",11)) gain = gain.mul(inChallenge("realAB",11)?1:upgradeEffect("realAB",11))
+	if(hasUpgrade("realAB",12)) gain = gain.mul(inChallenge("realAB",11)?1:new Decimal(1.9001).add(new Decimal(0.9001).mul(player.realAB.challenges[11]+player.realAB.challenges[14])))
 	if(hasUpgrade("o",42)) gain = gain.mul(upgradeEffect("o",42))
-	if(hasAchievement("realAB",24)) gain = gain.mul(Decimal.pow(1.15, player.realAB.achievements.length+1))
-	if(hasAchievement("realAB",25)) gain = gain.mul(2)
+	if(hasAchievement("realAB",24)) gain = gain.mul(inChallenge("realAB",13)?1:Decimal.pow(1.15, new Decimal(player.realAB.achievements.length).add(1).add(player.realAB.challenges[13]+player.realAB.challenges[14])))
+	if(hasAchievement("realAB",25)) gain = gain.mul(inChallenge("realAB",13)?1:2)
 	if(player.realAB.points.gte(5)) gain = gain.mul(Decimal.add(player.realAB.achievements.length,1).root(1.69))
+	if(hasUpgrade("realAB",13)&&(inChallenge("realAB",12)||inChallenge("realAB",13))) gain = gain.add(tmp.realAB.upgrades[13].effect).mul(tmp.realAB.upgrades[13].effect2).pow(tmp.realAB.upgrades[13].effect3)
+	if(hasMilestone("o","t7")) gain = gain.mul(player.o.treeOfLayers.add(1).root(2)).mul(tmp.pp.effect)
+	if(hasMilestone("realAB",5)) gain = gain.mul(player.realAB.milestones.length+1)
+	if(hasUpgrade("pp",25)) gain = gain.mul(5)
+	if(player.realAB.points.gte(8)) gain = gain.div(60)
 	if(player.realAB.points.gte(6)) gain = gain.div(Decimal.pow(2, player.realAB.points))
-	if(player.realAB.points.gte(2)) gain = gain.div(player.o.plots.add(1).pow(player.realAB.points.gte(4)?player.realAB.points.gte(5)?player.realAB.points:3:1))
-	if(player.realAB.points.gte(3)) gain = gain.pow(gain.gte(1)?0.85:1.15)
+	if(player.realAB.points.gte(2)) gain = gain.div(player.o.plots.add(1).pow(player.realAB.points.gte(4)?player.realAB.points.gte(5)?player.realAB.points:3:1).pow(player.realAB.points.gte(10)?player.o.plots.add(1):1))
+	if(player.realAB.points.gte(3)) gain = gain.pow(gain.gte(1)?player.realAB.points.gte(7)?new Decimal(0.85).sub(player.realAB.points.mul(0.085)).max(0.001):0.85:player.realAB.points.gte(7)?new Decimal(1.15).pow(player.realAB.points.add(1)):1.15)
+	if(inChallenge("realAB",11)&&!inChallenge("realAB",14)) gain = gain.div(tmp.realAB.challenges[11].effect2).pow(tmp.realAB.challenges[11].effect.pow(gain.div(tmp.realAB.challenges[11].effect2).lte(1)?-1:1))
+	if(inChallenge("realAB",12)&&!inChallenge("realAB",14)) gain = gain.div(tmp.realAB.challenges[12].effect2).pow(tmp.realAB.challenges[12].effect.pow(gain.div(tmp.realAB.challenges[12].effect2).lte(1)?-1:1))
+	if(inChallenge("realAB",13)&&!inChallenge("realAB",14)) gain = gain.div(tmp.realAB.challenges[13].effect2).pow(tmp.realAB.challenges[13].effect.pow(gain.div(tmp.realAB.challenges[13].effect2).lte(1)?-1:1))
+	if(inChallenge("realAB",14)) gain = gain.div(tmp.realAB.challenges[14].effect2).pow(tmp.realAB.challenges[14].effect.pow(gain.div(tmp.realAB.challenges[14].effect2).lte(1)?-1:1))
 	return gain
 }
 
