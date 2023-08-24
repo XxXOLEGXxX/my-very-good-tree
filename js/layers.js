@@ -2170,12 +2170,12 @@ addLayer("s", {
 			onHold() {
 				doReset(this.layer)
 			},
-			style() {return canReset("s")?{'color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'), 'border-color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'),"border-radius":"0px 33% 33% 0px"}:{'color': '#000000', 'border-color': 'rgba(0, 0, 0, 0.125)',"border-radius":"0px 33% 33% 0px"}}
+			style() {return canReset("s")?{'color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'), 'border-color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'),"border-radius":"0px 33% 33% 0px"}:{'color': '#000000', 'border-color': 'rgba(0, 0, 0, 0.125)',"border-radius":"0px 33% 33% 0px"}}
 		}
 	},
     softcap: new Decimal(1e100), 
     softcapPower: new Decimal(1/11), 
-    color(){return inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?"#0000FF":"#000000"},
+    color(){return inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?"#00FF00":"#000000"},
 	shape: "line",
 	passiveGeneration(){return hasUpgrade("s", 33) && player.s.holdUp.lt(5)?0:hasAchievement("a", 1013)&&!inChallenge("c", 11)?1:0},
     requires(){return new Decimal(1).times((player.t.unlocked&&!player.s.unlocked&&!options.why)?76.2:1)}, // Can be a function that takes requirement increases into account
@@ -2224,9 +2224,9 @@ addLayer("s", {
         {key: "s", description: "S: Reset for spaces", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     layerShown(){return ((player.ab.points.gte(5) && !player.ab.fuckyou) || (player.ab.nostalgia && player.ab.fuckyou) || options.why)&&!inChallenge("c", 11)},
-	nodeStyle() {return {'color': (player.s.unlocked||tmp.s.baseAmount.gte(tmp.s.requires)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.5)':'#7F7F7F'):''), 'border-color': (player.s.unlocked||tmp.s.baseAmount.gte(tmp.s.requires)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+	nodeStyle() {return {'color': (player.s.unlocked||tmp.s.baseAmount.gte(tmp.s.requires)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.5)':'#7F7F7F'):''), 'border-color': (player.s.unlocked||tmp.s.baseAmount.gte(tmp.s.requires)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 	componentStyles: {
-		"prestige-button"() {return canReset("s")?{'color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'), 'border-color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F')}:{'color': '#000000', 'border-color': 'rgba(0, 0, 0, 0.125)'}},
+		"prestige-button"() {return canReset("s")?{'color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'), 'border-color': (inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F')}:{'color': '#000000', 'border-color': 'rgba(0, 0, 0, 0.125)'}},
 	},
 	buyables: {
 		11: {
@@ -2246,7 +2246,7 @@ addLayer("s", {
 				if(!hasMilestone("c","c1")) player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[11].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[11].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[11].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[11].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return true}
 		},
 		12: {
@@ -2260,7 +2260,7 @@ addLayer("s", {
 				player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return !hasUpgrade("s", 33)}
 		},
 		21: {
@@ -2279,7 +2279,7 @@ addLayer("s", {
 				if(!hasMilestone("c","c1")) player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return tmp.s.shape == "square"|| tmp.s.shape == "cube" || tmp.s.shape == "terrasect"}
 		},
 		31: {
@@ -2299,7 +2299,7 @@ addLayer("s", {
 				if(!hasMilestone("c","c1")) player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return tmp.s.shape == "cube" || tmp.s.shape == "terrasect"}
 		},
 		41: {
@@ -2317,7 +2317,7 @@ addLayer("s", {
 				if(!hasMilestone("c","c1")) player.s.points = player.s.points.sub(this.cost())
 				player.s.buyables[this.id] = player.s.buyables[this.id].add(1)
 			},
-			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
+			style(){return{'height':'100px', 'width':'175px', 'color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):'#000000'), 'border-color': (tmp.s.buyables[this.id].canAfford?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'#rgba(0, 0, 0, 0.125)')}},
 			unlocked(){return tmp.s.shape == "terrasect"}
 		},
 	},
@@ -2342,7 +2342,7 @@ addLayer("s", {
 			currencyDisplayName: "lengths",
 			currencyInternalName: 11,
 			currencyLayer: "s",
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		12: {
 			title: "The Clutcher",
@@ -2352,7 +2352,7 @@ addLayer("s", {
 			unlocked: true,
 			canAfford(){return player.s.points.gte(this.cost)},
 			cost: new Decimal(5),
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		13: {
 			title: "The Last Line Bender",
@@ -2364,7 +2364,7 @@ addLayer("s", {
 			currencyDisplayName: "lengths",
 			currencyInternalName: 11,
 			currencyLayer: "s",
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		21: {
 			title: "Height's Power",
@@ -2376,7 +2376,7 @@ addLayer("s", {
 			currencyDisplayName: "heights",
 			currencyInternalName: 21,
 			currencyLayer: "s",
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		22: {
 			fullDisplay(){return `<h3>Size-inator</h3><br>Dimensions are cheaper based on current size<br>Currently: ${format(this.effect())}/<br><br>Cost: 7 lengths, 5 heights, 3 widths and 2 spissitudes`},
@@ -2393,7 +2393,7 @@ addLayer("s", {
 			},
 			currencyInternalName: 41,
 			currencyLayer: "s",
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		23: {
 			title: "Subpar-piss-tution",
@@ -2407,7 +2407,7 @@ addLayer("s", {
 			currencyDisplayName: "spisstudes",
 			currencyInternalName: 41,
 			currencyLayer: "s",
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		31: {
 			title: "3rd Place is the Winner",
@@ -2421,7 +2421,7 @@ addLayer("s", {
 			currencyDisplayName: "widths",
 			currencyInternalName: 31,
 			currencyLayer: "s",
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		32: {
 			title: "Superdensity",
@@ -2438,7 +2438,7 @@ addLayer("s", {
 			effectDisplay(){return format(tmp.s.buyables[41].size.log(10).add(1))+"x"},
             currencyLocation() {return player.s.buyables},
 			currencyDisplayName: "m⁴ total size",
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 		33: {
 			title: "Negative Zone",
@@ -2450,7 +2450,7 @@ addLayer("s", {
 			currencyDisplayName(){return options.why?"points":"negative points"},
 			currencyInternalName(){return options.why?"points":"negativePoints"},
 			currencyLayer(){return options.why?"":"ab"},
-			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("2.8e28")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
+			style() {return {'color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'#000000':'#7F7F7F'):''), 'border-color': (this.canAfford()&&!hasUpgrade("s", this.id)?(inChallenge("c",51)&&tmp.s.baseAmount.gte("1.8e18")?'rgba(0,0,0,0.125)':'#1F1F1F'):'')}},
 		},
 	},
 	doReset(resettingLayer){
@@ -2491,7 +2491,7 @@ addLayer("t", {
 		canProgress: true,
     }},
 	passiveGeneration(){return hasUpgrade("s", 33) && player.s.holdUp.lt(5)?0:hasAchievement("a", 1013)&&!inChallenge("c", 13)?1:0},
-    color(){return inChallenge("c",51)&&tmp.t.baseAmount.gte("2.8e28")?"#0000FF":"#FFFFFF"},
+    color(){return inChallenge("c",51)&&tmp.t.baseAmount.gte("1.8e18")?"#00FF00":"#FFFFFF"},
 	effectSecond(){let second = player.t.seconds.mul(tmp.t.effectYear)
 				   if(hasUpgrade("t", 15)) second = second.mul(69)
 				   return second.add(1).root(10)},
@@ -2515,7 +2515,7 @@ addLayer("t", {
 	effectYear(){let base = new Decimal(2).root(tmp.t.effectCentury)
 				 return player.t.years.add(1).root(base).add(1).log(base).add(1)},
 	effectCentury(){return player.t.centuries.add(1).log(9).add(1).root(9).add(1)},
-	effectMillennium(){return player.t.millenniums.add(1).log(256).add(1).log(256).add(1).pow(hasUpgrade("t", 24)?2.023:1)},
+	effectMillennium(){return player.t.millenniums.add(1).log(4).add(1).log(4).add(1).pow(hasUpgrade("t", 24)?2.023:1)},
 	update(diff){
 		if(player.t.base.lte(0)) player.t.base = new Decimal(1)
 		if(player.t.seconds.lt("1e100")) player.t.seconds = player.t.seconds.add(Decimal.mul(diff, tmp.t.effectClock)).min("1e100")
@@ -2814,6 +2814,9 @@ addLayer("c", {
 	},
 	antimatterRatio(){return player.c.antimatter.add(1).log(10)},
 	glowColor: "white",
+	crescentCombo: ["N/A","Early-Mid","Mid-Late","Early-Late??","Balanced"],
+	crescentComboDescription: ["Try having two different Crescentables","9x Space and Time gain, 5x Cranenium gain and Crazy Dimensions's production","5x Cranenium gain and Crazy Dimensions's production, 3x Late Game Boost's effectiveness","9x Crescent Croissant gain, 3x Point Gain","Balanced"],
+	gimmeEpicGamerCombo(){return player.c.buyables["CB1"].add(player.c.buyables["CB2"]).sub(player.c.buyables["CB3"].mul(2)).gte(2)?1:player.c.buyables["CB2"].add(player.c.buyables["CB3"]).sub(player.c.buyables["CB1"].mul(2)).gte(2)?2:player.c.buyables["CB1"].add(player.c.buyables["CB3"]).sub(player.c.buyables["CB2"].mul(2)).gte(2)?3:player.c.buyables["CB1"].gte(1)&&player.c.buyables["CB2"].gte(1)&&player.c.buyables["CB3"].gte(1)?4:0},
 	effect(){return player.c.crazymatters.add(1).log(10).add(1)},
 	effectCool(){let cool = player.c.points.pow(hasChallenge("c",51)?1.65:hasUpgrade("c",44)?1.25:1).mul(hasChallenge("c",51)?100:1)
 				 if(inChallenge("c", 12)) cool = new Decimal(1)
@@ -2853,11 +2856,11 @@ addLayer("c", {
 		},
 		"Infinite":{
 			content: [["microtabs", "stuff2", {'border-color': 'rgba(0,0,0,0)'}]],
-			unlocked(){return player.c.crazymatters.gte(Decimal.pow(2, 1024))||player.c.infinities.gte(1)}
+			unlocked(){return player.c.crazymatters.gte(Decimal.pow(2, 1024))||player.c.infinities.gte(1)||hasMilestone("c","c2")}
 		},
 		"Crescent":{
-			content: [["display-text", function() {return "<span>You have <h2 style='color: lightcyan; text-shadow: lightcyan 0px 0px 10px'>"+formatWhole(player.c.crescentmoons)+"</h2> crescent moons</span><br>You have made "+formatWhole(player.c.crescentmoonsTotal)+" crescent moons in total, remnants of which produce "+format(tmp.c.crescentGain)+" crescent croissants per second.<br>Also you have "+format(player.c.crescentenergy)+" crscent croissants, which boost space, time, cranenium and infinity point gain by "+format(tmp.c.crescentEffect)+"x"}],"blank",["row", [["buyable", "ez"], ["clickable", 13]]],"blank",["milestones",["c1","c2","c3"]],"blank","respec-button","blank",["row", [["buyable", ["CB1"]],"blank",["buyable", ["CB2"]],"blank",["buyable", ["CB3"]]]]],
-			buttonStyle(){return{'border-color':'lightcyan'}},
+			content: [["display-text", function() {return "<span>You have <h2 style='color: lightcyan; text-shadow: lightcyan 0px 0px 10px'>"+formatWhole(player.c.crescentmoons)+"</h2> crescent moons</span><br>You have made "+formatWhole(player.c.crescentmoonsTotal)+" crescent moons in total, remnants of which produce "+format(tmp.c.crescentGain)+" crescent croissants per second.<br>Also you have "+format(player.c.crescentenergy)+" crscent croissants, which boost space, time, cranenium and infinity point gain by "+format(tmp.c.crescentEffect)+"x"}],"blank",["row", [["buyable", "ez"], ["clickable", 13]]],"blank",["milestones",["c1","c2","c3"]],["display-text", function() {return hasMilestone("c","c2")?`<h2>Your current Syngery is...<br>[${tmp.c.crescentCombo[tmp.c.gimmeEpicGamerCombo]}]</h2><br>${tmp.c.crescentComboDescription[tmp.c.gimmeEpicGamerCombo]}<br><br>`:``}],"respec-button","blank",["row", [["buyable", ["CB1"]],"blank",["buyable", ["CB2"]],"blank",["buyable", ["CB3"]]]]],
+			buttonStyle(){return{'border-color':(inChallenge("c",51)&&player.c.buyables[41].gte(8)?"#00FF00":'lightcyan')}},
 			unlocked(){return hasMilestone("c",10)||hasAchievement("c",42)}
 		},
 		"Achievements":{
@@ -2865,7 +2868,7 @@ addLayer("c", {
 			unlocked(){return !options.assholeMode}
 		}
 	},
-    color(){return inChallenge("c",51)&&player.c.buyables[41].gte(8)?"#0000FF":hasAchievement("c",42)?"#e0ffff":"#7F7F7F"},
+    color(){return inChallenge("c",51)&&player.c.buyables[41].gte(8)?"#00FF00":hasAchievement("c",42)?"#e0ffff":"#7F7F7F"},
     requires(){return ((player.s.upgrades.length >= 6 && player.t.upgrades.length >= 6)||player.c.unlocked)?new Decimal(4970000):new Decimal("1e600000")}, // Can be a function that takes requirement increases into account
     resource: "craneniums", // Name of prestige currency
     baseResource(){return options.why?"points":"negative points"}, // Name of resource prestige is based on
@@ -2979,7 +2982,7 @@ addLayer("c", {
 		3: {
 			requirementDescription: "10 Infinities",
 			effectDescription: `Unlocks challenge`,
-			done() { return player.c.infinities.gte(10) },
+			done() { return player.c.infinities.gte(10)||hasMilestone("c","c2") },
 			unlocked(){return hasMilestone("c", 2)||hasAchievement("c", 42)}
 		},
 		4: {
@@ -3025,21 +3028,21 @@ addLayer("c", {
 			unlocked(){return hasMilestone("c", 9)||hasAchievement("c", 42)}
 		},
 		c1: {
-			requirementDescription: "1 Crescentable",
+			requirementDescription: "1 total crescent moon",
 			effectDescription: `Dimensions in Space layer cost nothing and you automatically purchase them`,
-			done() { return player.c.buyables["CB1"].gte(1)||player.c.buyables["CB2"].gte(1)||player.c.buyables["CB3"].gte(1)},
+			done() { return player.c.crescentmoonsTotal.gte(1)},
 			unlocked(){return hasMilestone("c", 9)||hasAchievement("c", 42)}
 		},
 		c2: {
-			requirementDescription: "2 different types of Crescentables",
-			effectDescription: `You keep Infinity Challenge completions on Crescent reset and unlock Synergy`,
-			done() { return (player.c.buyables["CB1"].gte(1)&&player.c.buyables["CB2"].gte(1))||(player.c.buyables["CB2"].gte(1)&&player.c.buyables["CB3"].gte(1))||(player.c.buyables["CB1"].gte(1)&&player.c.buyables["CB3"].gte(1))},
+			requirementDescription: "4 total crescent moons",
+			effectDescription: `You start off with all Infinity Challenges completed on Crescent reset and unlock Synergy`,
+			done() { return player.c.crescentmoonsTotal.gte(4)},
 			unlocked(){return hasMilestone("c", 9)||hasAchievement("c", 42)}
 		},
 		c3: {
-			requirementDescription: "3 different types of Crescentables",
+			requirementDescription: "13 total crescent moons",
 			effectDescription: `idk bro`,
-			done() { return player.c.buyables["CB1"].gte(1)&&player.c.buyables["CB2"].gte(1)&&player.c.buyables["CB3"].gte(1)},
+			done() { return player.c.crescentmoonsTotal.gte(13)},
 			unlocked(){return hasMilestone("c", 9)||hasAchievement("c", 42)}
 		},
 	},
@@ -3326,7 +3329,12 @@ addLayer("c", {
 		42: {
 			name: "<h4>New Era Begins",
 			done(){return player.c.crescentmoons.gte(1)},
-			tooltip: "Get 1 crescent moon.",
+			tooltip: "Get 1 crescent moon",
+		},
+		43: {
+			name: "<h4>help me",
+			done(){return player.c.crescentenergy.gte(1000)},
+			tooltip: "Reach 1,000 crescent croissant.",
 		},
 	},
 	buyables: {
@@ -3439,6 +3447,21 @@ addLayer("c", {
 				player.c.milestones = []
 				player.c.upgrades = []
 				doReset("c",true)
+				if(hasMilestone("c","c2")||player.c.crescentmoonsTotal.gte(4)){
+					player.c.challenges[11] = 1
+					player.c.challenges[12] = 1
+					player.c.challenges[13] = 1
+					player.c.challenges[21] = 1
+					player.c.challenges[22] = 1
+					player.c.challenges[23] = 1
+					player.c.challenges[31] = 1
+					player.c.challenges[32] = 1
+					player.c.challenges[33] = 1
+					player.c.challenges[41] = 1
+					player.c.challenges[42] = 1
+					player.c.challenges[43] = 1
+					player.c.challenges[51] = 1
+				}
 			},
 			style(){return{'background-color':(this.canAfford()?'lightcyan':''),'height':'120px', 'width':'180px', 'border-radius': '25%', 'border': '4px solid', 'border-color': 'rgba(0, 0, 0, 0.125)',"border-radius":"25% 0px 0px 25%"}},
 			unlocked(){return true}
@@ -3659,11 +3682,26 @@ addLayer("c", {
 				player.c.milestones = []
 				player.c.upgrades = []
 				doReset("c",true)
+				if(hasMilestone("c","c2")||player.c.crescentmoonsTotal.gte(4)){
+					player.c.challenges[11] = 1
+					player.c.challenges[12] = 1
+					player.c.challenges[13] = 1
+					player.c.challenges[21] = 1
+					player.c.challenges[22] = 1
+					player.c.challenges[23] = 1
+					player.c.challenges[31] = 1
+					player.c.challenges[32] = 1
+					player.c.challenges[33] = 1
+					player.c.challenges[41] = 1
+					player.c.challenges[42] = 1
+					player.c.challenges[43] = 1
+					player.c.challenges[51] = 1
+				}
 		},
 		CB1: {
 			title(){return `Early Game Boost`},
-			effect(){return Decimal.pow(29.5305888531, player.c.buyables["CB1"].mul(tmp.c.buyables["CB3"].effect).pow(0.295305888531))},
-			effect2(){return player.c.buyables["CB1"].add(1).pow(2.95305888531)},
+			effect(){return Decimal.pow(29.5305888531, player.c.buyables["CB1"].mul(tmp.c.buyables["CB3"].effect2).pow(0.295305888531))},
+			effect2(){return player.c.buyables["CB1"].mul(tmp.c.buyables["CB3"].effect2).add(1).pow(2.95305888531)},
 			display(){return `Your space and clock gain are multiplied by ${format(this.effect())}x and Your crescent croissants gain is multiplied by ${format(this.effect2())}x<br><br>Cost: ${formatWhole(this.cost())} crescent moons<br>Amount: ${formatWhole(player.c.buyables["CB1"])}`},
 			cost(){return Decimal.pow(3, player.c.buyables["CB1"].add(player.c.buyables["CB2"]).add(player.c.buyables["CB3"]))},
 			canAfford(){return player.c.crescentmoons.gte(this.cost())},
@@ -3676,8 +3714,8 @@ addLayer("c", {
 		},
 		CB2: {
 			title(){return `Middle Game Boost`},
-			effect(){return Decimal.pow(2.95305888531, player.c.buyables["CB2"].mul(tmp.c.buyables["CB3"].effect).root(2.95305888531))},
-			effect2(){return player.c.buyables["CB2"].root(1.295305888531).mul(2.95305888531)},
+			effect(){return Decimal.pow(2.95305888531, player.c.buyables["CB2"].mul(tmp.c.buyables["CB3"].effect2).root(2.95305888531))},
+			effect2(){return player.c.buyables["CB2"].mul(tmp.c.buyables["CB3"].effect2).root(1.295305888531).mul(2.95305888531)},
 			display(){return `Your cranenium gain and Crazy Dimensions's production are multiplied by ${format(this.effect())}x and you passively gain ${format(this.effect2())}% of each time unit available per second<br><br>Cost: ${formatWhole(this.cost())} crescent moons<br>Amount: ${formatWhole(player.c.buyables["CB2"])}`},
 			cost(){return Decimal.pow(3, player.c.buyables["CB1"].add(player.c.buyables["CB2"]).add(player.c.buyables["CB3"]))},
 			canAfford(){return player.c.crescentmoons.gte(this.cost())},
@@ -3741,8 +3779,8 @@ addLayer("c", {
 		21: {
 			name: "Infinite Challenge 4:<br>Spacetime Malfunction",
 			challengeDescription: "Space (total size's effect) and Time (hours's effect) layers nerf each other.",
-			canComplete: function() {return tmp.c.baseAmount.gte("1e28")},
-			goalDescription(){return "1e28 "+tmp.c.baseResource},
+			canComplete: function() {return tmp.c.baseAmount.gte("2.2e22")},
+			goalDescription(){return "2.2e22 "+tmp.c.baseResource},
 			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription()}`},
 			style(){return{'height':'224px','width':'256px','border-radius':'10%'}}
 		},
@@ -3976,7 +4014,7 @@ addLayer("c", {
 			challengeDescription: "Several challenges are applied at once.",
 			countsAs: [21,22,23,31,41,42,43],
 			unlocked(){return infiniteChallenges().gte(12)},
-			canComplete: function() {return tmp.s.color=="green"&&tmp.t.color=="green"&&tmp.c.color=="green"&&tmp.miniTree.color=="green"},
+			canComplete: function() {return tmp.s.color=="#00FF00"&&tmp.t.color=="#00FF00"&&tmp.c.color=="#00FF00"&&tmp.miniTree.color=="#00FF00"},
 			onEnter() {
 				for(i=1;i<21;i++){
 					player.c.buyables[i*10+1] = new Decimal(0)
@@ -4074,7 +4112,7 @@ addLayer("c", {
 				player.bClassic.auto=false
 				player.gClassic.auto=false
 			},
-			goalDescription(){return "2.8e28 "+tmp.c.baseResource+", 8 4th Crazy Dimensions and 1 Eternal"},
+			goalDescription(){return "1.8e18 "+tmp.c.baseResource+", 8 4th Crazy Dimensions and 1 Eternal"},
 			rewardDescription: "Base formula is better<br>[C^1.25 = C^1.65*100]",
 			fullDisplay(){return `${this.challengeDescription}<br>Goal: ${this.goalDescription()}<br>Reward: ${this.rewardDescription}`},
 			style(){return{'height':'194px','width':'640px','border-radius':'10%'}}
@@ -6473,7 +6511,7 @@ addLayer("o", {
 addLayer("miniTree",{
 	row: "side",
 	symbol: "PTC",
-	color(){return inChallenge("c",51)&&player.eClassic.points.gte(1)?"#0000FF":"rgb(105,0,111)"},
+	color(){return inChallenge("c",51)&&player.eClassic.points.gte(1)?"#00FF00":"rgb(105,0,111)"},
 	tooltip(){return `${formatWhole(player.pClassic.normalPoints)} points`},
 	layerShown(){return inChallenge("c", 42)},
 	tabFormat:[["display-text",function(){return "<span>You have <h2 class='overlayThing' id='points'>"+format(player.pClassic.normalPoints)+"</h2> points</span>"}],"blank","blank","blank","blank",["tree", [["pClassic"],["bClassic", "gClassic"],["eClassic"]]]]

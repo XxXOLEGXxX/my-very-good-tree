@@ -14,7 +14,7 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.12 - Crescent Test",
+	num: "5.12 - Crescent Test 2",
 	name: "New Game+... in a NG-X themed TMT?",
 }
 
