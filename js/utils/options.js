@@ -41,7 +41,7 @@ function swtichMusic() {
 }
 
 function newGamePlus(){
-	if(new Decimal(options.ngplus).gte(5)&&player.ab.shopPoints.lte(hasUpgrade("t",14)?player.ab.points.add(1):player.ab.points)){
+	if(new Decimal(options.ngplus).gte(5)&&player.ab.shopPoints.lte(0)){
 		player.ab.buyables[11] = new Decimal(0)
 		player.ab.buyables[12] = new Decimal(0)
 		player.ab.buyables[13] = new Decimal(0)
