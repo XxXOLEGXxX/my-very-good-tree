@@ -1080,7 +1080,7 @@ addLayer("ab", {
 		if(player.gp.points.gte("5e85")) player.ab.help = player.ab.help.mul(Decimal.add(diff, 1)).mul(player.ab.help.root(42))
 		if(player.ab.points.gte(3)&&player.points.gte(0)&&!player.ab.points.gte(5)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(20))
 		if(player.ab.points.gte(5)&&player.points.gte(0)&&getPointGen().gt(0)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(10))
-		player.ab.shopPoints = new Decimal(player.ab.points).add(hasUpgrade("t", 14)?1:0).mul(new Decimal(options.ngplus).gte(5)?2:1).sub(player.ab.spentPoints)
+		player.ab.shopPoints = new Decimal(player.ab.points).add(hasUpgrade("t", 14)?1:0).mul(new Decimal(options.ngplus).gte(5)?2:1).add(new Decimal(options.ngplus).gte(5)?player.a.fame:0).sub(player.ab.spentPoints)
 		if(player.ab.points.gte(4)) tmp.ab.color = (new Decimal(Math.random()).gte(0.25))?"#8b0000":"#800080"
 	},
 	tooltipLocked(){return "Reach 10 giga prestige points to unlock (You have "+formatWhole(player.gp.points)+" giga prestige points)"},
@@ -1408,9 +1408,9 @@ addLayer("g", {
 	canBuyMax() {return hasAchievement("a", 46)},
 	effectDescription(){return `which generate ${format(tmp.g.effect)} Degenerative Power per second.<br>${format(player.g.power)} Degenerative Power boost point gain by x${format(tmp.g.effectPower)} before NG-X nerfs.`},
     prestigeButtonText() {
-        return "Reset for +"+(player.b.points.gte(tmp.g.requires.b) && player.kp.points.gte(tmp.g.requires.kp)?1:0)+" generators<br><br>Req: "+format(player.kp.points)+" / "+format(tmp.g.requires.kp)+" kilo prestige points<br>"+format(player.b.points)+" / "+format(tmp.g.requires.b)+" boosters"
+        return "Reset for +"+(player.b.points.gte(tmp.g.requires.b) && player.kp.points.gte(tmp.g.requires.kp)?1:0)+" generator<br><br>Req: "+format(player.kp.points)+" / "+format(tmp.g.requires.kp)+" kilo prestige points<br>"+format(player.b.points.add(new Decimal(options.ngplus).gte(4)?player.pb.boosters:0))+" / "+format(tmp.g.requires.b)+" boosters"
     },
-	canReset(){return player.b.points.gte(tmp.g.requires.b) && player.kp.points.gte(tmp.g.requires.kp)},
+	canReset(){return player.b.points.add(new Decimal(options.ngplus).gte(4)?player.pb.boosters:0).gte(tmp.g.requires.b) && player.kp.points.gte(tmp.g.requires.kp)},
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
         return mult
@@ -1461,10 +1461,10 @@ addLayer("kbg", {
     requires(){return new Decimal(120).mul(Decimal.pow(3, player.kbg.points))},
     resource: "Uлs1A8I1I1Y", // Name of prestige currency
     baseResource: "points", // Name of resource prestige is based on
-    baseAmount() {return tmp.g.effectPower.mul(player.kb.points)}, // Get the current amount of baseResource
+    baseAmount() {return tmp.g.effectPower.mul(player.kb.points.add(new Decimal(options.ngplus).gte(4)?player.pb.kiloboosters:0))}, // Get the current amount of baseResource
     type: "custom", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
 	getResetGain(){return new Decimal(1)},
-	getNextAt(canMax=false){return tmp.g.effectPower.mul(player.kb.points)},
+	getNextAt(canMax=false){return tmp.g.effectPower.mul(player.kb.points.add(new Decimal(options.ngplus).gte(4)?player.pb.kiloboosters:0))},
 	canBuyMax() {return false},
     prestigeButtonText() {
         return "Reset for +1 Uлs1A8I1I1Y<br><br>Req: "+format(tmp.kbg.getNextAt)+" / "+format(tmp.kbg.requires)+" total product of kilo boosters and degenerative power effect"
@@ -1535,7 +1535,7 @@ addLayer("mpkb", {
     baseAmount() {return player.kb.points.mul(player.mp.points)}, // Get the current amount of baseResource
     type: "custom", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
 	getResetGain(){return new Decimal(1)},
-	getNextAt(canMax=false){return player.kb.points.mul(player.mp.points)},
+	getNextAt(canMax=false){return player.kb.points.add(new Decimal(options.ngplus).gte(4)?player.pb.kiloboosters:0).mul(player.mp.points)},
 	canBuyMax() {return false},
 	baseEffect() {return new Decimal(2)},
 	effect() {return this.baseEffect().pow(player.mpkb.points)},
@@ -1941,7 +1941,8 @@ addLayer("sdumsl", {
 		fiveNG: false,
 		superEpicEntrance: new Decimal(0),
     }},
-    color: "#0f0f0f",
+	symbol: "?",
+    color: "darkcyan",
     row: "side",
 	update(diff){
 		if(player.ab.points.gte(5)&&player.sdumsl.fiveNG==false) player.sdumsl.fiveNG=true
@@ -1972,6 +1973,8 @@ addLayer("sdumsl", {
             unlocked() {return true},
             canClick() {return true},
 			onClick()  {player.a.achievements = ['11', '12', '13', '14', '15']
+						layerDataReset("realAB")
+						layerDataReset("pp")
 						player.realAB.unlocked=false
 						player.realAB.points=new Decimal(0)
 						player.realAB.upgrades=[]
@@ -7548,6 +7551,9 @@ addLayer("realAB",{
 			player.o.plots = new Decimal(0)
 			player.realAB.tickMyBalls = new Decimal(0)
 		}
+		if(tmp[resettingLayer].id=="ab"){
+			layerDataReset("realAB")
+		}
 	}
 })
 
@@ -7782,6 +7788,9 @@ addLayer("pp", {
 			player.o.plots = new Decimal(0)
 			player.realAB.tickMyBalls = new Decimal(0)
 		}
+		if(tmp[resettingLayer].id=="ab"){
+			layerDataReset("pp")
+		}
 	},
 	branches: ["realAB"],
     layerShown(){return hasMilestone("realAB",3)},
@@ -7894,7 +7903,7 @@ addLayer("ng+", {
     startData() { return {
         unlocked: true,
     }},
-	tabFormat:[["display-text", function(){return (new Decimal(options.ngplus).gte(1)?"<h1 style='color: lightcyan'>[NG+]<br><h3 style='color: lightcyan'>-Adds 4th upgrade column in all prestige layers":"")+(new Decimal(options.ngplus).gte(2)?"<br><br><br><br><h1 style='color: lightcyan'>[NG++]<br><h3 style='color: lightcyan'>-You keep booster on higher prestige resets":"")+(new Decimal(options.ngplus).gte(3)?`<br><br><br><br><h1 style='color: lightcyan'>[NG+++]<br><h3 style='color: lightcyan'>-Total achievements multiply your point gain by ${formatWhole(player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1)}x`:"")+(new Decimal(options.ngplus).gte(4)?"<br><br><br><br><h1 style='color: lightcyan'>[NG++++]<br><h3 style='color: lightcyan'>-Automatically converts all types of boosters into primordial boosters":"")+(new Decimal(options.ngplus).gte(5)?"<br><br><br><br><h1 style='color: lightcyan'>[NG+++++]<br><h3 style='color: lightcyan'>-You have 2x more balancing points":"")}]],
+	tabFormat:[["display-text", function(){return (new Decimal(options.ngplus).gte(1)?`<h1 style='color: lightcyan'>[NG+]<br><h3 style='color: lightcyan'>-Adds 4th upgrade column in all prestige layers<br>-Your point gain is multiplied by ${format(Decimal.add(player.timePlayed,1).root(8.199380194850416))}x based on time played`:"")+(new Decimal(options.ngplus).gte(2)?"<br><br><br><br><h1 style='color: lightcyan'>[NG++]<br><h3 style='color: lightcyan'>-You keep boosters on higher prestige resets":"")+(new Decimal(options.ngplus).gte(3)?`<br><br><br><br><h1 style='color: lightcyan'>[NG+++]<br><h3 style='color: lightcyan'>-Total achievements multiply your point gain by ${formatWhole(player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1)}x`:"")+(new Decimal(options.ngplus).gte(4)?"<br><br><br><br><h1 style='color: lightcyan'>[NG++++]<br><h3 style='color: lightcyan'>-Automatically converts all types of boosters into primordial boosters<br>-Stored boosters count towards requirements":"")+(new Decimal(options.ngplus).gte(5)?"<br><br><br><br><h1 style='color: lightcyan'>[NG+++++]<br><h3 style='color: lightcyan'>-You have 2x more balancing points<br>-You gain an additional balancing point per completed challenges":"")}]],
 	tooltip: "",
     color: "#e0ffff",
     row: "side",

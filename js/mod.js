@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.13",
-	name: "Croissant Edition",
+	num: "5.13.1",
+	name: "ng+x buff be like",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,6 +23,8 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h5>v5.13.1: ng+x buff be like (v0.11.1)</h5>
+		- Buffed NG+, NG+4 and NG+5
 	<h4>v5.13: Croissant Edition (v0.11)</h4>
 		- Added Crescent prestige for Crazy layer<br>
 		- Pushed Onion layer's endgame a bit<br>
@@ -132,8 +134,8 @@ function getBypassedPointGen() {
 	if(!canGenPoints()||doesItWorkTho)
 		return new Decimal(0)
 
-	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true)).mul(new Decimal(options.ngplus).gte(3)?player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1:1)
-	let mult = new Decimal(1).add(upgradeRow("kp", "2", true)).add(upgradeRow("mp", "2", true)).add(upgradeRow("gp", "2", true))
+	let gain = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRow("kp", "1", true)).add(upgradeRow("mp", "1", true)).add(upgradeRow("gp", "1", true))
+	let mult = new Decimal(1).add(upgradeRow("kp", "2", true)).add(upgradeRow("mp", "2", true)).add(upgradeRow("gp", "2", true)).mul(new Decimal(options.ngplus).gte(1)?Decimal.add(player.timePlayed,1).root(8.199380194850416):1).mul(new Decimal(options.ngplus).gte(3)?player.a.achievements.length+player.c.achievements.length+player.realAB.achievements.length+1:1)
 	let exp = new Decimal(1).add(upgradeRow("mp", "3", true)).add(upgradeRow("gp", "3", true))
 	let tetra = new Decimal(upgradeRow("gp", "4", true)).div(100).add(1)
 	gain = gain.mul(tmp.s.effect)
