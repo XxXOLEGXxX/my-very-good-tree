@@ -259,7 +259,7 @@ addLayer("p", {
 			doReset("ab", true)
 		}
 		if(options.theme=="adapt"){
-			if(player.tab=='none'||player.tab=='info-tab'||player.tab=='changelog-tab'||player.tab=='options-tab') document.body.style.setProperty('--background', "#0f0f0f")
+			if(player.tab=='none'||player.tab=='info-tab'||player.tab=='changelog-tab'||player.tab=='options-tab'||player.tab=='sdumsl') document.body.style.setProperty('--background', "#0f0f0f")
 			else{
 				let r = Math.max(Math.floor(hexToRgb(tmp[player.tab].color).r/4),15)
 				let g = Math.max(Math.floor(hexToRgb(tmp[player.tab].color).g/4),15)
@@ -1426,6 +1426,7 @@ addLayer("g", {
 			player.g.points = new Decimal(0)
 			player.g.power = new Decimal(0)
 		}
+		if(new Decimal(options.ngplus).gte(4)) player.pb.boosters = player.pb.boosters.sub(tmp.g.requires.b)
 	},
 	hotkeys: [
         {key: "ctrl+g", unlocked() {return player.ab.points.gte(4)}, description: "Ctrl+G: Reset for generators", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
@@ -1472,7 +1473,7 @@ addLayer("kbg", {
 	effect(){return Decimal.pow(player.kbg.random, player.kbg.points)},
 	effect2(){return player.kbg.random2},
 	effectDescription(){return `multiplying degenerative power gain by ${format(this.effect())} and lowering kilo booster's requirement by /${format(this.effect2())}`},
-	canReset(){return tmp.g.effectPower.mul(player.kb.points).gte(tmp.kbg.requires)},
+	canReset(){return tmp.g.effectPower.mul(player.kb.points.add(new Decimal(options.ngplus).gte(4)?player.pb.kiloboosters:0)).gte(tmp.kbg.requires)},
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
         return mult
@@ -1499,6 +1500,13 @@ addLayer("kbg", {
 	hotkeys: [
         {key: "u", unlocked() {return hasAchievement("a", 52)}, description: "U: Reset for Uлs1A8I1I1IE5", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
+	doReset(resettingLayer){
+		if((tmp[resettingLayer].row>this.row) || tmp[resettingLayer].row>=7) {
+			player.kbg.points = new Decimal(0)
+			player.kbg.power = new Decimal(0)
+		}
+		if(new Decimal(options.ngplus).gte(4)) player.pb.kiloboosters = new Decimal(0)
+	},
 	nodeStyle: {'border-radius': '0%', 'border': '0px', 'color': '#000000'},
 	componentStyles: {
 		"prestige-button"() { return {'border-radius': '0%', 'border': '0px'}},
@@ -1543,7 +1551,7 @@ addLayer("mpkb", {
     prestigeButtonText() {
         return "Reset for +1 prestigious booster<br><br>Req: "+format(tmp.mpkb.getNextAt)+" / "+format(tmp.mpkb.requires)+" total product of kilo boosters and mega prestige points"
     },
-	canReset(){return player.kb.points.mul(player.mp.points).gte(tmp.mpkb.requires)},
+	canReset(){return player.kb.points.add(new Decimal(options.ngplus).gte(4)?player.pb.kiloboosters:0).mul(player.mp.points).gte(tmp.mpkb.requires)},
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1)
         return mult
@@ -1560,6 +1568,12 @@ addLayer("mpkb", {
 			effectDescription: "Mega Prestige layer no longer resets on this row.",
 			done() { return player.mpkb.points.gte(1) }
 		}
+	},
+	doReset(resettingLayer){
+		if((tmp[resettingLayer].row>this.row) || tmp[resettingLayer].row>=7) {
+			player.mpkb.points = new Decimal(0)
+		}
+		if(new Decimal(options.ngplus).gte(4)) player.pb.kiloboosters = new Decimal(0)
 	},
 	hotkeys: [
         {key: "ctrl+b", unlocked() {return hasAchievement("a", 52)}, description: "Ctrl+B: Reset for prestigious boosters", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
