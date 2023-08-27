@@ -175,7 +175,7 @@ addLayer("pb", {
 		11: {
 			title: "Respec stored boosters",
 			display() { return "<h3>No resetting this time<br><br>- yours truly, paralysis demon <3</h3><br>(i still hate your guts)" },
-			canAfford() { return player.pb.points.gte(1) },
+			canAfford() { return player.pb.boosters.gte(1)||player.pb.kiloboosters.gte(1)||player.pb.megaboosters.gte(1) },
 			buy() {
 				player.pb.boosters = new Decimal(0)
 				player.pb.kiloboosters = new Decimal(0)
@@ -1408,7 +1408,7 @@ addLayer("g", {
 	canBuyMax() {return hasAchievement("a", 46)},
 	effectDescription(){return `which generate ${format(tmp.g.effect)} Degenerative Power per second.<br>${format(player.g.power)} Degenerative Power boost point gain by x${format(tmp.g.effectPower)} before NG-X nerfs.`},
     prestigeButtonText() {
-        return "Reset for +"+(player.b.points.gte(tmp.g.requires.b) && player.kp.points.gte(tmp.g.requires.kp)?1:0)+" generator<br><br>Req: "+format(player.kp.points)+" / "+format(tmp.g.requires.kp)+" kilo prestige points<br>"+format(player.b.points.add(new Decimal(options.ngplus).gte(4)?player.pb.boosters:0))+" / "+format(tmp.g.requires.b)+" boosters"
+        return "Reset for +"+(player.b.points.add(new Decimal(options.ngplus).gte(4)?player.pb.boosters:0).gte(tmp.g.requires.b) && player.kp.points.gte(tmp.g.requires.kp)?1:0)+" generator<br><br>Req: "+format(player.kp.points)+" / "+format(tmp.g.requires.kp)+" kilo prestige points<br>"+format(player.b.points.add(new Decimal(options.ngplus).gte(4)?player.pb.boosters:0))+" / "+format(tmp.g.requires.b)+" boosters"
     },
 	canReset(){return player.b.points.add(new Decimal(options.ngplus).gte(4)?player.pb.boosters:0).gte(tmp.g.requires.b) && player.kp.points.gte(tmp.g.requires.kp)},
     gainMult() { // Calculate the multiplier for main currency from bonuses
@@ -1426,7 +1426,7 @@ addLayer("g", {
 			player.g.points = new Decimal(0)
 			player.g.power = new Decimal(0)
 		}
-		if(new Decimal(options.ngplus).gte(4)) player.pb.boosters = player.pb.boosters.sub(tmp.g.requires.b)
+		if(new Decimal(options.ngplus).gte(4)&&tmp[resettingLayer].id=="g") player.pb.boosters = player.pb.boosters.sub(tmp.g.requires.b)
 	},
 	hotkeys: [
         {key: "ctrl+g", unlocked() {return player.ab.points.gte(4)}, description: "Ctrl+G: Reset for generators", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
@@ -1505,7 +1505,7 @@ addLayer("kbg", {
 			player.kbg.points = new Decimal(0)
 			player.kbg.power = new Decimal(0)
 		}
-		if(new Decimal(options.ngplus).gte(4)) player.pb.kiloboosters = new Decimal(0)
+		if(new Decimal(options.ngplus).gte(4)&&tmp[resettingLayer].id=="kbg") player.pb.kiloboosters = new Decimal(0)
 	},
 	nodeStyle: {'border-radius': '0%', 'border': '0px', 'color': '#000000'},
 	componentStyles: {
@@ -1573,7 +1573,7 @@ addLayer("mpkb", {
 		if((tmp[resettingLayer].row>this.row) || tmp[resettingLayer].row>=7) {
 			player.mpkb.points = new Decimal(0)
 		}
-		if(new Decimal(options.ngplus).gte(4)) player.pb.kiloboosters = new Decimal(0)
+		if(new Decimal(options.ngplus).gte(4)&&tmp[resettingLayer].id=="mpkb") player.pb.kiloboosters = new Decimal(0)
 	},
 	hotkeys: [
         {key: "ctrl+b", unlocked() {return hasAchievement("a", 52)}, description: "Ctrl+B: Reset for prestigious boosters", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
