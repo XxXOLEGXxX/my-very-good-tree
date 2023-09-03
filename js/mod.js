@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.13.1",
-	name: "ng+x buff be like",
+	num: "5.13.2",
+	name: "fuck them [REDACTED] all my homies hate em",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,6 +23,8 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+	<h5>v5.13.1: ng+x buff be like (v0.11.2)<br>
+		- Added Anti-[REDACTED] mechanic, where you automatically gain 1 Challenge per 1 hour</h5>
 	<h5>v5.13.1: ng+x buff be like (v0.11.1)<br>
 		- Buffed NG+, NG+4 and NG+5<br>
 		- Made it so you can actually see secret layer at NG-5<br>
