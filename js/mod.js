@@ -14,8 +14,8 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.13.2",
-	name: "fuck them [REDACTED] all my homies hate em",
+	num: "5.14",
+	name: "The Forbidden Upgrade",
 }
 
 let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
@@ -23,7 +23,13 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
-	<h5>v5.13.1: ng+x buff be like (v0.11.2)<br>
+	<h4>v5.14: The Forbidden Upgrade (v0.12)</h4>
+    	- Added Time Dilation<br>
+        - Fixed a bug that allows anyone to get 2nd challenge for free, hopefully<br>
+        - Added Tera Prestige layer<br>
+        - Added "truly the goofiest mode you've ever seen thus far"<br>
+        - Updated Singapore's DMCA<br>
+	<h5>v5.13.2: ng+x buff be like (v0.11.2)<br>
 		- Added Anti-[REDACTED] mechanic, where you automatically gain 1 Challenge per 1 hour</h5>
 	<h5>v5.13.1: ng+x buff be like (v0.11.1)<br>
 		- Buffed NG+, NG+4 and NG+5<br>
@@ -169,6 +175,7 @@ function getBypassedPointGen() {
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
 	let notSoInfinite = new Decimal(2).pow(1024)
 	if(hasUpgrade("t", 13) && player.points.gt(0)) gain = gain.mul(6)
+	if(options.bitch) gain = gain.mul(player.ab.currentState==10?-1:player.ab.currentState==9?0:player.ab.currentState==3?52:player.ab.currentState==7?1.01:1).pow(player.ab.currentState==14?new Decimal("1e-42"):player.ab.currentState==6?0.69:player.ab.currentState==15?new Decimal(Math.random()).mul(Math.sin(player.a.sine)).div(4).add(1):1)
 	if(inChallenge("c", 23)) gain = gain.tetrate(0.8408964152537146)
 	if(inChallenge("o", 22)) gain = gain.pow(0.69)
 	for(let iAmMortal = 1; gain.gte(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)); iAmMortal++) {
@@ -177,8 +184,9 @@ function getBypassedPointGen() {
 	for(let iAmGod = 1; gain.gte(Decimal.pow((options.assholeMode?1000:"1e10000"), iAmGod)); iAmGod++) {
 	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?1000:"1e10000"), iAmGod)).root(Decimal.add(1, Decimal.div(1, Decimal.tetrate(iAmGod, iAmGod)))))
 	}
+    if(player.ab.currentState==13) gain = gain.min(player.ab.points.mul(10))
 	if(player.ab.points.gte(5)) gain = gain.times(-1)
-	return gain
+    return gain
 }
 
 function infiniteChallenges(){
@@ -197,13 +205,14 @@ function smartAchievementEffect(layer, id, def = new Decimal(1)) {
 
 function denoido() {
 	let progress = new Decimal(1)
+    let powerThis = player.ab.currentState==5?10:1
 	if(hasAchievement("a", 35)) progress = new Decimal(player.dn.points.floor()).pow(player.dn.points.floor())
-	let skateboardGain = player.dn.points.div(10).times(progress)
-	let pogoGain = player.dn.skateboards.div(100).times(progress)
-	let denoidoGain = player.dn.pogos.div(1000).times(progress)
-	let bombGain = player.dn.pogos.div(10000).times(progress)
-	let minidenoidoGain = player.dn.bombs.div(100000000).times(progress)
-	let fakedenoidoGain = player.dn.minidenoidos.div(10000000000000000).times(progress)
+	let skateboardGain = player.dn.points.div(Decimal.pow(10, powerThis)).times(progress)
+	let pogoGain = player.dn.skateboards.div(Decimal.pow(100, powerThis)).times(progress)
+	let denoidoGain = player.dn.pogos.div(Decimal.pow(1000, powerThis)).times(progress)
+	let bombGain = player.dn.pogos.div(Decimal.pow(10000, powerThis)).times(progress)
+	let minidenoidoGain = player.dn.bombs.div(Decimal.pow(100000000, powerThis)).times(progress)
+	let fakedenoidoGain = player.dn.minidenoidos.div(Decimal.pow(10000000000000000, powerThis)).times(progress)
 	return {skateboardGain, pogoGain, denoidoGain, bombGain, minidenoidoGain, fakedenoidoGain}
 }
 
@@ -244,6 +253,7 @@ function getPointGen() {
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
 	let notSoInfinite = new Decimal(2).pow(1024)
 	if(hasUpgrade("t", 13) && player.points.gt(0)) gain = gain.mul(6)
+	if(options.bitch) gain = gain.mul(player.ab.currentState==10?-1:player.ab.currentState==9?0:player.ab.currentState==3?52:player.ab.currentState==7?1.01:1).pow(player.ab.currentState==14?new Decimal("1e-42"):player.ab.currentState==6?0.69:player.ab.currentState==15?new Decimal(Math.random()).mul(Math.sin(player.a.sine)).div(4).add(1):1)
 	if(inChallenge("c", 23)) gain = gain.tetrate(0.8408964152537146)
 	if(inChallenge("o", 22)) gain = gain.pow(0.69)
 	for(let iAmMortal = 1; gain.gte(Decimal.pow((options.assholeMode?10:notSoInfinite), iAmMortal)); iAmMortal++) {
@@ -252,8 +262,9 @@ function getPointGen() {
 	for(let iAmGod = 1; gain.gte(Decimal.pow((options.assholeMode?1000:"1e10000"), iAmGod)); iAmGod++) {
 	gain = gain.div(gain.div(Decimal.pow((options.assholeMode?1000:"1e10000"), iAmGod)).root(Decimal.add(1, Decimal.div(1, Decimal.tetrate(iAmGod, iAmGod)))))
 	}
+    if(player.ab.currentState==13) gain = gain.min(player.ab.points.mul(10))
 	if(player.ab.points.gte(5)) gain = gain.times(-1)
-	return gain
+    return gain
 }
 
 function canHeGeneratePlottho(){
@@ -268,6 +279,7 @@ function canHeGeneratePlottho(){
 	if(hasMilestone("o","t7")) gain = gain.mul(player.o.treeOfLayers.add(1).root(2)).mul(tmp.pp.effect)
 	if(hasMilestone("realAB",5)) gain = gain.mul(player.realAB.milestones.length+1)
 	if(hasUpgrade("pp",25)) gain = gain.mul(5)
+    if(hasUpgrade("realS",11)) gain = gain.mul(10).mul(tmp.realS.upgrades[11].effect)
 	if(player.realAB.points.gte(8)) gain = gain.div(60)
 	if(player.realAB.points.gte(6)) gain = gain.div(Decimal.pow(2, player.realAB.points))
 	if(player.realAB.points.gte(2)) gain = gain.div(player.o.plots.add(1).pow(player.realAB.points.gte(4)?player.realAB.points.gte(5)?player.realAB.points:3:1).pow(player.realAB.points.gte(10)?player.o.plots.add(1):1))
@@ -277,6 +289,32 @@ function canHeGeneratePlottho(){
 	if(inChallenge("realAB",13)&&!inChallenge("realAB",14)) gain = gain.div(tmp.realAB.challenges[13].effect2).pow(tmp.realAB.challenges[13].effect.pow(gain.div(tmp.realAB.challenges[13].effect2).lte(1)?-1:1))
 	if(inChallenge("realAB",14)) gain = gain.div(tmp.realAB.challenges[14].effect2).pow(tmp.realAB.challenges[14].effect.pow(gain.div(tmp.realAB.challenges[14].effect2).lte(1)?-1:1))
 	return gain
+}
+
+function locateShenanigansUpgrades(id){
+    let funny = false
+    for(i=-1;i<2;i++){
+        for(v=-1;v<2;v++){
+            if(hasUpgrade("realS", id+(i*10)+v) && !(id+(i*10)+v==id)) funny = true
+        }
+    }
+    return funny
+}
+
+function randomizeTree(){
+    let completelyFineTree = ["s","t","n","m","c","o","p","kp","b","mp","kb","g","mpkb","gp","mb","kbg","tp","pb","dn","gb","ab"]
+    let row = []
+    let randomizedTree = []
+    while(completelyFineTree.length>1){
+        let pickThatMFer = Math.ceil(Math.random()*completelyFineTree.length-1)
+        row.push(completelyFineTree[pickThatMFer])
+        if(Math.random()>=0.8){
+            randomizedTree.push(row)
+            row = []
+        }
+        completelyFineTree.splice(pickThatMFer,1)
+    }
+    return randomizedTree
 }
 
 function upgradeRow(a, b, c) { //"a" = layer, b = row, c == true = has upgrade and vice versa

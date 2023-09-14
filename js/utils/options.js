@@ -21,6 +21,7 @@ function getStartOptions() {
 		mobileButtons: true,
 		translateThis: false,
 		ngplus: new Decimal(0),
+		bitch: false,
 	}
 }
 

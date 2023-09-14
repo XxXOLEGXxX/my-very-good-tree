@@ -178,12 +178,15 @@ var systemComponents = {
             <tr>
                 <td><button class="opt" onclick="swtichMusic()">Magic Music Box: {{ player.ab.points.gte(1)?["MUTED","NG-","NG--","NG---","NG----"][options.musicToggle]:"[LOCKED]" }}</button></td>
                 <td><button class="opt" onclick="assholeToggle()">(Experimental)<br>Asshole Mode: {{ options.assholeMode?"ON":"OFF" }}</button></td>
-				<td><button class="opt" onclick="toggleOpt('why')">Early NG-----: {{ options.why?"ON":"OFF" }}</button></td>
+				<td><button class="opt" onclick="toggleOpt('why')">Early NG-5 (DON'T USE IT AT NG-5): {{ options.why?"ON":"OFF" }}</button></td>
 			</tr>
 			<tr>
 				<td><button class="opt" onclick="toggleOpt('mobileButtons')">BEE-GONE BUTTONS: {{ options.mobileButtons?"DO NOT.":"ON" }}</button></td>
 				<td><button class="opt" onclick="toggleOpt('translateThis')">{{ options.translateThis?"TRANSLATE PRESTIGE UPGRADES":"BLAH" }}: {{ options.translateThis?"ON":"BLAH" }}</button></td>
 				<td><button class="opt" onclick="newGamePlus()">NEW GAME+: {{ ["Base","NG+1","NG+2","NG+3","NG+4","NG+5"][options.ngplus] }}</button></td>
+			</tr>
+			<tr>
+				<td><button class="opt" onclick="toggleOpt('bitch')">Goofy Ass Assistance: {{ options.bitch?"(AB) YES":"(AB) NO" }}</button></td>
 			</tr>
         </table>`
     },
