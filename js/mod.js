@@ -14,7 +14,7 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "5.14",
+	num: "5.14:RE",
 	name: "The Forbidden Upgrade",
 }
 
@@ -23,6 +23,10 @@ let changelog = `<h3>Whatever you do, do NOT abuse Balancers...</h3><br><br>
 	x.0 = available ng-x mode<br>
 	0.x = everything else<br><br><br>
 	<h1>Changelog:</h1><br><br>
+    <h3>v5:14:RE: Pre-NG-5 Revamp (Test Version)<br>
+        - Added Conversion layer in NG--<br>
+        - Moved de noido to NG--- instead<br>
+        - Revamped up to NG---</h3><br><br>
 	<h4>v5.14: The Forbidden Upgrade (v0.12)</h4>
     	- Added Time Dilation<br>
         - Fixed a bug that allows anyone to get 2nd challenge for free, hopefully<br>
@@ -169,8 +173,9 @@ function getBypassedPointGen() {
 	if(hasAchievement("c",42)) gain = gain.mul(tmp.c.buyables["CB3"].effect2)
 	if(tmp.c.gimmeEpicGamerCombo==3) gain = gain.mul(3)
 	gain = gain.mul(tmp.g.effectPower)
-	if(player.ab.points.gte(1)) gain = gain.div(4)
-	if(player.ab.points.gte(4)) gain = gain.div(4)
+    if(hasAchievement("a", 21)) gain = gain.mul(new Decimal(1.15).add(hasUpgrade("dn",21)?upgradeEffect("dn",21).div(100):0))
+	if(player.ab.points.gte(1)) gain = gain.div(player.con.buyables[11].gte(2)?8:4)
+	if(player.ab.points.gte(4)) gain = gain.div(player.con.buyables[11].gte(2)?8:4)
 	gain = gain.times(mult).pow(exp).tetrate(tetra).times(tmp.b.effect).times(tmp.kb.effect).times(tmp.mb.effect).times(tmp.gb.effect).times(tmp.pb.effect)
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
 	let notSoInfinite = new Decimal(2).pow(1024)
@@ -204,9 +209,8 @@ function smartAchievementEffect(layer, id, def = new Decimal(1)) {
 }
 
 function denoido() {
-	let progress = new Decimal(1)
+	let progress = player.dn.buyables[11].add(1).mul(player.dn.buyables[21].add(1)).mul(player.dn.buyables[31].add(1)).mul(player.dn.buyables[41].add(1)).pow(player.dn.buyables[51].add(1))
     let powerThis = player.ab.currentState==5?10:1
-	if(hasAchievement("a", 35)) progress = new Decimal(player.dn.points.floor()).pow(player.dn.points.floor())
 	let skateboardGain = player.dn.points.div(Decimal.pow(10, powerThis)).times(progress)
 	let pogoGain = player.dn.skateboards.div(Decimal.pow(100, powerThis)).times(progress)
 	let denoidoGain = player.dn.pogos.div(Decimal.pow(1000, powerThis)).times(progress)
@@ -247,8 +251,9 @@ function getPointGen() {
 	if(hasAchievement("c",42)) gain = gain.mul(tmp.c.buyables["CB3"].effect2)
 	if(tmp.c.gimmeEpicGamerCombo==3) gain = gain.mul(3)
 	gain = gain.mul(tmp.g.effectPower)
-	if(player.ab.points.gte(1)) gain = gain.div(4)
-	if(player.ab.points.gte(4)) gain = gain.div(4)
+    if(hasAchievement("a", 21)) gain = gain.mul(new Decimal(1.15).add(hasUpgrade("dn",21)?upgradeEffect("dn",21).div(100):0))
+	if(player.ab.points.gte(1)) gain = gain.div(player.con.buyables[11].gte(2)?8:4)
+	if(player.ab.points.gte(4)) gain = gain.div(player.con.buyables[11].gte(2)?8:4)
 	gain = gain.times(mult).pow(exp).tetrate(tetra).times(tmp.b.effect).times(tmp.kb.effect).times(tmp.mb.effect).times(tmp.gb.effect).times(tmp.pb.effect)
 	gain = gain.plus(tmp.ab.buyables[11].effect).times(tmp.ab.buyables[12].effect).pow(tmp.ab.buyables[13].effect).tetrate(tmp.ab.buyables[14].effect)
 	let notSoInfinite = new Decimal(2).pow(1024)

@@ -17,7 +17,7 @@ addNode("blank", {
 
 
 addLayer("tree-tab", {
-tabFormat: [["display-text", function(){return (player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)?"<h1 style='color: darkred; font-size: 2.8em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You may only choose one pair of layers.</h1>":"")+(getPointGen().gte((options.assholeMode?10:Decimal.pow(2, 1024)))?"<h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log((options.assholeMode?10:Decimal.pow(2, 1024))).floor())+" scaling root softcaps</h2>":"")+(getPointGen().gte((options.assholeMode?1000:"1e10000"))?"<br><h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log((options.assholeMode?1000:"1e10000")).floor())+" scaling tetration softcaps</h2>":"")}], "blank", ["clickables", [4]], ["tree", function() {return player.ab.currentState==12?player.ab.randomTree:player.ab.currentState==11?[[]]:[["s","t","n","m"],["c","o"],["p"],["kp","b"],["mp","kb","g"],["mpkb","gp","mb","kbg"],["tp","pb","dn","gb"],["ab"]]}], ["clickables", [5]], "blank", ["clickables", [6]], "blank", ["clickables", [1]], "blank", ["clickables", [2]], "blank", ["clickables", [3]], "blank", ["clickables", [7]]],
+tabFormat: [["display-text", function(){return (player.ab.points.gte(5) && !(player.ab.nostalgia || player.ab.fuckyou)?"<h1 style='color: darkred; font-size: 2.8em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You may only choose one pair of layers.</h1>":"")+(getPointGen().gte((options.assholeMode?10:Decimal.pow(2, 1024)))?"<h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log((options.assholeMode?10:Decimal.pow(2, 1024))).floor())+" scaling root softcaps</h2>":"")+(getPointGen().gte((options.assholeMode?1000:"1e10000"))?"<br><h2 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You are currently being held back by "+formatWhole(getPointGen().log((options.assholeMode?1000:"1e10000")).floor())+" scaling tetration softcaps</h2>":"")}], "blank", ["clickables", [4]], ["tree", function() {return player.ab.currentState==12?player.ab.randomTree:player.ab.currentState==11?[[]]:[["s","t","n","m"],["c","o"],["p"],["kp","b"],["mp","kb","g"],["mpkb","gp","mb","kbg"],["tp","pb","con","dn","gb"],["ab"]]}], ["clickables", [5]], "blank", ["clickables", [6]], "blank", ["clickables", [1]], "blank", ["clickables", [2]], "blank", ["clickables", [3]], "blank", ["clickables", [7]],"blank",["clickables", [8]]],
     startData() { return {
         doubt: new Decimal(0),
 		secretDoNotSteal: new Decimal(0),
@@ -117,7 +117,7 @@ tabFormat: [["display-text", function(){return (player.ab.points.gte(5) && !(pla
         },
         31: {
             title(){return `De Noido reset<br>(+${formatWhole(canReset("dn")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.dn.points)} de noidos`},
-            unlocked() {return hasAchievement("a", 33) && !player.dn.points.gte(1) && !hasAchievement("a", 41)&&options.mobileButtons},
+            unlocked() {return false},
             canClick() {return true},
 			onClick()  {if (canReset("dn")) doReset("dn")},
             onHold() {if (canReset("dn")) doReset("dn")},
@@ -232,16 +232,6 @@ tabFormat: [["display-text", function(){return (player.ab.points.gte(5) && !(pla
             }},
         },
         71: {
-            title(){return `Anti Balancer reset<br>(+${formatWhole(canReset("ab")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.ab.points)} anti balancers`},
-            unlocked() {return player.ab.unlocked && tmp.ab.layerShown&&options.mobileButtons},
-            canClick() {return true},
-			onClick()  {if (canReset("ab")) doReset("ab")},
-            onHold() {if (canReset("ab")) doReset("ab")},
-			style: {"background-color"(){
-                return tmp.ab.color
-            }},
-        },
-        72: {
             title(){return `Primordial Booster reset<br>(+${formatWhole(tmp.pb.resetGain)})<br><span style='font-size: 10px'>You have ${format(player.pb.points)} primordial boosters`},
             unlocked() {return hasAchievement("a", 24) && tmp.pb.layerShown&&options.mobileButtons},
             canClick() {return true},
@@ -249,6 +239,26 @@ tabFormat: [["display-text", function(){return (player.ab.points.gte(5) && !(pla
             onHold() {if (canReset("pb")) doReset("pb")},
 			style: {"background-color"(){
                 return tmp.pb.color
+            }},
+        },
+        72: {
+            title(){return `Conversion reset<br>(+${formatWhole(canReset("con")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.con.points)} conversions`},
+            unlocked() {return player.con.unlocked && tmp.con.layerShown&&options.mobileButtons},
+            canClick() {return true},
+			onClick()  {if (canReset("con")) doReset("con")},
+            onHold() {if (canReset("con")) doReset("con")},
+			style: {"background-color"(){
+                return tmp.con.color
+            }},
+        },
+        81: {
+            title(){return `Anti Balancer reset<br>(+${formatWhole(canReset("ab")?1:0)})<br><span style='font-size: 10px'>You have ${format(player.ab.points)} anti balancers`},
+            unlocked() {return player.ab.unlocked && tmp.ab.layerShown&&options.mobileButtons},
+            canClick() {return true},
+			onClick()  {if (canReset("ab")) doReset("ab")},
+            onHold() {if (canReset("ab")) doReset("ab")},
+			style: {"background-color"(){
+                return tmp.ab.color
             }},
         },
 	}

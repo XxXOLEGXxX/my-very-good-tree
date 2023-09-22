@@ -278,6 +278,8 @@ addLayer("p", {
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1).add(upgradeRow("p", "1", true)).add(upgradeRows("kp", 1, true, 2)).add(upgradeRows("mp", 1, true, 3)).add(upgradeRows("gp", 1, true, 4))
 		if(player.ab.points.gte(3)) mult = mult.times(0.75)
+        if(hasAchievement("a", 21)) mult = mult.mul(new Decimal(1.15).add(hasUpgrade("dn",21)?upgradeEffect("dn",21).div(100):0))
+        if(player.con.buyables[11].gte(2)) mult = mult.mul(20)
         return mult.mul(player.ab.currentState==1?2:1)
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
@@ -358,7 +360,7 @@ addLayer("kp", {
 		}
 	},
 	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
-    color: "#38BD2E",
+    color(){return !hasAchievement("a", 15) ? "#4BDC13" : "#38BD2E"},
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
     resource: "kilo prestige points", // Name of prestige currency
     baseResource: "prestige points", // Name of resource prestige is based on
@@ -484,7 +486,7 @@ addLayer("b", {
 	},
 	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#2142B3",
-	baseEffect() {return new Decimal(2).mul(player.ab.currentState==2?1.1:1)},
+	baseEffect() {return new Decimal(2).mul(player.ab.currentState==2?1.1:1).mul(player.con.buyables[13].gte(1)?1.1:1)},
 	effect() {return this.baseEffect().pow(player.b.points)},
 	effectDescription() {return "multiplying point gain by x"+format(this.effect())},
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -496,7 +498,7 @@ addLayer("b", {
     prestigeButtonText() {
         return "Reset for +"+formatWhole(tmp[this.layer].resetGain)+" boosters<br><br>Req: "+format(player.p.points)+" / "+format(getNextAt(this.layer, canMax=false, useType = "scaling static"))+" prestige points"
     },
-    exponent(){return 2+(player.ab.points.gte(2)?0.4:0)}, // Prestige currency exponent
+    exponent(){return 2+(player.ab.points.gte(2)?player.con.buyables[11].gte(1)?0.2:0.4:0)}, // Prestige currency exponent
 	base: 0.5,
     gainMult() { // Calculate the multiplier for main currency from bonuses
         return new Decimal(1)
@@ -538,7 +540,7 @@ addLayer("mp", {
 		}
 	},
 	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
-    color: "#259E49",
+    color(){return !hasAchievement("a", 15) ? "#4BDC13" : "#259E49"},
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
     resource: "mega prestige points", // Name of prestige currency
     baseResource: "kilo prestige points", // Name of resource prestige is based on
@@ -718,7 +720,7 @@ addLayer("kb", {
     color: "#1C398E",
 	baseEffect() {let base = new Decimal(2)
 				  if(player.ab.points.gte(4)) base = base.add(player.mpkb.points.div(2))
-				  return base.mul(player.ab.currentState==2?1.1:1)},
+				  return base.mul(player.ab.currentState==2?1.1:1).mul(player.con.buyables[13].gte(1)?1.1:1)},
 	effect() {let lol = this.baseEffect().pow(player.kb.points)
 			  return lol},
 	effectDescription() {return "multiplying point gain by x"+format(this.effect())},
@@ -733,7 +735,7 @@ addLayer("kb", {
     prestigeButtonText() {
         return "Reset for +"+formatWhole(tmp[this.layer].resetGain)+" kilo boosters<br><br>Req: "+format(player.kp.points)+" / "+format(getNextAt(this.layer, canMax=false, useType = "scaling static"))+" kilo prestige points"
     },
-    exponent(){return 2+(player.ab.points.gte(2)?0.4:0)}, // Prestige currency exponent
+    exponent(){return 2+(player.ab.points.gte(2)?player.con.buyables[11].gte(1)?0.2:0.4:0)}, // Prestige currency exponent
 	base: 0.5,
     gainMult() { // Calculate the multiplier for main currency from bonuses
         return new Decimal(1)
@@ -775,7 +777,7 @@ addLayer("gp", {
 		}
 	},
 	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
-    color: "#137F65",
+    color(){return !hasAchievement("a", 15) ? "#4BDC13" : "#137F65"},
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
     resource: "giga prestige points", // Name of prestige currency
     baseResource: "mega prestige points", // Name of resource prestige is based on
@@ -784,13 +786,13 @@ addLayer("gp", {
     exponent: 0.5, // Prestige currency exponent
     gainMult() { // Calculate the multiplier for main currency from bonuses
         mult = new Decimal(1).add(upgradeRows("gp", 1, true, 4))
-		if(player.dn.points.gte(1) && !player.ab.points.gte(3)) mult = mult.mul(tmp.dn.effect)
+		if(player.dn.points.gte(1) && !player.ab.points.gte(4)) mult = mult.mul(tmp.dn.effect)
 		if(player.ab.points.gte(3)) mult = mult.times(0.75)
 		if(hasAchievement("a", 16)) mult = mult.times(2)
         return mult.mul(player.ab.currentState==1?2:1)
     },
     gainExp() { // Calculate the exponent on main currency from bonuses
-        return new Decimal(1)
+        return new Decimal(1).add(player.con.buyables[11].add(player.con.buyables[12]).add(player.con.buyables[13]).mul(0.15))
     },
     row: 6, // Row the layer is in on the tree (0 is the first row)
     hotkeys: [
@@ -993,7 +995,7 @@ addLayer("tp", {
 		}
 	},
 	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
-    color: "#006080",
+    color(){return !hasAchievement("a", 15) ? "#4BDC13" : "#006080"},
     requires(){return new Decimal(player.gp.upgrades.length >= 3 && !hasAchievement("a", 15) && player.tp.points.eq(0)?10:"1e100000000")}, // Can be a function that takes requirement increases into account
     resource: "tera prestige points", // Name of prestige currency
     baseResource: "giga prestige points", // Name of resource prestige is based on
@@ -1053,7 +1055,7 @@ addLayer("tp", {
 				   return cost
 			},
 			currencyInternalName: "points",
-			currencyDisplayName: "Tera Prestige points",
+			currencyDisplayName: "giga prestige points",
 			currencyLayer: "gp",
 		},
 		22: {
@@ -1064,7 +1066,7 @@ addLayer("tp", {
 				   return cost
 			},
 			currencyInternalName: "points",
-			currencyDisplayName: "Tera Prestige points",
+			currencyDisplayName: "giga prestige points",
 			currencyLayer: "gp",
 		},
 		23: {
@@ -1075,7 +1077,7 @@ addLayer("tp", {
 				   return cost
 			},
 			currencyInternalName: "points",
-			currencyDisplayName: "Tera Prestige points",
+			currencyDisplayName: "giga prestige points",
 			currencyLayer: "gp",
 		},
 		24: {
@@ -1086,7 +1088,7 @@ addLayer("tp", {
 				   return cost
 			},
 			currencyInternalName: "points",
-			currencyDisplayName: "Tera Prestige points",
+			currencyDisplayName: "giga prestige points",
 			currencyLayer: "gp",
 			unlocked(){return new Decimal(options.ngplus).gte(1)}
 		},
@@ -1251,7 +1253,7 @@ addLayer("mb", {
 	},
 	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#162F72",
-	baseEffect() {return new Decimal(2).mul(player.ab.currentState==2?1.1:1)},
+	baseEffect() {return new Decimal(2).mul(player.ab.currentState==2?1.1:1).mul(player.con.buyables[13].gte(1)?1.1:1)},
 	effect() {return this.baseEffect().pow(player.mb.points)},
 	effectDescription() {return "multiplying point gain by x"+format(this.effect())},
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -1263,7 +1265,7 @@ addLayer("mb", {
     prestigeButtonText() {
         return "Reset for +"+formatWhole(tmp[this.layer].resetGain)+" mega boosters<br><br>Req: "+format(player.mp.points)+" / "+format(getNextAt(this.layer, canMax=false, useType = "scaling static"))+" mega prestige points"
     },
-    exponent(){return 2+(player.ab.points.gte(2)?0.4:0)}, // Prestige currency exponent
+    exponent(){return 2+(player.ab.points.gte(2)?player.con.buyables[11].gte(1)?0.2:0.4:0)}, // Prestige currency exponent
 	base: 0.5,
     gainMult() { // Calculate the multiplier for main currency from bonuses
         return new Decimal(1)
@@ -1280,254 +1282,6 @@ addLayer("mb", {
 	doReset(resettingLayer){
 		player.mb.points=new Decimal(options.ngplus).gte(2)&&tmp[resettingLayer].name!=="antibalancer"&&tmp[resettingLayer].name!=="gigaboosters"&&tmp[resettingLayer].name!=="primordialboosters"?player.mb.points:tmp[resettingLayer].row>this.row?new Decimal(0):player.mb.points
 	}
-})
-
-addLayer("ab", {
-    name: "antibalancer", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "AB", // This appears on the layer's node. Default is the id with the first letter capitalized
-    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
-    startData() { return {
-        unlocked: false,
-		points: new Decimal(0),
-		negativePoints: new Decimal(0),
-		shopPoints: new Decimal(0),
-		spentPoints: new Decimal(0),
-		help: new Decimal(1),
-		nostalgia: false,
-		fuckyou: false,
-        godifuckinghatedoresets: new Decimal(1),
-		warnings: new Decimal(0),
-        cycle: new Decimal(60),
-        currentState: 0,
-        randomTree: [],
-        didIScatterItAllOverThePlaceYet: false,
-    }},
-    effectDescription(){return options.bitch?"increasing hardcap's limit by "+format(player.ab.points.mul(10))+" "+tmp.s.baseResource+" per second":undefined},
-	clickables: {
-		11: {
-			title: "Suffer",
-			display: "Hold to Reset (totally not stolen from Y🆎oi)",
-			canClick() {
-				return tmp[this.layer].canReset
-			},
-			onHold() {
-				doReset(this.layer)
-			},
-			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
-		}
-	},
-    color: "#006080",
-    requires() {let goal = new Decimal(5).mul(Decimal.pow(10, player.ab.points))
-				if(hasAchievement("a", 53)&&player.ab.points.lt(5)) {
-					goal = new Decimal("1e85")
-					if(player.gp.points.gte("2e85")) goal = player.gp.points.div(2).add("1e75")
-					if(player.gp.points.gte("5e85")) goal = new Decimal("2.5e85").div(player.ab.help)
-				}
-				return goal.mul(player.ab.currentState==16?0.8:1)}, // Can be a function that takes requirement increases into account
-    resource: "anti balancers", // Name of prestige currency
-    baseResource(){return "giga prestige points"}, // Name of resource prestige is based on
-    baseAmount() {return player.gp.points}, // Get the current amount of baseResource
-	canReset() {return player.gp.points.gte(this.requires().times(2))},
-    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-    exponent: 0, // Prestige currency exponent
-    gainMult() { // Calculate the multiplier for main currency from bonuses
-        mult = new Decimal(1)
-        return mult
-    },
-    gainExp() { // Calculate the exponent on main currency from bonuses
-        return new Decimal(1)
-    },
-    states(){
-        return [
-            ["do nothing", "it does nothing"], //0 [DONE]
-            ["feel prestigious", "boosts all prestige gains by x2"], //1 [DONE]
-            ["kick your ass (in a good way :3)", "boosters are 10% stronger"], //2 [DONE]
-            ["🧀", "boosts point gain by x52"], //3 [DONE]
-            ["make you feel anger", "shows tera prestige layer"], //4 [DONE]
-            ["take my daily dose of de noido hating session", "de noido's resource productions are severely worse and it's effect does nothing"], //5 [DONE]
-            ["be you irl (a fatass)", "nerfs your point gain by ^0.69"], //6 [DONE]
-            ["be generous", "boosts point gain by x1.01"], //7 [DONE]
-            ["square up", "quite literally"], //8 [DONE]
-            ["metal pipe", "you're not allowed to generate points now (fuck you)"], //9 [DONE]
-            ["flip the table", "your point production has been reversed"], //10 [DONE]
-            ["cut the tree", "you no longer can see the tree"], //11 [DONE]
-            ["teleport myself for 3 days", "scatters layers all over the place"], //12 [DONE]
-            ["experience nostalgia", "anti balancers are built as if you were playing Shenanigans Tree"], //13 [DONE]
-            ["comprehend the endgame", "your point gain is raised to the tetration of tredecillionth"], //14 [DONE]
-            ["spread deez nuts across your face", `your point gain is getting fucked all over the place, raising it to the power of ${format(new Decimal(Math.random()).mul(Math.sin(player.a.sine)).div(4).add(1))}`], //15 [DONE]
-            ["be a good girl", "lowers anti balancer requirement by 20%"], //16 [DONE]
-        ]
-    },
-	update(diff){
-        if(player.tp.points.gte(1)&&player.ab.godifuckinghatedoresets.gt(0)){
-            player.tab = "ab"
-            player.ab.godifuckinghatedoresets = new Decimal(0)
-        }
-        if(player.ab.currentState==12&&!player.ab.didIScatterItAllOverThePlaceYet){
-            player.ab.didIScatterItAllOverThePlaceYet = true
-            player.ab.randomTree = randomizeTree()
-        }
-        if(player.ab.didIScatterItAllOverThePlaceYet&&player.ab.currentState!==12) player.ab.didIScatterItAllOverThePlaceYet = false
-        if(!options.bitch && (player.ab.cycle.lt(60) || player.ab.currentState!==0)){
-            player.ab.cycle = new Decimal(60)
-            player.ab.currentState = 0
-        }
-        if(options.bitch){
-            player.ab.cycle = player.ab.cycle.sub(diff)
-            if(player.ab.cycle.lte(0)){
-                player.ab.cycle = new Decimal(60)
-                let vibeCheck = player.ab.currentState
-                while(player.ab.currentState==vibeCheck){
-                    player.ab.currentState = Math.round(Math.random()*16)
-                }
-            }
-        }
-		if(player.ab.negativePoints.gt(0) || (player.points.lte(0)&&player.ab.points.gte(5))) player.ab.negativePoints = player.ab.negativePoints.sub(Decimal.mul(getBypassedPointGen(), diff)).max(0)
-		modInfo.name = "Oleg's "+"Very ".repeat(player.ab.points)+"Terrible Idea: The Tree"
-		if(inChallenge("o", 22)) modInfo.name = "🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡"
-		if(player.gp.points.gte("5e85")) player.ab.help = player.ab.help.mul(Decimal.add(diff, 1)).mul(player.ab.help.root(42))
-		if(player.ab.points.gte(3)&&player.points.gte(0)&&!player.ab.points.gte(5)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(20))
-		if(player.ab.points.gte(5)&&player.points.gte(0)&&getPointGen().gt(0)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(10))
-		player.ab.shopPoints = new Decimal(player.ab.points).add(hasUpgrade("t", 14)?1:0).mul(new Decimal(options.ngplus).gte(5)?2:1).add(new Decimal(options.ngplus).gte(5)?player.a.fame:0).sub(player.ab.spentPoints)
-		if(player.ab.points.gte(4)) tmp.ab.color = (new Decimal(Math.random()).gte(0.25))?"#8b0000":"#800080"
-	},
-	tooltipLocked(){return "Reach 10 giga prestige points to unlock (You have "+formatWhole(player.gp.points)+" giga prestige points)"},
-	tabFormat: {
-		"MiaN sTUFF": {
-			content: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], "blank", ["display-text", function() {return (player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>":"")+"Current Mode: "+getMode()+"<br><br>"+(player.ab.points.lt(6)?"Next Mode: "+getMode()+"-":"")}], "blank",
-					 ["display-text", function() {return (player.ab.points>=5?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>[NG-----]</span><br><span style='color: darkred; font-size: 1.75em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>-Unlocks Hall of Fame<br>(Check Hall of Fame for more information)</span><br><span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>-Point Gain is reversed<br>-Prestige layer requirement has been changed<br>-You start over with 17.77 points instead<br>-You lose 5% more points per second<br>-Additional Balancer is nerfed and doesn't work at negative points<br>":"")+(player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>[NG----]<br>-Balancers nerf each other<br>-NG- is applied twice.<br>-Upgrades scale each other based on bought upgrades in each layer.<br>":"")+(player.ab.points>=3?"[NG---]<br>-No more de noido. Ever. Peroid. I don't want to hear anything related to that yellow bastard coming out of YOUR MOUTH. I'll personally find your IP address and hit you with a fucking skateboard if I ever sense the very CONCEPT of it within your smooth, loose brain, since you think this is so funny to you...<br>-You gain 25% less of all prestige points<br>-You lose 5% of points every second<br>":"")+(player.ab.points>=2?"[NG--]<br>-Every reset brings you back to -10 points<br>-Booster's exponent cost is 20% bigger<br>":"")+(player.ab.points>=1?"[NG-]<br>-Divides point gain by 4":"")}]],
-			unlocked(){return hasAchievement("a", 31) || options.bitch}
-		},
-		"Shop": {
-			content: ["main-display", ["display-text", function() {return (player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>":"")+"You have "+formatWhole(player.ab.shopPoints)+" balancing points to spend."}], "blank", "buyables"],
-			unlocked(){return hasAchievement("a", 31)}
-		},
-		"Hall of Fame": {
-			content: [["display-text", function() {return "You have conquered <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>"+formatWhole(player.a.fame)+"</h3> out of <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>4</h3> challenges.<br><br>The so-called challenges are achievements that provide you with absurd rewards (and i mean it), making the entire game WAY easier to play through. Not getting them will hinder your progression by a huge margin, so keep that in mind.<br><br><br><h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Don't blame me if you can't get them later on.<br>After all, you never needed them in the first place.<br><br><h3 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You have been warned."}], "blank", "blank", ["layer-proxy", ["a", [["achievements", [101]]]]]],
-			unlocked() {return player.ab.points.gte(5)}
-		},
-        "State": {
-            content: [["tree", function() {return [["ab"]]}],["display-text", function(){return `<h3>"mmmhmphmh... today i'll<h1><br>${tmp.ab.states[player.ab.currentState][0]}."</h1></h3><br><br>(${tmp.ab.states[player.ab.currentState][1]})<br><br>it'll do something else in ${format(player.ab.cycle)} seconds`}]],
-            unlocked() {return options.bitch}
-        },
-	},
-	buyables:{
-		showRespec() { return player.ab.unlocked },
-		respecText() { return "Respec balancing" },
-		respec() {
-			player.ab.buyables[11] = new Decimal(0)
-			player.ab.buyables[12] = new Decimal(0)
-			player.ab.buyables[13] = new Decimal(0)
-			player.ab.buyables[14] = new Decimal(0)
-			player.ab.spentPoints = new Decimal(0)
-			if(!hasAchievement("a", 1011)) doReset(this.layer, true)
-		},
-		11: {
-			title: "Additional Balancer",
-			cost() { return new Decimal(1).mul(player.ab.buyables[11].mag+1) },
-			effect(x) { let eff = new Decimal(player.ab.buyables[11].mag).pow(player.ab.buyables[11].mag).sub(!(player.ab.buyables[11].mag==0)?0:1)
-						if(player.ab.points.gte(4)) eff = eff.sub(new Decimal(player.ab.buyables[12]).add(player.ab.buyables[13]).add(player.ab.buyables[14])).max(0)
-						if(player.ab.points.gte(5)) eff = new Decimal(player.ab.buyables[11].mag).sub(new Decimal(player.ab.buyables[12]).add(player.ab.buyables[13]).add(player.ab.buyables[14])).max(0)
-						if(player.ab.negativePoints.gt(0)&&player.ab.points.gte(5)) eff = new Decimal(0)
-						return eff.pow(tmp.t.effectMonth).pow(hasMilestone("m", 5)?1.17:1).pow(inChallenge("o", 22)?-1:1)},
-			display() { return "Cost: "+format(this.cost())+" balancing points<br>Amount: "+formatWhole(player.ab.buyables[11])+"<br>Boosts point gain by +"+format(this.effect()) },
-			canAfford() { return player[this.layer].shopPoints.gte(this.cost()) },
-			buy() {
-				player[this.layer].spentPoints = player[this.layer].spentPoints.add(this.cost())
-				setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
-			},
-		},
-		12: {
-			title: "Multiplicative Balancer",
-			cost() { return new Decimal(1).mul(player.ab.buyables[12].mag+1) },
-			effect(x) { let eff = new Decimal(2).pow(player.ab.buyables[12].mag)
-						if(player.ab.points.gte(4)) eff = eff.div(new Decimal(player.ab.buyables[11]).add(player.ab.buyables[13]).add(player.ab.buyables[14]).add(1)).max(1)
-						return eff.pow(tmp.t.effectMonth).pow(hasMilestone("m", 5)?1.17:1).pow(inChallenge("o", 22)?-1:1)},
-			display() { return "Cost: "+format(this.cost())+" balancing points<br>Amount: "+formatWhole(player.ab.buyables[12])+"<br>Boosts point gain by x"+format(this.effect()) },
-			canAfford() { return player[this.layer].shopPoints.gte(this.cost()) },
-			buy() {
-				player[this.layer].spentPoints = player[this.layer].spentPoints.add(this.cost())
-				setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
-			},
-		},
-		13: {
-			title: "Exponential Balancer",
-			cost() { return new Decimal(1).mul(player.ab.buyables[13].mag+1) },
-			effect(x) { let eff = new Decimal(1.1).pow(player.ab.buyables[13].mag)
-						if(player.ab.points.gte(4)) eff = eff.root(new Decimal(player.ab.buyables[11]).add(player.ab.buyables[12]).add(player.ab.buyables[14]).add(1)).max(1)
-						return eff.pow(tmp.t.effectMonth).pow(hasMilestone("m", 5)?1.17:1).pow(inChallenge("o", 22)?-1:1)},
-			display() { return "Cost: "+format(this.cost())+" balancing points<br>Amount: "+formatWhole(player.ab.buyables[13])+"<br>Boosts point gain by ^"+format(this.effect()) },
-			canAfford() { return player[this.layer].shopPoints.gte(this.cost()) },
-			buy() {
-				player[this.layer].spentPoints = player[this.layer].spentPoints.add(this.cost())
-				setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
-			},
-		},
-		14: {
-			title: "Tetrational Balancer",
-			cost() { return new Decimal(1).mul(player.ab.buyables[14].mag+1) },
-			effect(x) { let eff = new Decimal(player.ab.buyables[14].mag)
-						if(player.ab.points.gte(4)) eff = eff.max(1).log(new Decimal(player.ab.buyables[11]).add(player.ab.buyables[12]).add(player.ab.buyables[13]).add(2).pow(2))
-						return eff.div(100).add(1).pow(tmp.t.effectMonth).pow(hasMilestone("m", 5)?1.17:1).pow(inChallenge("o", 22)?-1:1)},
-			display() { return "Cost: "+format(this.cost())+" balancing points<br>Amount: "+formatWhole(player.ab.buyables[14])+"<br>Boosts point gain by ^^"+format(this.effect()) },
-			canAfford() { return player[this.layer].shopPoints.gte(this.cost()) },
-			buy() {
-				player[this.layer].spentPoints = player[this.layer].spentPoints.add(this.cost())
-				setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
-			},
-		},	
-	},
-	branches: ["gp"],
-    row: 8, // Row the layer is in on the tree (0 is the first row)        {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
-    layerShown(){return player.tp.points.gte(1) || hasAchievement("a", 15) },
-    nodeStyle(){return{'border-radius': (player.ab.currentState==8?'0%':'50%')}},
-	milestones: {
-		0: {
-			requirementDescription: "Did you just beat NG-- without De Noido...?<h5>(you get NG-- achievements you missed)",
-			effectDescription: "",
-			done() { return !options.assholeMode&&player.ab.points.gte(3) && (!hasAchievement("a", 34) || !hasAchievement("a", 35)) },
-			onComplete() { if(!hasAchievement("a", 34)) {player.a.achievements.push('34')
-							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
-						   if(!hasAchievement("a", 35)) {player.a.achievements.push('35')
-							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
-			}
-		},
-		1: {
-			requirementDescription: "<h1>*CRASH*",
-			effectDescription: "",
-			done() { return tmp.ab.requires.lt(1) }
-		},
-		2: {
-			requirementDescription: "Really? We're doing this again?<h5>(you get NG---- achievements you missed)",
-			effectDescription: "",
-			done() { return !options.assholeMode&&player.ab.points.gte(5) && (!hasAchievement("a", 54) || !hasAchievement("a", 55) || !hasAchievement("a", 16) || !hasAchievement("a", 26) || !hasAchievement("a", 36) || !hasAchievement("a", 46) || !hasAchievement("a", 56)) },
-			onComplete() { if(!hasAchievement("a", 54)) {player.a.achievements.push('54')
-							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
-						   if(!hasAchievement("a", 55)) {player.a.achievements.push('55')
-							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
-						   if(!hasAchievement("a", 16)) {player.a.achievements.push('16')
-							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
-						   if(!hasAchievement("a", 26)) {player.a.achievements.push('26')
-							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
-						   if(!hasAchievement("a", 36)) {player.a.achievements.push('36')
-							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
-						   if(!hasAchievement("a", 46)) {player.a.achievements.push('46')
-							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
-						   if(!hasAchievement("a", 56)) {player.a.achievements.push('56')
-							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
-			}
-		},
-		3: {
-			requirementDescription: "<h1>nuh uh",
-			effectDescription: "",
-			done() { return player.ab.warnings.gte(4) },
-		},
-		4: {
-			requirementDescription: "<h4>*Snaps maxTickLength()*</h5><h5 style='font-size: 10px'>(Sorry, but I had to fuck it up to prevent NaN)",
-			effectDescription: "",
-			done() { return hasUpgrade("o", 41) },
-		},
-	},
 })
 
 addLayer("gb", {
@@ -1553,7 +1307,7 @@ addLayer("gb", {
 	},
 	tabFormat: ["main-display",["row", ["prestige-button", ["clickable", 11]]],"resource-display","upgrades"],
     color: "#12275B",
-	baseEffect() {return new Decimal(2).mul(player.ab.currentState==2?1.1:1)},
+	baseEffect() {return new Decimal(2).mul(player.ab.currentState==2?1.1:1).mul(player.con.buyables[13].gte(1)?1.1:1)},
 	effect() {return this.baseEffect().pow(player.gb.points)},
 	effectDescription() {return "multiplying point gain by x"+format(this.effect())},
     requires: new Decimal(10), // Can be a function that takes requirement increases into account
@@ -1565,7 +1319,7 @@ addLayer("gb", {
     prestigeButtonText() {
         return "Reset for +"+formatWhole(tmp[this.layer].resetGain)+" giga boosters<br><br>Req: "+format(player.gp.points)+" / "+format(getNextAt(this.layer, canMax=false, useType = "scaling static"))+" giga prestige points"
     },
-    exponent(){return 2+(player.ab.points.gte(2)?0.4:0)}, // Prestige currency exponent
+    exponent(){return 2+(player.ab.points.gte(2)?player.con.buyables[11].gte(1)?0.2:0.4:0)}, // Prestige currency exponent
 	base: 0.5,
     gainMult() { // Calculate the multiplier for main currency from bonuses
         return new Decimal(1)
@@ -1594,6 +1348,7 @@ addLayer("dn", {
 		bombs: new Decimal(0),
 		minidenoidos: new Decimal(0),
 		fakedenoidos: new Decimal(0),
+        amount: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
     }},
 	clickables: {
 		11: {
@@ -1610,12 +1365,12 @@ addLayer("dn", {
 	},
     color: "#FFFF00",
 	effect() {
-        let eff = new Decimal(player.dn.points.layer).add(1).root(5)
+        let eff = player.dn.fakedenoidos.add(1).log(2).add(1)
         if(player.ab.currentState==5) eff = new Decimal(1)
         return eff
     },
 	effectDescription() {return "wait what the fuck is this<span style='font-family: Comic Sans MS;'>50.00<span/>"},
-    requires: new Decimal(200), // Can be a function that takes requirement increases into account
+    requires: new Decimal(100), // Can be a function that takes requirement increases into account
     resource: "de noido", // Name of prestige currency
     baseResource: "giga prestige points", // Name of resource prestige is based on
     baseAmount() {return player.gp.points}, // Get the current amount of baseResource
@@ -1628,35 +1383,301 @@ addLayer("dn", {
     gainExp() { // Calculate the exponent on main currency from bonuses
         return new Decimal(1)
     },
-	tabFormat: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], "resource-display", ["display-text", function() {return '<span style="color: '+(player.ab.points.gte(4)?'darkred':'red')+'; font-size: 1em; text-shadow: '+(player.ab.points.gte(4)?'purple':'red')+' '+(player.ab.points.gte(4)?player.a.X2:player.a.X)+'px '+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+'px '+(player.ab.points.gte(4)?player.a.S2:player.a.S)+'px;">i have no idea how did that happen, i swear'}],
-			   ["display-text", function() {return player.dn.points.gte(1)?"<span style='font-family: Comic Sans MS;'>D e   N o i d o<br>You got "+format(player.dn.points)+" de noido, generating "+format(denoido().skateboardGain)+" skateboards per second.<br>You got "+format(player.dn.skateboards)+" skateboards, generating "+format(denoido().pogoGain)+" pogos per second.<br>You got "+format(player.dn.pogos)+" pogos, generating "+format(denoido().bombGain)+" bombs per second"+(hasUpgrade("dn", 11)?" and "+format(denoido().denoidoGain)+" de noidos per second":"")+".<br>You got "+format(player.dn.bombs)+" bombs, generating "+format(denoido().minidenoidoGain)+" mini de noidos per second.<br>You got "+format(player.dn.minidenoidos)+" mini de noidos, generating "+format(denoido().fakedenoidoGain)+" fake de noidos per second.<br>You got "+format(player.dn.fakedenoidos)+" fake de noidos, boosting giga prestige point gain by x"+format(tmp.dn.effect)+".<span/>":""}], "upgrades"],
+	tabFormat: {
+        "The": {
+            content: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], "resource-display", ["display-text", function() {return '<span style="color: '+(player.ab.points.gte(4)?'darkred':'red')+'; font-size: 1em; text-shadow: '+(player.ab.points.gte(4)?'purple':'red')+' '+(player.ab.points.gte(4)?player.a.X2:player.a.X)+'px '+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+'px '+(player.ab.points.gte(4)?player.a.S2:player.a.S)+'px;">i have no idea how did that happen, i swear<br><br>just... do not'+(player.dn.points.gte(1)?` the de no-<br>oh you've got to be fucking with me`:` the de noido`)}],
+			   ["display-text", function() {return player.dn.points.gte(1)?"<span style='font-family: Comic Sans MS;'>D e   N o i d o<br>You got "+format(player.dn.points)+" de noido, generating "+format(denoido().skateboardGain)+" skateboards per second.<br>You got "+format(player.dn.skateboards)+" skateboards, generating "+format(denoido().pogoGain)+" pogos per second.<br>You got "+format(player.dn.pogos)+" pogos, generating "+format(denoido().bombGain)+" bombs per second.<br>You got "+format(player.dn.bombs)+" bombs, generating "+format(denoido().minidenoidoGain)+" mini de noidos per second.<br>You got "+format(player.dn.minidenoidos)+" mini de noidos, generating "+format(denoido().fakedenoidoGain)+" fake de noidos per second.<br>You got "+format(player.dn.fakedenoidos)+" fake de noidos, boosting giga prestige point gain by x"+format(tmp.dn.effect)+".<span/>":""}]],
+            unlocked(){return player.dn.points.gte(1)}
+        },
+        "Noise": {
+            content: [["display-text", function() {return `<h2 style='font-family: Comic Sans MS;'>Welcome to the MVGT Simulator<br>Your total prestiges boost De Noido's resource production by ${format(player.dn.buyables[11].add(1).mul(player.dn.buyables[21].add(1)).mul(player.dn.buyables[31].add(1)).mul(player.dn.buyables[41].add(1)).pow(player.dn.buyables[51].add(1)))}x`}],"buyables","blank","upgrades"],
+            unlocked(){return player.dn.points.gte(1)}
+        }
+    },
+    buyables: {
+        11: {
+            title: "Milli Prestige",
+            display(){return `You have ${formatWhole(player.dn.buyables[this.id])} of them<br>You need at least ${format(this.cost())} prestige points to ${this.title}<br>You'll gain ${format(this.bulk())} `+(this.bulk().add(player.dn.buyables[this.id]).gte(90)?`(softcapped) `:``)+`${this.title}s on purchase`},
+            cost(){return Decimal.pow(player.dn.buyables[this.id].add(1), 2).mul(10).round()},
+            canAfford(){return player.p.points.gte(this.cost()) && this.bulk().gt(0)},
+            bulk(){let bulk = player.p.points.div(10).root(2).floor().sub(player.dn.buyables[this.id]).max(0)
+                   if(player.dn.buyables[this.id].add(bulk).gte(90)) bulk = bulk.div(player.dn.buyables[this.id].add(1).pow(2)).max(1).log(10).add(new Decimal(90).sub(player.dn.buyables[this.id]).max(0))
+                   return bulk},
+            buy(){
+                let cost = Decimal.pow(player.dn.buyables[this.id].add(this.bulk()), 2).mul(10).round()
+                player.dn.buyables[this.id] = player.dn.buyables[this.id].add(this.bulk())
+                player.p.points = player.p.points.sub(cost)
+            },
+            style(){return{"height":"120px","width":"180px"}}
+        },
+        21: {
+            title: "Valueless Prestige",
+            display(){return `You have ${formatWhole(player.dn.buyables[this.id])} of them<br>You need at least ${format(this.cost())} kilo prestige points to ${this.title}<br>You'll gain ${format(this.bulk())} `+(this.bulk().add(player.dn.buyables[this.id]).gte(40)?`(softcapped) `:``)+`${this.title}s on purchase`},
+            cost(){return Decimal.pow(player.dn.buyables[this.id].add(1), 2).mul(10).round()},
+            canAfford(){return player.kp.points.gte(this.cost()) && this.bulk().gt(0)},
+            bulk(){let bulk = player.kp.points.div(10).root(2).floor().sub(player.dn.buyables[this.id]).max(0)
+                   if(player.dn.buyables[this.id].add(bulk).gte(60)) bulk = bulk.div(player.dn.buyables[this.id].add(1).pow(2)).max(1).log(10).add(new Decimal(60).sub(player.dn.buyables[this.id]).max(0))
+                   return bulk},
+            buy(){
+                let cost = Decimal.pow(player.dn.buyables[this.id].add(this.bulk()), 2).mul(10).round()
+                player.dn.buyables[this.id] = player.dn.buyables[this.id].add(this.bulk())
+                player.kp.points = player.kp.points.sub(cost)
+            },
+            style(){return{"height":"120px","width":"180px"}}
+        },
+        31: {
+            title: "Garbage Prestige",
+            display(){return `You have ${formatWhole(player.dn.buyables[this.id])} of them<br>You need at least ${format(this.cost())} mega prestige points to ${this.title}<br>You'll gain ${format(this.bulk())} `+(this.bulk().add(player.dn.buyables[this.id]).gte(20)?`(softcapped) `:``)+`${this.title}s on purchase`},
+            cost(){return Decimal.pow(player.dn.buyables[this.id].add(1), 2).mul(10).round()},
+            canAfford(){return player.mp.points.gte(this.cost()) && this.bulk().gt(0)},
+            bulk(){let bulk = player.mp.points.div(10).root(2).floor().sub(player.dn.buyables[this.id]).max(0)
+                   if(player.dn.buyables[this.id].add(bulk).gte(30)) bulk = bulk.div(player.dn.buyables[this.id].add(1).pow(2)).max(1).log(10).add(new Decimal(30).sub(player.dn.buyables[this.id]).max(0))
+                   return bulk},
+            buy(){
+                let cost = Decimal.pow(player.dn.buyables[this.id].add(this.bulk()), 2).mul(10).round()
+                player.dn.buyables[this.id] = player.dn.buyables[this.id].add(this.bulk())
+                player.mp.points = player.mp.points.sub(cost)
+            },
+            style(){return{"height":"120px","width":"180px"}}
+        },
+        41: {
+            title: "Tera Prestige",
+            display(){return `You have ${formatWhole(player.dn.buyables[this.id])} of them<br>You need at least ${format(this.cost())} giga prestige points to ${this.title}<br>You'll gain ${format(this.bulk())} `+(this.bulk().add(player.dn.buyables[this.id]).gte(10)?`(softcapped) `:``)+`${this.title}s on purchase`},
+            cost(){return Decimal.pow(player.dn.buyables[this.id].add(1), 2).mul(10).round()},
+            canAfford(){return player.gp.points.gte(this.cost()) && this.bulk().gt(0)},
+            bulk(){let bulk = player.gp.points.div(10).root(2).floor().sub(player.dn.buyables[this.id]).max(0)
+                   if(player.dn.buyables[this.id].add(bulk).gte(20)) bulk = bulk.div(player.dn.buyables[this.id].add(1).pow(2)).max(1).log(10).add(new Decimal(20).sub(player.dn.buyables[this.id]).max(0))
+                   return bulk},
+            buy(){
+                let cost = Decimal.pow(player.dn.buyables[this.id].add(this.bulk()), 2).mul(10).round()
+                player.dn.buyables[this.id] = player.dn.buyables[this.id].add(this.bulk())
+                player.gp.points = player.gp.points.sub(cost)
+            },
+            style(){return{"height":"120px","width":"180px"}}
+        },
+        51: {
+            title: "Super Balancer",
+            display(){return `You have ${formatWhole(player.dn.buyables[this.id])} of them<br>You need ${formatWhole(this.cost())} Tera Prestiges to get one<br>You'll lose all your previous Prestiges and upgrades, but your total prestige boost will be stronger<br>Current Effect: ^${formatWhole(player.dn.buyables[this.id].add(1))}`},
+            cost(){return Decimal.pow(10,player.dn.buyables[this.id].add(1)).round()},
+            canAfford(){return player.dn.buyables[41].gte(this.cost())},
+            buy(){
+                player.dn.buyables[this.id] = player.dn.buyables[this.id].add(1)
+                player.dn.buyables[11] = new Decimal(0)
+                player.dn.buyables[21] = new Decimal(0)
+                player.dn.buyables[31] = new Decimal(0)
+                player.dn.buyables[41] = new Decimal(0)
+                player.dn.upgrades = []
+            },
+            style(){return{"height":"120px","width":"180px"}}
+        },
+    },
     row: 7, // Row the layer is in on the tree (0 is the first row)
 	update(diff){
-		if(player.dn.points.gte(1) && !player.ab.points.gte(3)){
+		if(player.dn.points.gte(1) && !player.ab.points.gte(4)){
 			player.dn.skateboards = player.dn.skateboards.add(denoido().skateboardGain.times(diff))
 			player.dn.pogos = player.dn.pogos.add(denoido().pogoGain.times(diff))
-			if(hasUpgrade("dn", 11)) 	player.dn.points = player.dn.points.add(denoido().denoidoGain.times(diff))
 			player.dn.bombs = player.dn.bombs.add(denoido().bombGain.times(diff))
 			player.dn.minidenoidos = player.dn.minidenoidos.add(denoido().minidenoidoGain.times(diff))
 			player.dn.fakedenoidos = player.dn.fakedenoidos.add(denoido().fakedenoidoGain.times(diff))
+            if(hasUpgrade("dn",11)) player.dn.points = player.dn.points.add(upgradeEffect("dn",11).times(diff))
+            if(hasUpgrade("dn",12)) player.dn.buyables[11] = player.dn.buyables[11].add(upgradeEffect("dn",12).times(diff))
+            if(hasUpgrade("dn",13)) player.dn.buyables[21] = player.dn.buyables[21].add(upgradeEffect("dn",13).times(diff))
+            if(hasUpgrade("dn",14)) player.dn.buyables[31] = player.dn.buyables[31].add(upgradeEffect("dn",14).times(diff))
 		}
 	},
-    layerShown(){return hasAchievement("a", 33) && !player.ab.points.gte(3)},
+    layerShown(){return player.ab.points.lt(4) && hasAchievement("a",43)},
 	branches: ["gp"],
 	componentStyles: {
 		"prestige-button"() { return {'opacity': +(player.dn.points.gte(1)?0:100)+''} }
 	},
+    canReset(){return player.dn.points.eq(0)},
 	upgrades: {
 		11: {
-			title: "Pogo Transformation",
-			description: "Pogos can generate De Noidos now",
-			cost: new Decimal(3),
-			currencyInternalName: "pogos",
-			currencyDisplayName: "pogos",
+			title: "Ouroboros's Roaring",
+			description: "Milli Prestiges generate de noidos at reduced rate",
+            effect(){return player.dn.buyables[11].add(1).root(10).sub(1)},
+            effectDisplay(){return format(this.effect())+"/s"},
+			cost: new Decimal(40),
+            currencyLocation() {return player.dn.buyables}, 
+			currencyDisplayName: "Milli Prestiges",
+			currencyInternalName: 11,
 			currencyLayer: "dn",
-			unlocked(){return hasAchievement("a", 34)}
-		}
+			unlocked(){return true}
+		},
+		12: {
+			title: "Valuable Unit",
+			description: "Valueless Prestiges generate Milli Prestiges at reduced rate",
+            effect(){return player.dn.buyables[21].add(1).root(10).sub(1)},
+            effectDisplay(){return format(this.effect())+"/s"},
+			cost: new Decimal(100),
+            currencyLocation() {return player.dn.buyables}, 
+			currencyDisplayName: "Valueless Prestiges",
+			currencyInternalName: 21,
+			currencyLayer: "dn",
+			unlocked(){return true}
+		},
+		13: {
+			title: "Recyclable Procedure",
+			description: "Garbage Prestiges generate Valueless Prestiges at reduced rate",
+            effect(){return player.dn.buyables[31].add(1).root(10).sub(1)},
+            effectDisplay(){return format(this.effect())+"/s"},
+			cost: new Decimal(60),
+            currencyLocation() {return player.dn.buyables}, 
+			currencyDisplayName: "Garbage Prestiges",
+			currencyInternalName: 31,
+			currencyLayer: "dn",
+			unlocked(){return true}
+		},
+		14: {
+			title: "The Forgotten One",
+			description: "Tera Prestiges generate Garbage Prestiges at reduced rate",
+            effect(){return player.dn.buyables[41].add(1).root(10).sub(1)},
+            effectDisplay(){return format(this.effect())+"/s"},
+			cost: new Decimal(30),
+            currencyLocation() {return player.dn.buyables}, 
+			currencyDisplayName: "Tera Prestiges",
+			currencyInternalName: 41,
+			currencyLayer: "dn",
+			unlocked(){return true}
+		},
+		21: {
+			title: "Compability Synchronization",
+			description: "Milli Prestiges enhances 6th achievement's effect, starting from 51 Milli Prestiges",
+            effect(){return player.dn.buyables[11].sub(50).max(0)},
+            effectDisplay(){return "+"+formatWhole(this.effect())+"%"},
+			cost: new Decimal(90),
+            currencyLocation() {return player.dn.buyables}, 
+			currencyDisplayName: "Milli Prestiges",
+			currencyInternalName: 11,
+			currencyLayer: "dn",
+			unlocked(){return hasUpgrade("dn", 11)}
+		},
 	}
+})
+
+addLayer("con", { 
+    name: "convert", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "C", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 1, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+        convert: null,
+        timer: new Decimal(0),
+    }},
+	clickables: {
+		11: {
+			title: "Convert",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset&&!player.dn.points.gte(1)
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+    update(diff){
+        if(player.con.convert!==null){
+            player.con.timer=player.con.timer.sub(diff)
+            if(player.con.timer.lte(0)){
+                player.con.buyables[player.con.convert]=player.con.buyables[player.con.convert].add(1)
+                player.con.convert = null
+            }
+        }
+    },
+    effectDescription(){return `which allows you to utilize up to ${formatWhole(player.con.points)} Pillars.`},
+    color: '#ac9780',
+    requires: new Decimal(200), // Can be a function that takes requirement increases into account
+    resource: "conversions", // Name of prestige currency
+    baseResource: "giga prestige points", // Name of resource prestige is based on
+    baseAmount() {return player.gp.points}, // Get the current amount of baseResource
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+	exponent: 3,
+	base: 2.5,
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        return new Decimal(1)
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    timer(){return new Decimal(30).pow(player.con.buyables[11].add(player.con.buyables[12]).add(player.con.buyables[13]).add(1).log(10).add(1))},
+	tabFormat: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], "resource-display", ["display-text", function() {return '<span style="color: '+(player.ab.points.gte(4)?'darkred':'red')+'; font-size: 1em; text-shadow: '+(player.ab.points.gte(4)?'purple':'red')+' '+(player.ab.points.gte(4)?player.a.X2:player.a.X)+'px '+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+'px '+(player.ab.points.gte(4)?player.a.S2:player.a.S)+`px;">I'm having a strange deja vu here. Not sure why tho...<br><br>In short. You exchange primordial boosters for the Pillars, which give out certain boosts to other layers. The process isn't an instant however, as it'll take time to do so. The more of same pillars you gather, the longer it'll take to converge them into something magnificent.</span><br><br>You have converged ${formatWhole(player.con.buyables[11].add(player.con.buyables[12]).add(player.con.buyables[13]))} Pillars, increasing your giga prestige point's exponent gain by ^${format(new Decimal(1).add(player.con.buyables[11].add(player.con.buyables[12]).add(player.con.buyables[13]).mul(0.15)))}.<br>Estimated conversion time: ${format(tmp.con.timer)} seconds`}], "blank", "buyables"
+               ],
+    buyables: {
+        11: {
+            title: "<h3>CONVERGE 🅱ILLAR",
+            display(){return player.con.convert==11?`<h3>${format(player.con.timer)} seconds left.`:`<h3>You have converged ${formatWhole(player.con.buyables[11])} 🅱ILLARS<br><br>Cost: ${formatWhole(this.cost())} stored boosters<br>Current Effects: ${this.effectDesc()}<br>Next Effect: ${this.nextEffect[player.con.buyables[11]]}`},
+            buy(){
+                player.pb.boosters = player.pb.boosters.sub(this.cost())
+                player.con.timer = tmp.con.timer
+                player.con.convert = 11
+            },
+            effectDesc(){
+                let description = ""
+                for(i=0; i<player.con.buyables[11]; i++){
+                    description = description+"<br>-"+this.nextEffect[i]
+                }
+                return player.con.buyables[11].eq(0)?"N/A":description
+            },
+            nextEffect: ["NG--'s 2nd nerf is nerfed by 10%","NG-'s nerf is twice as strong, but you gain 20x as much prestige points","idk"],
+            cost(){return [2,5,13,34,89,233,610,1597,4181,10946][player.con.buyables[11]]},
+            canAfford(){return player.pb.boosters.gte(this.cost())&&player.con.buyables[11].add(player.con.buyables[12]).add(player.con.buyables[13]).lt(player.con.points)&&player.con.convert==null},
+            effect(){return player.con.buyables[11].add(1)}
+        },
+        12: {
+            title: "<h3>CONVERGE KILLAR",
+            display(){return player.con.convert==12?`<h3>${format(player.con.timer)} seconds left.`:`<h3>You have converged ${formatWhole(player.con.buyables[12])} KILLARS<br><br>Cost: ${formatWhole(this.cost())} stored kilo boosters<br>Current Effects: ${this.effectDesc()}<br>Next Effect: ${this.nextEffect[player.con.buyables[12]]}`},
+            buy(){
+                player.pb.kiloboosters = player.pb.kiloboosters.sub(this.cost())
+                player.con.timer = tmp.con.timer
+                player.con.convert = 12
+            },
+            effectDesc(){
+                let description = ""
+                for(i=0; i<player.con.buyables[12]; i++){
+                    description = description+"<br>-"+this.nextEffect[i]
+                }
+                return player.con.buyables[12].eq(0)?"N/A":description
+            },
+            nextEffect: ["Balancers are 50% stronger","idk","idk"],
+            cost(){return [2,5,13,34,89,233,610,1597,4181,10946][player.con.buyables[12]]},
+            canAfford(){return player.pb.boosters.gte(this.cost())&&player.con.buyables[11].add(player.con.buyables[12]).add(player.con.buyables[13]).lt(player.con.points)&&player.con.convert==null},
+            effect(){return player.con.buyables[12].add(1)}
+        },
+        13: {
+            title: "<h3>CONVERGE MILLAR",
+            display(){return player.con.convert==13?`<h3>${format(player.con.timer)} seconds left.`:`<h3>You have converged ${formatWhole(player.con.buyables[13])} MILLARS<br><br>Cost: ${formatWhole(this.cost())} stored mega boosters<br>Current Effects: ${this.effectDesc()}<br>Next Effect: ${this.nextEffect[player.con.buyables[13]]}`},
+            buy(){
+                player.pb.megaboosters = player.pb.megaboosters.sub(this.cost())
+                player.con.timer = tmp.con.timer
+                player.con.convert = 13
+            },
+            effectDesc(){
+                let description = ""
+                for(i=0; i<player.con.buyables[13]; i++){
+                    description = description+"<br>-"+this.nextEffect[i]
+                }
+                return player.con.buyables[13].eq(0)?"N/A":description
+            },
+            unlocked(){return player.ab.points.gte(3)},
+            nextEffect: ["Boosters are 10% stronger","idk what to add here as well"],
+            cost(){return [2,5,13,34,89,233,610,1597,4181,10946][player.con.buyables[13]]},
+            canAfford(){return player.pb.boosters.gte(this.cost())&&player.con.buyables[11].add(player.con.buyables[12]).add(player.con.buyables[13]).lt(player.con.points)&&player.con.convert==null},
+            effect(){return player.con.buyables[13].add(1)}
+        },
+        respec(){
+			player.con.buyables[11] = new Decimal(0)
+			player.com.buyables[12] = new Decimal(0)
+			player.com.buyables[13] = new Decimal(0)
+			doReset(this.layer, true)
+        },
+        respecText() { return "Respec Pillars" },
+    },
+    row: 7, // Row the layer is in on the tree (0 is the first row)
+    layerShown(){return hasAchievement("a",33)},
+	branches: [["pb", 2], "gp"],
 })
 
 addLayer("g", {
@@ -2014,7 +2035,7 @@ addLayer("a", {
 			name: "ROW! ROW! FIGHT THE POWER!",
 			done(){return !options.assholeMode&& player.p.upgrades.length >=3 && player.ab.points >=1},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
-			tooltip: "Purchase 3 prestige upgrades in NG- mode.",
+			tooltip(){return "Purchase 3 prestige upgrades in NG- mode.<br>Reward: You gain "+formatWhole(new Decimal(15).add(hasUpgrade("dn",21)?upgradeEffect("dn",21):0))+"% more points and prestige points"},
 			unlocked(){return hasAchievement("a", 15)},
 			style(){return {'background-color': (hasAchievement("a",this.id)?(player.ab.points.gte(4)?'#BF5F5F':'#77BF5F'):'#bf8f8f')}}
 		},
@@ -2070,25 +2091,25 @@ addLayer("a", {
 			name(){return hasAchievement("a", 33)?"<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>U mad mobile?<br><br>i didn't really mean that btw<br>。_。<h3/>":"Heaven's Gift"},
 			done(){return !options.assholeMode&& player.gp.points >= 200 && player.ab.points.gte(2)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
-			tooltip(){return hasAchievement("a", 33)?"Reach 200 giga prestige points.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: uhhhh de noido<h3/>":"Reach 200 giga prestige points."},
+			tooltip(){return hasAchievement("a", 33)?"Reach 200 giga prestige points in NG--.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: Unlocks Conversion<h3/>":"Reach 200 giga prestige points in NG--."},
 			unlocked(){return hasAchievement("a", 31)},
 			style(){return {'background-color': (hasAchievement("a",this.id)?(player.ab.points.gte(4)?'#BF5F5F':'#77BF5F'):'#bf8f8f')}}
 		},
 		34: {
-			name(){return "<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>This De Noido is pissing me off.<h3/>"},
-			done(){return !options.assholeMode&& player.dn.pogos.gte(1)},
+			name(){return "Historical Discovery"},
+			done(){return !options.assholeMode && player.con.buyables[11].gte(1) && player.con.buyables[12].gte(1)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
-			tooltip(){return hasAchievement("a", 34)?"Reach 1 pogo.<br><h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+player.a.X+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Reward: Let me create an upgrade, just for you.<h3/>":"Reach 1 pogo."},
-			unlocked(){return hasAchievement("a", 33) ||hasAchievement("a", 34)},
+			tooltip(){return "Converge both types of Pillar each."},
+			unlocked(){return hasAchievement("a", 33)},
 			style(){return {'background-color': (hasAchievement("a",this.id)?(player.ab.points.gte(4)?'#BF5F5F':'#77BF5F'):'#bf8f8f')}}
 		},
 		35: {
-			name(){return "<h3 style='color: yellow;, font-family: 'Comic Sans MS';'>PARADOXICAL ANAL BULLSHITERY<h3/>"},
-			done(){return !options.assholeMode&& player.dn.points.gte(2)},
+			name(){return "<h3 style='color: "+(player.ab.points.gte(4)?"darkred":"red")+"; font-size: 1em; text-shadow: "+(player.ab.points.gte(4)?"purple":"red")+" "+(player.ab.points.gte(4)?player.a.X2:player.a.X)+"px "+(player.ab.points.gte(4)?player.a.Y2:player.a.Y)+"px "+(player.ab.points.gte(4)?player.a.S2:player.a.S)+"px;'>Inflation this soon? Seriously?"},
+			done(){return !options.assholeMode && player.gp.upgrades>=12},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
-			tooltip(){return "<span style='color: yellow;, font-family: 'Comic Sans MS';'>Reach 2 de noidos.<br>Reward: start running.<span/>"},
-			unlocked(){return hasUpgrade("dn", 11)||hasAchievement("a", 35)},
-			style(){return {'background-color': (hasAchievement("a",this.id)?'yellow':'#bf8f8f')}}
+			tooltip(){return "Purchase 12 or more giga prestige upgrades."},
+			unlocked(){return hasAchievement("a", 34)},
+			style(){return {'background-color': (hasAchievement("a",this.id)?(player.ab.points.gte(4)?'#BF5F5F':'#77BF5F'):'#bf8f8f')}}
 		},
 		41: {
 			name: "Never Again",
@@ -2107,10 +2128,10 @@ addLayer("a", {
 			style(){return {'background-color': (hasAchievement("a",this.id)?(player.ab.points.gte(4)?'#BF5F5F':'#77BF5F'):'#bf8f8f')}}
 		},
 		43: {
-			name: "Hell Awaits",
-			done(){return !options.assholeMode&& upgradeRow("mp", 3, true) >= 1 && player.ab.points >=3},
+			name: "Unsurprisingly Foreshadowed Expectancy",
+			done(){return !options.assholeMode&& player.ab.points.gte(3) && player.gp.points.gte(100)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
-			tooltip: "Purchase 3rd row mega prestige upgrade in NG--- mode.",
+			tooltip(){return hasAchievement("a", 33)?"Reach 100 giga prestige points in NG---.<br><h3 style='color: yellow; font-family: Comic Sans MS'>Reward: uhhhh denoido<h3/>":"Reach 100 giga prestige points in NG---."},
 			unlocked(){return hasAchievement("a", 41)},
 			style(){return {'background-color': (hasAchievement("a",this.id)?(player.ab.points.gte(4)?'#BF5F5F':'#77BF5F'):'#bf8f8f')}}
 		},
@@ -2172,7 +2193,7 @@ addLayer("a", {
 		},
 		16: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>STOP.<h3/>"},
-			done(){return !options.assholeMode&& player.gp.points.gte(100000)},
+			done(){return !options.assholeMode&& player.gp.points.gte(1000000000000000000000)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Reach 100,000 giga prestige points.<br>Reward: Giga Prestige Point gain is doubled."},
 			unlocked(){return hasAchievement("a", 55)},
@@ -2180,7 +2201,7 @@ addLayer("a", {
 		},
 		26: {
 			name(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Primordial Rage.<h3/>"},
-			done(){return !options.assholeMode&& player.gp.points.gte(1000000)},
+			done(){return !options.assholeMode&& player.gp.points.gte(1000000000000000000000000000000)},
 			onComplete(){player.a.normalAchievements=player.a.normalAchievements.add(1)},
 			tooltip(){return "<h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Reach 1,000,000 giga prestige points.<br>Reward: Giga Boosters no longer reset anything."},
 			unlocked(){return hasAchievement("a", 55)},
@@ -8710,6 +8731,254 @@ addLayer("ng+", {
     color: "#e0ffff",
     row: "side",
 	layerShown(){return new Decimal(options.ngplus).gte(1)}
+})
+
+addLayer("ab", {
+    name: "antibalancer", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "AB", // This appears on the layer's node. Default is the id with the first letter capitalized
+    position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+    startData() { return {
+        unlocked: false,
+		points: new Decimal(0),
+		negativePoints: new Decimal(0),
+		shopPoints: new Decimal(0),
+		spentPoints: new Decimal(0),
+		help: new Decimal(1),
+		nostalgia: false,
+		fuckyou: false,
+        godifuckinghatedoresets: new Decimal(1),
+		warnings: new Decimal(0),
+        cycle: new Decimal(60),
+        currentState: 0,
+        randomTree: [],
+        didIScatterItAllOverThePlaceYet: false,
+    }},
+    effectDescription(){return options.bitch?"increasing hardcap's limit by "+format(player.ab.points.mul(10))+" "+tmp.s.baseResource+" per second":undefined},
+	clickables: {
+		11: {
+			title: "Suffer",
+			display: "Hold to Reset (totally not stolen from Y🆎oi)",
+			canClick() {
+				return tmp[this.layer].canReset
+			},
+			onHold() {
+				doReset(this.layer)
+			},
+			style() {return {"border-radius":"0px 33% 33% 0px","border":"4px solid","border-color":"rgba(0, 0, 0, .125)"}}
+		}
+	},
+    color: "#006080",
+    requires() {let goal = new Decimal(5).mul(Decimal.pow(Decimal.pow(10, player.ab.points), player.ab.points))
+				if(hasAchievement("a", 53)&&player.ab.points.lt(5)) {
+					goal = new Decimal("1e85")
+					if(player.gp.points.gte("2e85")) goal = player.gp.points.div(2).add("1e75")
+					if(player.gp.points.gte("5e85")) goal = new Decimal("2.5e85").div(player.ab.help)
+				}
+				return goal.mul(player.ab.currentState==16?0.8:1)}, // Can be a function that takes requirement increases into account
+    resource: "anti balancers", // Name of prestige currency
+    baseResource(){return "giga prestige points"}, // Name of resource prestige is based on
+    baseAmount() {return player.gp.points}, // Get the current amount of baseResource
+	canReset() {return player.gp.points.gte(this.requires().times(2))},
+    type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+    exponent: 0, // Prestige currency exponent
+    gainMult() { // Calculate the multiplier for main currency from bonuses
+        mult = new Decimal(1)
+        return mult
+    },
+    gainExp() { // Calculate the exponent on main currency from bonuses
+        return new Decimal(1)
+    },
+    states(){
+        return [
+            ["do nothing", "it does nothing"], //0 [DONE]
+            ["feel prestigious", "boosts all prestige gains by x2"], //1 [DONE]
+            ["kick your ass (in a good way :3)", "boosters are 10% stronger"], //2 [DONE]
+            ["🧀", "boosts point gain by x52"], //3 [DONE]
+            ["make you feel anger", "shows tera prestige layer"], //4 [DONE]
+            ["take my daily dose of de noido hating session", "de noido's resource productions are severely worse and it's effect does nothing"], //5 [DONE]
+            ["be you irl (a fatass)", "nerfs your point gain by ^0.69"], //6 [DONE]
+            ["be generous", "boosts point gain by x1.01"], //7 [DONE]
+            ["square up", "quite literally"], //8 [DONE]
+            ["metal pipe", "you're not allowed to generate points now (fuck you)"], //9 [DONE]
+            ["flip the table", "your point production has been reversed"], //10 [DONE]
+            ["cut the tree", "you no longer can see the tree"], //11 [DONE]
+            ["teleport myself for 3 days", "scatters layers all over the place"], //12 [DONE]
+            ["experience nostalgia", "anti balancers are built as if you were playing Shenanigans Tree"], //13 [DONE]
+            ["comprehend the endgame", "your point gain is raised to the tetration of tredecillionth"], //14 [DONE]
+            ["spread deez nuts across your face", `your point gain is getting fucked all over the place, raising it to the power of ${format(new Decimal(Math.random()).mul(Math.sin(player.a.sine)).div(4).add(1))}`], //15 [DONE]
+            ["be a good girl", "lowers anti balancer requirement by 20%"], //16 [DONE]
+        ]
+    },
+	update(diff){
+        if(player.tp.points.gte(1)&&player.ab.godifuckinghatedoresets.gt(0)){
+            player.tab = "ab"
+            player.ab.godifuckinghatedoresets = new Decimal(0)
+        }
+        if(player.ab.currentState==12&&!player.ab.didIScatterItAllOverThePlaceYet){
+            player.ab.didIScatterItAllOverThePlaceYet = true
+            player.ab.randomTree = randomizeTree()
+        }
+        if(player.ab.didIScatterItAllOverThePlaceYet&&player.ab.currentState!==12) player.ab.didIScatterItAllOverThePlaceYet = false
+        if(!options.bitch && (player.ab.cycle.lt(60) || player.ab.currentState!==0)){
+            player.ab.cycle = new Decimal(60)
+            player.ab.currentState = 0
+        }
+        if(options.bitch){
+            player.ab.cycle = player.ab.cycle.sub(diff)
+            if(player.ab.cycle.lte(0)){
+                player.ab.cycle = new Decimal(60)
+                let vibeCheck = player.ab.currentState
+                while(player.ab.currentState==vibeCheck){
+                    player.ab.currentState = Math.round(Math.random()*16)
+                }
+            }
+        }
+		if(player.ab.negativePoints.gt(0) || (player.points.lte(0)&&player.ab.points.gte(5))) player.ab.negativePoints = player.ab.negativePoints.sub(Decimal.mul(getBypassedPointGen(), diff)).max(0)
+		modInfo.name = "Oleg's "+"Very ".repeat(player.ab.points)+"Terrible Idea: The Tree"
+		if(inChallenge("o", 22)) modInfo.name = "🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡🤡"
+		if(player.gp.points.gte("5e85")) player.ab.help = player.ab.help.mul(Decimal.add(diff, 1)).mul(player.ab.help.root(42))
+		if(player.ab.points.gte(3)&&player.points.gte(0)&&!player.ab.points.gte(5)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(20))
+		if(player.ab.points.gte(5)&&player.points.gte(0)&&getPointGen().gt(0)) player.points = player.points.sub(Decimal.mul(player.points, diff).div(10))
+		player.ab.shopPoints = new Decimal(player.ab.points).add(hasUpgrade("t", 14)?1:0).mul(new Decimal(options.ngplus).gte(5)?2:1).add(new Decimal(options.ngplus).gte(5)?player.a.fame:0).sub(player.ab.spentPoints)
+		if(player.ab.points.gte(4)) tmp.ab.color = (new Decimal(Math.random()).gte(0.25))?"#8b0000":"#800080"
+	},
+	tooltipLocked(){return "Reach 10 giga prestige points to unlock (You have "+formatWhole(player.gp.points)+" giga prestige points)"},
+	tabFormat: {
+		"MiaN sTUFF": {
+			content: ["main-display", ["row", ["prestige-button", ["clickable", 11]]], "blank", ["display-text", function() {return (player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>":"")+"Current Mode: "+getMode()+"<br><br>"+(player.ab.points.lt(6)?"Next Mode: "+getMode()+"-":"")}], "blank",
+					 ["display-text", function() {return (player.ab.points>=5?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>[NG-----]</span><br><span style='color: darkred; font-size: 1.75em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>-Unlocks Hall of Fame<br>(Check Hall of Fame for more information)</span><br><span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>-Point Gain is reversed<br>-Prestige layer requirement has been changed<br>-You start over with 17.77 points instead<br>-You lose 5% more points per second<br>-Additional Balancer is nerfed and doesn't work at negative points<br>":"")+(player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>[NG----]<br>-No more de noido. Ever. Peroid. I don't want to hear anything related to that yellow bastard coming out of YOUR MOUTH. I'll personally find your IP address and hit you with a fucking skateboard if I ever sense the very CONCEPT of it within your smooth, loose brain, since you think this is so funny to you...<br>-Balancers nerf each other<br>-NG- is applied twice.<br>-Upgrades scale each other based on bought upgrades in each layer.<br>":"")+(player.ab.points>=3?"[NG---]<br>-You gain 25% less of all prestige points<br>-You lose 5% of points every second<br>":"")+(player.ab.points>=2?"[NG--]<br>-Every reset brings you back to -10 points<br>-Booster's exponent cost is 20% bigger<br>":"")+(player.ab.points>=1?"[NG-]<br>-Divides point gain by "+(player.con.buyables[11].gte(2)?"8":"4"):"")}]],
+			unlocked(){return hasAchievement("a", 31) || options.bitch}
+		},
+		"Shop": {
+			content: ["main-display", ["display-text", function() {return (player.ab.points>=4?"<span style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>":"")+"You have "+formatWhole(player.ab.shopPoints)+" balancing points to spend."}], "blank", "buyables"],
+			unlocked(){return hasAchievement("a", 31)}
+		},
+		"Hall of Fame": {
+			content: [["display-text", function() {return "You have conquered <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>"+formatWhole(player.a.fame)+"</h3> out of <h3 style='color: "+(player.a.fame.gte(4)?"cyan":"yellow")+"; text-shadow: #7f78c4 0px 0px 10px;'>4</h3> challenges.<br><br>The so-called challenges are achievements that provide you with absurd rewards (and i mean it), making the entire game WAY easier to play through. Not getting them will hinder your progression by a huge margin, so keep that in mind.<br><br><br><h3 style='color: darkred; font-size: 1em; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>Don't blame me if you can't get them later on.<br>After all, you never needed them in the first place.<br><br><h3 style='color: darkred; text-shadow: purple "+player.a.X2+"px "+player.a.Y2+"px "+player.a.S2+"px;'>You have been warned."}], "blank", "blank", ["layer-proxy", ["a", [["achievements", [101]]]]]],
+			unlocked() {return player.ab.points.gte(5)}
+		},
+        "State": {
+            content: [["tree", function() {return [["ab"]]}],["display-text", function(){return `<h3>"mmmhmphmh... today i'll<h1><br>${tmp.ab.states[player.ab.currentState][0]}."</h1></h3><br><br>(${tmp.ab.states[player.ab.currentState][1]})<br><br>it'll do something else in ${format(player.ab.cycle)} seconds`}]],
+            unlocked() {return options.bitch}
+        },
+	},
+	buyables:{
+		showRespec() { return player.ab.unlocked },
+		respecText() { return "Respec balancing" },
+		respec() {
+			player.ab.buyables[11] = new Decimal(0)
+			player.ab.buyables[12] = new Decimal(0)
+			player.ab.buyables[13] = new Decimal(0)
+			player.ab.buyables[14] = new Decimal(0)
+			player.ab.spentPoints = new Decimal(0)
+			if(!hasAchievement("a", 1011)) doReset(this.layer, true)
+		},
+		11: {
+			title: "Additional Balancer",
+			cost() { return new Decimal(1).mul(player.ab.buyables[11].mag+1) },
+			effect(x) { let eff = new Decimal(player.ab.buyables[11].mul(player.con.buyables[12].gte(1)?1.5:1)).pow(player.ab.buyables[11].mul(player.con.buyables[12].gte(1)?1.5:1)).sub(!(player.ab.buyables[11].mag==0)?0:1)
+						if(player.ab.points.gte(4)) eff = eff.sub(new Decimal(player.ab.buyables[12]).add(player.ab.buyables[13]).add(player.ab.buyables[14])).max(0)
+						if(player.ab.points.gte(5)) eff = new Decimal(player.ab.buyables[11].mag).sub(new Decimal(player.ab.buyables[12]).add(player.ab.buyables[13]).add(player.ab.buyables[14])).max(0)
+						if(player.ab.negativePoints.gt(0)&&player.ab.points.gte(5)) eff = new Decimal(0)
+						return eff.pow(tmp.t.effectMonth).pow(hasMilestone("m", 5)?1.17:1).pow(inChallenge("o", 22)?-1:1)},
+			display() { return "Cost: "+format(this.cost())+" balancing points<br>Amount: "+formatWhole(player.ab.buyables[11])+"<br>Boosts point gain by +"+format(this.effect()) },
+			canAfford() { return player[this.layer].shopPoints.gte(this.cost()) },
+			buy() {
+				player[this.layer].spentPoints = player[this.layer].spentPoints.add(this.cost())
+				setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+			},
+		},
+		12: {
+			title: "Multiplicative Balancer",
+			cost() { return new Decimal(1).mul(player.ab.buyables[12].mag+1) },
+			effect(x) { let eff = new Decimal(2).pow(player.ab.buyables[12].mul(player.con.buyables[12].gte(1)?1.5:1))
+						if(player.ab.points.gte(4)) eff = eff.div(new Decimal(player.ab.buyables[11]).add(player.ab.buyables[13]).add(player.ab.buyables[14]).add(1)).max(1)
+						return eff.pow(tmp.t.effectMonth).pow(hasMilestone("m", 5)?1.17:1).pow(inChallenge("o", 22)?-1:1)},
+			display() { return "Cost: "+format(this.cost())+" balancing points<br>Amount: "+formatWhole(player.ab.buyables[12])+"<br>Boosts point gain by x"+format(this.effect()) },
+			canAfford() { return player[this.layer].shopPoints.gte(this.cost()) },
+			buy() {
+				player[this.layer].spentPoints = player[this.layer].spentPoints.add(this.cost())
+				setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+			},
+		},
+		13: {
+			title: "Exponential Balancer",
+			cost() { return new Decimal(1).mul(player.ab.buyables[13].mag+1) },
+			effect(x) { let eff = new Decimal(1.1).pow(player.ab.buyables[13].mul(player.con.buyables[12].gte(1)?1.5:1))
+						if(player.ab.points.gte(4)) eff = eff.root(new Decimal(player.ab.buyables[11]).add(player.ab.buyables[12]).add(player.ab.buyables[14]).add(1)).max(1)
+						return eff.pow(tmp.t.effectMonth).pow(hasMilestone("m", 5)?1.17:1).pow(inChallenge("o", 22)?-1:1)},
+			display() { return "Cost: "+format(this.cost())+" balancing points<br>Amount: "+formatWhole(player.ab.buyables[13])+"<br>Boosts point gain by ^"+format(this.effect()) },
+			canAfford() { return player[this.layer].shopPoints.gte(this.cost()) },
+			buy() {
+				player[this.layer].spentPoints = player[this.layer].spentPoints.add(this.cost())
+				setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+			},
+		},
+		14: {
+			title: "Tetrational Balancer",
+			cost() { return new Decimal(1).mul(player.ab.buyables[14].mag+1) },
+			effect(x) { let eff = new Decimal(player.ab.buyables[14].mul(player.con.buyables[12].gte(1)?1.5:1))
+						if(player.ab.points.gte(4)) eff = eff.max(1).log(new Decimal(player.ab.buyables[11]).add(player.ab.buyables[12]).add(player.ab.buyables[13]).add(2).pow(2))
+						return eff.div(100).add(1).pow(tmp.t.effectMonth).pow(hasMilestone("m", 5)?1.17:1).pow(inChallenge("o", 22)?-1:1)},
+			display() { return "Cost: "+format(this.cost())+" balancing points<br>Amount: "+formatWhole(player.ab.buyables[14])+"<br>Boosts point gain by ^^"+format(this.effect()) },
+			canAfford() { return player[this.layer].shopPoints.gte(this.cost()) },
+			buy() {
+				player[this.layer].spentPoints = player[this.layer].spentPoints.add(this.cost())
+				setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
+			},
+		},	
+	},
+	branches: ["gp"],
+    row: 8, // Row the layer is in on the tree (0 is the first row)        {key: "p", description: "P: Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+    layerShown(){return player.tp.points.gte(1) || hasAchievement("a", 15) },
+    nodeStyle(){return{'border-radius': (player.ab.currentState==8?'0%':'50%')}},
+	milestones: {
+		0: {
+			requirementDescription: "Did you just beat NG-- without De Noido...?<h5>(you get NG-- achievements you missed)",
+			effectDescription: "",
+			done() { return !options.assholeMode&&player.ab.points.gte(3) && (!hasAchievement("a", 34) || !hasAchievement("a", 35)) },
+			onComplete() { if(!hasAchievement("a", 34)) {player.a.achievements.push('34')
+							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
+						   if(!hasAchievement("a", 35)) {player.a.achievements.push('35')
+							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
+			}
+		},
+		1: {
+			requirementDescription: "<h1>*CRASH*",
+			effectDescription: "",
+			done() { return tmp.ab.requires.lt(1) }
+		},
+		2: {
+			requirementDescription: "Really? We're doing this again?<h5>(you get NG---- achievements you missed)",
+			effectDescription: "",
+			done() { return !options.assholeMode&&player.ab.points.gte(5) && (!hasAchievement("a", 54) || !hasAchievement("a", 55) || !hasAchievement("a", 16) || !hasAchievement("a", 26) || !hasAchievement("a", 36) || !hasAchievement("a", 46) || !hasAchievement("a", 56)) },
+			onComplete() { if(!hasAchievement("a", 54)) {player.a.achievements.push('54')
+							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
+						   if(!hasAchievement("a", 55)) {player.a.achievements.push('55')
+							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
+						   if(!hasAchievement("a", 16)) {player.a.achievements.push('16')
+							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
+						   if(!hasAchievement("a", 26)) {player.a.achievements.push('26')
+							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
+						   if(!hasAchievement("a", 36)) {player.a.achievements.push('36')
+							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
+						   if(!hasAchievement("a", 46)) {player.a.achievements.push('46')
+							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
+						   if(!hasAchievement("a", 56)) {player.a.achievements.push('56')
+							                             player.a.normalAchievements=player.a.normalAchievements.add(1)}
+			}
+		},
+		3: {
+			requirementDescription: "<h1>nuh uh",
+			effectDescription: "",
+			done() { return player.ab.warnings.gte(4) },
+		},
+		4: {
+			requirementDescription: "<h4>*Snaps maxTickLength()*</h5><h5 style='font-size: 10px'>(Sorry, but I had to fuck it up to prevent NaN)",
+			effectDescription: "",
+			done() { return hasUpgrade("o", 41) },
+		},
+	},
 })
 
 /* Remember, you can always do cool shit like this -Barack "Obama" Icecreamdude
